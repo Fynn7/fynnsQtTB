@@ -24,5 +24,10 @@ $ deactivate
 
 pyinstaller for exe packager
 
+compile xml (.ui) into .py
+`pyuic6 input.ui -o output.py`
+
 
 to open designer, use `$ pyside6-designer` since `C:\Users\Fynn\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\Scripts` was already added in the user path
+
+# NOTE: Use pyside6-designer that is globally installed.
