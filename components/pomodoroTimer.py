@@ -1,14 +1,16 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QPushButton, QLCDNumber, QMenuBar, QMenu, QMessageBox,QWidget
-from PyQt6.QtCore import QTimer, QTime,pyqtSignal
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QPushButton, QLCDNumber, QMenuBar, QMenu, QMessageBox, QWidget
+from PyQt6.QtCore import QTimer, QTime, pyqtSignal
 from PyQt6.QtGui import QAction
 
+
 class PomodoroTimer(QMainWindow):
-    isClosed=pyqtSignal(bool)
-    def __init__(self):
+    isClosed = pyqtSignal(bool)
+
+    def __init__(self)->None:
         super().__init__()
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self)->None:
         # 初始化计时器
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
@@ -48,7 +50,7 @@ class PomodoroTimer(QMainWindow):
         # 添加菜单栏
         self.create_menu()
 
-    def create_menu(self):
+    def create_menu(self)->None:
         menubar = self.menuBar()
 
         # 创建 File 菜单
@@ -67,7 +69,7 @@ class PomodoroTimer(QMainWindow):
         about_action.triggered.connect(self.show_about_dialog)
         help_menu.addAction(about_action)
 
-    def update_timer(self):
+    def update_timer(self)->None:
         if self.time_left > QTime(0, 0):
             self.time_left = self.time_left.addSecs(-1)
             self.timer_display.display(self.time_left.toString("mm:ss"))
@@ -76,7 +78,7 @@ class PomodoroTimer(QMainWindow):
             self.timer.stop()
             self.is_running = False
 
-    def start_pause_timer(self):
+    def start_pause_timer(self)->None:
         if not self.is_running:
             # 如果计时器未运行，启动计时器
             self.timer.start(1000)  # 以1秒为单位更新
@@ -88,7 +90,7 @@ class PomodoroTimer(QMainWindow):
             self.is_running = False
             self.start_pause_button.setText("Start")
 
-    def reset_timer(self):
+    def reset_timer(self)->None:
         # 重置计时器为初始状态
         self.timer.stop()
         self.is_running = False
@@ -96,15 +98,15 @@ class PomodoroTimer(QMainWindow):
         self.timer_display.display(self.time_left.toString("mm:ss"))
         self.start_pause_button.setText("Start")
 
-    def show_about_dialog(self):
+    def show_about_dialog(self)->None:
         # 弹出关于对话框
         about_text = "Pomodoro Timer\n\nA simple timer application for the Pomodoro Technique."
         QMessageBox.about(self, "About Pomodoro Timer", about_text)
 
-    def closeEvent(self,event):
+    def closeEvent(self, event)->None:
         # 重写(overwrite)关闭事件
         reply = QMessageBox.question(self, 'Message',
-            "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+                                     "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
         if reply == QMessageBox.StandardButton.Yes:
             self.isClosed.emit(True)
@@ -112,10 +114,9 @@ class PomodoroTimer(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
 # if __name__ == "__main__":
 #     app = QApplication([])
-
 #     pomodoro_timer = PomodoroTimer()
 #     pomodoro_timer.show()
-
 #     app.exec()

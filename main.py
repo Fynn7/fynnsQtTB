@@ -4,7 +4,7 @@ from components.pomodoroTimer import PomodoroTimer
 
 
 class Ui_ToolBox(object):
-    def setupUi(self, ToolBox):
+    def setupUi(self, ToolBox:QtWidgets.QMainWindow)->None:
         ToolBox.setObjectName("ToolBox")
         ToolBox.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(parent=ToolBox)
@@ -79,13 +79,16 @@ class Ui_ToolBox(object):
             "MlToolBox": None,
         }
     def warn(self, msg:str)->None:
+        '''
+        Directly call a default standard warning message box.
+        '''
         QtWidgets.QMessageBox.warning(
             self.centralwidget,
             "警告",
             msg,
             QtWidgets.QMessageBox.StandardButton.Ok
         )
-    def retranslateUi(self, ToolBox):
+    def retranslateUi(self, ToolBox:QtWidgets.QMainWindow)->None:
         _translate = QtCore.QCoreApplication.translate
         ToolBox.setWindowTitle(_translate("ToolBox", "工具盒"))
         __sortingEnabled = self.listWidget_lastUsedTools.isSortingEnabled()
@@ -111,9 +114,9 @@ class Ui_ToolBox(object):
         self.action_mlToolBox.setText(_translate("ToolBox", "机器学习工具集"))
         self.action_font.setText(_translate("ToolBox", "字体"))
 
-    def create_and_save_widget(self, widget_name):
+    def create_and_save_widget(self, widget_name:str)->QtWidgets.QMainWindow:
         try:
-            widget=eval(f"{widget_name}()")
+            widget:QtWidgets.QMainWindow=eval(f"{widget_name}()")
             # save widget object, otherwise it will be deleted directly after opening this widget window
             self.widgets[widget_name] = widget
             return widget
@@ -121,14 +124,14 @@ class Ui_ToolBox(object):
             self.warn(e)
             raise Exception(e)
         
-    def reset_widget(self, widget_name):
+    def reset_widget(self, widget_name:str)->None:
         self.widgets[widget_name] = None
 
-    def add_resent_used(self, widget_name):
+    def add_resent_used(self, widget_name:str)->None:
         # append widget name into resent used list
         print("Widget", widget_name, "added into resent used list.")
-        
-    def show_widget(self, widget_name):
+
+    def show_widget(self, widget_name:str)->None:
         # 如果已经存在 widget 对象，则显示警告
         if self.widgets[widget_name]:
             self.warn(f"{widget_name} 已经打开")
