@@ -1,12 +1,12 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QPushButton, QLCDNumber, QMenuBar, QMenu, QMessageBox, QWidget,QDialog
-from PyQt6.QtCore import QTimer, QTime, pyqtSignal
-from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QPushButton, QLCDNumber, QMenuBar, QMenu, QMessageBox, QWidget,QDialog,QGraphicsOpacityEffect
+from PyQt6.QtCore import QTimer, QTime, pyqtSignal,QPropertyAnimation
+from PyQt6.QtGui import QAction,QColor
 from components.pomodoroTimer.setTime import SetTimeDialog
 
 class PomodoroTimer(QMainWindow):
     isClosed = pyqtSignal(bool)
     # time=pyqtSignal(tuple[int,int,int]) # got from "setTime" dialog
-    costumTime = (7,7,7) # user input
+    costumTime = (0,25,0) # user input
     def __init__(self)->None:
         super().__init__()
         self.init_ui()
@@ -30,11 +30,11 @@ class PomodoroTimer(QMainWindow):
         layout.addWidget(self.timer_display)
 
         # 创建按钮
-        self.start_pause_button = QPushButton("Start")
+        self.start_pause_button = QPushButton("启动")
         self.start_pause_button.clicked.connect(self.start_pause_timer)
         layout.addWidget(self.start_pause_button)
 
-        self.reset_button = QPushButton("Reset")
+        self.reset_button = QPushButton("重置")
         self.reset_button.clicked.connect(self.reset_timer)
         layout.addWidget(self.reset_button)
 
@@ -47,7 +47,7 @@ class PomodoroTimer(QMainWindow):
         self.setFixedSize(400, 200)
 
         # 设置窗口标题
-        self.setWindowTitle("Pomodoro Timer")
+        self.setWindowTitle("番茄时钟")
 
         # 添加菜单栏
         self.create_menu()
@@ -101,6 +101,10 @@ class PomodoroTimer(QMainWindow):
             # 计时结束，停止计时器
             self.timer.stop()
             self.is_running = False
+            self.start_pause_button.setText("↓↓↓")
+            self.start_pause_button.setDisabled(True)
+            self.reset_button.setText("重新启动")
+            self.timer_display.setStyleSheet("color: red")
 
     def start_pause_timer(self)->None:
         if not self.is_running:
@@ -112,16 +116,18 @@ class PomodoroTimer(QMainWindow):
             # 如果计时器正在运行，暂停计时器
             self.timer.stop()
             self.is_running = False
-            self.start_pause_button.setText("开始")
+            self.start_pause_button.setText("继续")
 
     def reset_timer(self)->None:
         # 重置计时器为初始状态
+        self.timer_display.setStyleSheet("color: black")
+        self.start_pause_button.setEnabled(True)
         self.timer.stop()
         self.is_running = False
         h,m,s = self.costumTime
         self.time_left = QTime(h,m,s)
         self.timer_display.display(self.time_left.toString("hh:mm:ss"))
-        self.start_pause_button.setText("启动")
+        self.start_pause_button.setText("开始")
 
     def closeEvent(self, event)->None:
         # 重写(overwrite)关闭事件
@@ -134,9 +140,3 @@ class PomodoroTimer(QMainWindow):
             event.accept()
         else:
             event.ignore()
-
-# if __name__ == "__main__":
-#     app = QApplication([])
-#     pomodoro_timer = PomodoroTimer()
-#     pomodoro_timer.show()
-#     app.exec()
