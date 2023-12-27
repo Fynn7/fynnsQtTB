@@ -1,6 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from components.pomodoroTimer import PomodoroTimer
+from components.pomodoroTimer.pomodoroTimer import PomodoroTimer
 
 
 class Ui_ToolBox(object):
