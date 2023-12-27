@@ -1,4 +1,8 @@
 pyqt6
-googletrans==4.0.0-rc1
-deepl
-PyPDF2
+# Machine Learning
+numpy
+pandas
+matplotlib
+scikit-learn
+# ML Models
+xgboost # 99.8 MB
