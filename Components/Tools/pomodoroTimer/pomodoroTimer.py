@@ -125,7 +125,6 @@ class PomodoroTimer(QMainWindow):
         self.time_left = QTime(h,m,s)
         self.timer_display.display(self.time_left.toString("hh:mm:ss"))
         self.start_pause_button.setText("开始")
-
     def closeEvent(self, event)->None:
         # 重写(overwrite)关闭事件
         reply = QMessageBox.question(self, '提示',

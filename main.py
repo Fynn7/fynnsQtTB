@@ -8,7 +8,7 @@ from Components.Games.Dice.dice import Dice
 class ToolBoxUI(object):
     WINDOW_TITLE = "万能工具盒"
     WINDOW_SIZE = (800, 600)
-
+    LANGUAGE="中文"
     components = {
         "Tools": {
             "PdfTranslator": None,
