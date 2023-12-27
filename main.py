@@ -1,16 +1,22 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from Components.pomodoroTimer.pomodoroTimer import PomodoroTimer
-
+from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
+from Components.Tools.pdfTranslator.pdfTranslator import PdfTranslator
+from Components.Tools.mlToolBox.mlToolBox import MlToolBox
+from Components.Games.Dice.dice import Dice
 
 class ToolBoxUI(object):
-    WINDOW_TITLE = "工具盒"
-    WINDOW_SIZE=(800,600)
-    
+    WINDOW_TITLE = "万能工具盒"
+    WINDOW_SIZE = (800, 600)
+
     components = {
-        "PdfTranslator": None,
-        "PomodoroTimer": None,
-        "MlToolBox": None,
+        "Tools": {
+            "PdfTranslator": None,
+            "PomodoroTimer": None,
+            "MlToolBox": None, },
+        "Games": {
+            "Dice": None,
+        }
     }
 
     def setupUi(self, mainWindow: QtWidgets.QMainWindow) -> None:
@@ -51,12 +57,14 @@ class ToolBoxUI(object):
         self.menu_games = QtWidgets.QMenu(parent=self.menubar)
         self.menu_games.setObjectName("menu_games")
         mainWindow.setMenuBar(self.menubar)
-    
+        
+
+
     def setupStatusbar(self, mainWindow: QtWidgets.QMainWindow) -> None:
         self.statusbar = QtWidgets.QStatusBar(parent=mainWindow)
         self.statusbar.setObjectName("statusbar")
         mainWindow.setStatusBar(self.statusbar)
-    
+
     def setupActions(self, mainWindow: QtWidgets.QMainWindow) -> None:
         self.action_language = QtGui.QAction(parent=mainWindow)
         self.action_language.setObjectName("action_language")
@@ -68,6 +76,9 @@ class ToolBoxUI(object):
         self.action_mlToolBox.setObjectName("action_mlToolBox")
         self.action_font = QtGui.QAction(parent=mainWindow)
         self.action_font.setObjectName("action_font")
+        self.action_diceGame=QtGui.QAction(parent=mainWindow)
+        self.action_diceGame.setObjectName("action_diceGame")
+
 
         self.menu_Alt_S.addAction(self.action_language)
         self.menu_Alt_S.addAction(self.action_font)
@@ -80,11 +91,21 @@ class ToolBoxUI(object):
         self.menubar.addAction(self.menu_Alt_S.menuAction())
         self.menubar.addAction(self.menu_games.menuAction())
         self.menubar.addAction(self.menu_Alt_H.menuAction())
+        self.menu_games.addAction(self.action_diceGame)
 
     def setupConnections(self, mainWindow: QtWidgets.QMainWindow) -> None:
         # 连接番茄时钟的信号与槽
         self.action_pomodoroTimer.triggered.connect(
-            lambda: self.open_component_window("PomodoroTimer"))
+            lambda: self.open_component_window("Tools","PomodoroTimer"))
+        # 连接PDF翻译器的信号与槽
+        self.action_pdfTranslator.triggered.connect(
+            lambda: self.open_component_window("Tools","PdfTranslator"))
+        # 连接机器学习工具集的信号与槽
+        self.action_mlToolBox.triggered.connect(
+            lambda: self.open_component_window("Tools","MlToolBox"))
+
+        self.action_diceGame.triggered.connect(
+            lambda: self.open_component_window("Games","Dice"))
 
     def setupFinal(self, mainWindow: QtWidgets.QMainWindow) -> None:
         self.retranslateUi(mainWindow)
@@ -121,44 +142,52 @@ class ToolBoxUI(object):
         self.menu_Alt_H.setTitle(_translate("mainWindow", "帮助(Alt+H)"))
         self.menu_toolMenus.setTitle(_translate("mainWindow", "菜单(Alt+M)"))
         self.menu_games.setTitle(_translate("mainWindow", "游戏(Alt+G)"))
-        self.action_language.setText(_translate("mainWindow", "语言"))
         self.action_pomodoroTimer.setText(_translate("mainWindow", "番茄时间"))
         self.action_pdfTranslator.setText(_translate("mainWindow", "PDF翻译"))
         self.action_mlToolBox.setText(_translate("mainWindow", "机器学习工具集"))
+        self.action_language.setText(_translate("mainWindow", "语言"))
         self.action_font.setText(_translate("mainWindow", "字体"))
+        self.action_diceGame.setText(_translate("mainWindow","骰子游戏"))
 
-    def create_and_save_component(self, component_name: str) -> QtWidgets.QMainWindow:
+    def create_and_save_component(self, class_name:str,component_name: str) -> QtWidgets.QMainWindow:
         try:
             component: QtWidgets.QMainWindow = eval(f"{component_name}()")
             # save component object, otherwise it will be deleted directly after opening this component window
-            self.components[component_name] = component
+            self.components[class_name][component_name] = component
             return component
+        except NameError as e:
+            self.warn(
+                msg=f"Component {component_name} under class {class_name} not found.\nOriginal error message:\n{e}")
+            raise NameError(e)
         except Exception as e:
-            self.warn(e)
+            self.warn(
+                msg=f"Unknown error when creating component {component_name} under class {class_name}.\nOriginal error message:\n{e}")
             raise Exception(e)
 
-    def reset_component(self, component_name: str) -> None:
-        self.components[component_name] = None
+    def reset_component(self, class_name:str,component_name: str) -> None:
+        self.components[class_name][component_name] = None
         print("Current components' status =", self.components)
 
-    def add_resent_used(self, component_name: str) -> None:
+    def add_resent_used(self, class_name:str,component_name: str) -> None:
         # append component name into resent used list
-        print("Component", component_name, "added into resent used list.")
+        print("Component", class_name,'.',component_name, "added into resent used list.")
 
-    def open_component_window(self, component_name: str) -> None:
+    def open_component_window(self, class_name:str,component_name: str) -> None:
         # 如果已经存在 component 对象，则显示警告
-        if self.components[component_name]:
-            self.warn(f"{component_name} 已经打开")
+        if self.components[class_name][component_name]:
+            self.warn(f"{class_name}.{component_name} 已经打开")
         else:
             # 创建新的 component 对象并显示
-            component = self.create_and_save_component(component_name)
+            component = self.create_and_save_component(class_name,component_name)
             component.show()
-            print(component_name, "opened.")
+            print("\"", class_name,'.',component_name, "\"", "opened.")
             # append component name into resent used list
-            self.add_resent_used(component_name)
+            self.add_resent_used(class_name,component_name)
             print("Current components' status =", self.components)
             # connect component closed signal with reset_component()
-            component.isClosed.connect(lambda: self.reset_component(component_name))
+            component.isClosed.connect(
+                lambda: self.reset_component(class_name,component_name))
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
