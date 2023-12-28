@@ -20,8 +20,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 import matplotlib.pyplot as plt
 
-from xgboost import XGBRegressor
-
 
 def cleanData(X: pd.DataFrame, y: pd.Series | None = None, numColsimputeStrategy: str = 'mean', catColsimputeStrategy: str = 'most_frequent', encoderName: str = 'oe', handle_unknown: str = 'error') -> tuple[pd.DataFrame, pd.Series]:
     '''
