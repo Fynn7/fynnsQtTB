@@ -19,7 +19,8 @@ from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 import matplotlib.pyplot as plt
-
+# from sklearn.linear_model import LinearRegression
+import traceback
 
 def cleanData(X: pd.DataFrame, y: pd.Series | None = None, numColsimputeStrategy: str = 'mean', catColsimputeStrategy: str = 'most_frequent', encoderName: str = 'oe', handle_unknown: str = 'error') -> tuple[pd.DataFrame, pd.Series]:
     '''
@@ -283,10 +284,17 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
     except NameError as e:  # `modelName` type incorrect or unknown model
         model = RandomForestRegressor(**modelArgs)
         print(
-            f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.\nOriginal error message: {e}")
+            f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.\nOriginal error message: {traceback.format_exc()}")
+    
+    except SyntaxError as e:  # `modelName` type incorrect or unknown model
+        model = RandomForestRegressor(**modelArgs)
+        print(
+            f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.\nOriginal error message: {traceback.format_exc()}")
+    
     except Exception as e:
         print(
-            f"Unknow error occurs while building the model.\nOriginal error message: {e}")
+            f"Unknow error occurs while building the model.\nOriginal error message: {traceback.format_exc()}")
+        return
     # variation 1:model = model.fit(Xtrain, ytrain)  (with `model=`)
     model.fit(Xtrain, ytrain)
     try: # if ytest is pd.DataFrame, convert to pd.Series

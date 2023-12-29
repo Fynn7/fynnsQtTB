@@ -5,6 +5,7 @@ from Components.Tools.funcScaler.funcScaler import FuncScaler
 from Components.Tools.mlToolBox.mlToolBox import MlToolBox
 from Components.Games.Dice.dice import Dice
 
+
 class ToolBoxUI(object):
     WINDOW_TITLE = "万能工具盒"
     WINDOW_SIZE = (800, 600)
@@ -173,7 +174,7 @@ class ToolBoxUI(object):
         print("Component", class_name,'.',component_name, "added into resent used list.")
 
     def open_component_window(self, class_name:str,component_name: str) -> None:
-        # 如果已经存在 component 对象，则显示警告
+        # if 1 component is already opened, warn
         if self.components[class_name][component_name]:
             self.warn(f"{class_name}.{component_name} 已经打开")
         else:
