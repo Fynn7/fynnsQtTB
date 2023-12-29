@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel,QLineEdit,QScrollArea
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel,QLineEdit,QScrollArea,QSpinBox,QWidgetAction,QDoubleSpinBox,QCheckBox
 from PyQt6.QtCore import pyqtSignal
 import matplotlib.pyplot as plt
 import numpy as np
@@ -100,6 +100,62 @@ class MlToolBox(QMainWindow):
         scatter_plot_action = QAction("散点图", self)
         scatter_plot_action.triggered.connect(lambda: self.select_plot_style("Scatter Plot"))
         style_menu.addAction(scatter_plot_action)
+
+        self.parameters_menu= menubar.addMenu("参数")
+
+        # 创建 QSpinBox 用于设置参数 "cv"
+        self.cv_spinbox = QSpinBox()
+
+        self.cv_spinbox.setMinimum(0)
+        self.cv_spinbox.setValue(2)
+        cv_widget_action = QWidgetAction(self)
+        cv_widget_action.setDefaultWidget(self.cv_spinbox)
+        self.parameters_menu.addAction(cv_widget_action)
+
+        # 创建 QSpinBox 用于设置参数 "random_state"
+        
+        self.random_state_spinbox = QSpinBox()
+
+        self.random_state_spinbox.setMinimum(0)
+        self.random_state_spinbox.setMaximum(100)
+        self.random_state_spinbox.setValue(42)
+        random_state_widget_action = QWidgetAction(self)
+        random_state_widget_action.setDefaultWidget(self.random_state_spinbox)
+        self.parameters_menu.addAction(random_state_widget_action)
+
+        # 创建 QDoubleSpinBox 用于设置参数 "test_size"
+        self.test_size_spinbox = QDoubleSpinBox()
+
+
+        self.test_size_spinbox.setMinimum(0.0)
+        self.test_size_spinbox.setMaximum(1.0)
+        self.test_size_spinbox.setValue(0.25)
+        test_size_widget_action = QWidgetAction(self)
+        test_size_widget_action.setDefaultWidget(self.test_size_spinbox)
+        self.parameters_menu.addAction(test_size_widget_action)
+
+        # 创建 QDoubleSpinBox 用于设置参数 "train_size"
+        self.train_size_spinbox = QDoubleSpinBox()
+
+
+        self.train_size_spinbox.setMinimum(0.0)
+        self.train_size_spinbox.setMaximum(1.0)
+        self.train_size_spinbox.setValue(0.75)
+        train_size_widget_action = QWidgetAction(self)
+        train_size_widget_action.setDefaultWidget(self.train_size_spinbox)
+        self.parameters_menu.addAction(train_size_widget_action)
+
+        # 创建 QCheckBox 用于设置参数 "plotPred"
+        self.plot_pred_checkbox = QCheckBox("Plot Prediction")
+        self.plot_pred_checkbox.setChecked(True)
+        plot_pred_widget_action = QWidgetAction(self)
+        plot_pred_widget_action.setDefaultWidget(self.plot_pred_checkbox)
+        self.parameters_menu.addAction(plot_pred_widget_action)
+
+        # 添加分隔符
+        self.parameters_menu.addSeparator()
+
+
     def reset_info_label(self)->None:
         self.info_label.setText("尚无结果")
 
@@ -116,6 +172,13 @@ class MlToolBox(QMainWindow):
             print("未选择文件")
 
     def run_ml_algorithm(self)->None: # ycol: user input it in a text input box
+        # values from user settings
+        random_state = self.random_state_spinbox.value()
+        test_size = self.test_size_spinbox.value()
+        train_size = self.train_size_spinbox.value()
+        plot_pred = self.plot_pred_checkbox.isChecked()
+        cv=self.cv_spinbox.value()
+
         selected_algorithm = getattr(self, 'selected_algorithm', None) # NOTE: Default as Linear Regression, already set in global class attribute
         selected_plot_style = getattr(self, 'selected_plot_style', None) # NOTE: Default as Scatter plot, already set in global class attribute
         ycol=self.ycol_input.text()
@@ -154,7 +217,13 @@ class MlToolBox(QMainWindow):
             except Exception:
                 self.info_label.setText(f"Invalid model_args: {model_args}\nModel Arguments set to empty")
                 model_args={}
-            result=fitModel(train_test_split(X,y),selected_algorithm,printInfo=True,plotPred=True,cv=2,**model_args)
+
+            try:
+                result=fitModel(train_test_split(X,y,train_size=train_size,test_size=test_size,random_state=random_state),selected_algorithm,printInfo=True,plotPred=plot_pred,cv=cv,**model_args)
+            except Exception:
+                self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
+                return
+            
         except Exception:
             self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
 
@@ -164,9 +233,6 @@ class MlToolBox(QMainWindow):
         self.info_label.setText(str(result))
 
 
-        # Placeholder for plotting a sample function graph
-        self.plot_line_graph()  # Default to line plot
-
     def select_algorithm(self, algorithm:str):
         self.selected_algorithm = algorithm
         self.run_ml_button.setText(f"运行{algorithm}算法")
@@ -174,26 +240,6 @@ class MlToolBox(QMainWindow):
     def select_plot_style(self, plot_style:str):
         self.selected_plot_style = plot_style
         QMessageBox.information(self, "提示", f"已选择 {plot_style} 样式")
-
-    def plot_line_graph(self):
-        # Placeholder for plotting a sample line graph
-        x = np.linspace(-5, 5, 100)
-        y = x**2
-        plt.plot(x, y)
-        plt.xlabel('X-axis')
-        plt.ylabel('Y-axis')
-        plt.title('Sample Line Graph')
-        plt.show()
-
-    def plot_scatter_graph(self):
-        # Placeholder for plotting a sample scatter graph
-        x = np.random.rand(50)
-        y = np.random.rand(50)
-        plt.scatter(x, y)
-        plt.xlabel('X-axis')
-        plt.ylabel('Y-axis')
-        plt.title('Sample Scatter Plot')
-        plt.show()
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, '提示', "确定退出吗?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
