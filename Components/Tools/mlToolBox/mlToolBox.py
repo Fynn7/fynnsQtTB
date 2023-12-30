@@ -5,12 +5,13 @@ import numpy as np
 from PyQt6.QtGui import QAction
 from Components.Tools.mlToolBox.fynns_tool_model_v2_0 import *
 import traceback
+
 class MlToolBox(QMainWindow):
     WINDOW_TITLE = "机器学习工具包"
     WINDOW_SIZE = (800, 600)
     isClosed = pyqtSignal(bool)
     selected_algorithm = "RandomForestRegression"
-    selected_plot_style = "Scatter Plot" # Default as Scatter plot
+    selected_plot_style = "sp" # Default as Scatter plot
 
     def __init__(self):
         super().__init__()
@@ -42,6 +43,7 @@ class MlToolBox(QMainWindow):
         self.run_ml_button = QPushButton(f"运行{self.selected_algorithm}算法")
         self.run_ml_button.clicked.connect(self.run_ml_algorithm)
         layout.addWidget(self.run_ml_button)
+
 
         # Placeholder for displaying the selected algorithm and scores
         self.info_label = QLabel("尚无结果")
@@ -93,12 +95,13 @@ class MlToolBox(QMainWindow):
 
         # Add Line Plot action
         line_plot_action = QAction("折线图", self)
-        line_plot_action.triggered.connect(lambda: self.select_plot_style("Line Plot"))
+        line_plot_action.triggered.connect(lambda: self.select_plot_style("lp"))
         style_menu.addAction(line_plot_action)
 
+
         # Add Scatter Plot action
-        scatter_plot_action = QAction("散点图", self)
-        scatter_plot_action.triggered.connect(lambda: self.select_plot_style("Scatter Plot"))
+        scatter_plot_action = QAction("散点图 (默认)", self)
+        scatter_plot_action.triggered.connect(lambda: self.select_plot_style("sp"))
         style_menu.addAction(scatter_plot_action)
 
         self.parameters_menu= menubar.addMenu("参数")
@@ -155,6 +158,24 @@ class MlToolBox(QMainWindow):
         # 添加分隔符
         self.parameters_menu.addSeparator()
 
+        # 创建 QCheckBox 用于设置参数 "printInfo"
+        self.print_info_checkbox = QCheckBox("Print Info")
+        self.print_info_checkbox.setChecked(True)
+        print_info_widget_action = QWidgetAction(self)
+        print_info_widget_action.setDefaultWidget(self.print_info_checkbox)
+        self.parameters_menu.addAction(print_info_widget_action)
+
+
+        # result menu
+        self.result_menu = menubar.addMenu("结果展示")
+
+        # 展示关联矩阵
+        self.plot_correlation_map_checkbox = QCheckBox("输出关联矩阵")
+        self.plot_correlation_map_checkbox.setChecked(True)
+        plot_correlation_map_widget_action = QWidgetAction(self)
+        plot_correlation_map_widget_action.setDefaultWidget(self.plot_correlation_map_checkbox)
+        self.result_menu.addAction(plot_correlation_map_widget_action)
+
 
     def reset_info_label(self)->None:
         self.info_label.setText("尚无结果")
@@ -171,13 +192,34 @@ class MlToolBox(QMainWindow):
         else:
             print("未选择文件")
 
+    def select_algorithm(self, algorithm:str):
+        self.selected_algorithm = algorithm
+        self.run_ml_button.setText(f"运行{algorithm}算法")
+
+    def select_plot_style(self, plot_style:str):
+        self.selected_plot_style = plot_style
+        abbr = {"lp":"折线图", "sp":"散点图"}
+        QMessageBox.information(self, "提示", f"已选择 {abbr[plot_style]} 样式")
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, '提示', "确定退出吗?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        if reply == QMessageBox.StandardButton.Yes:
+            self.isClosed.emit(True)
+            print("\"MlToolBox\" closed.")
+            event.accept()
+        else:
+            event.ignore()
+
     def run_ml_algorithm(self)->None: # ycol: user input it in a text input box
-        # values from user settings
+        # values from user settings: saved as class attributes
         random_state = self.random_state_spinbox.value()
         test_size = self.test_size_spinbox.value()
         train_size = self.train_size_spinbox.value()
         plot_pred = self.plot_pred_checkbox.isChecked()
         cv=self.cv_spinbox.value()
+        print_info=self.print_info_checkbox.isChecked()
+        plot_style=self.selected_plot_style
 
         selected_algorithm = getattr(self, 'selected_algorithm', None) # NOTE: Default as Linear Regression, already set in global class attribute
         selected_plot_style = getattr(self, 'selected_plot_style', None) # NOTE: Default as Scatter plot, already set in global class attribute
@@ -185,25 +227,21 @@ class MlToolBox(QMainWindow):
         # data processing
         try:
             df=pd.DataFrame(pd.read_csv(self.file_path_label.text()))
-
         except FileNotFoundError:
             self.info_label.setText(f"File not found:{self.file_path_label.text()}")
             return
         except Exception:
             self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
-
             return
         try:
             X=df.drop(ycol,axis=1)
             y=df[ycol]        
         except KeyError:
-            self.info_label.setText(f"y column name not found: {ycol}. All columns are:\n{list(df.columns)}")
-
+            self.info_label.setText(f"y column name not found: \"{ycol}\".\nAll columns are:\n{list(df.columns)}")
             return
         except Exception:
             self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
             return
-
         # model training
         X,y=cleanData(X,y)
         # for other arguments for fitModel(), let user input in a text input box
@@ -217,39 +255,29 @@ class MlToolBox(QMainWindow):
             except Exception:
                 self.info_label.setText(f"Invalid model_args: {model_args}\nModel Arguments set to empty")
                 model_args={}
-
             try:
-                result=fitModel(train_test_split(X,y,train_size=train_size,test_size=test_size,random_state=random_state),selected_algorithm,printInfo=True,plotPred=plot_pred,cv=cv,**model_args)
+                result=fitModel(train_test_split(X,y,train_size=train_size,test_size=test_size,random_state=random_state),selected_algorithm,printInfo=print_info,plotPred=plot_pred,cv=cv,plotStyle=plot_style,**model_args)
             except Exception:
                 self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
                 return
             
         except Exception:
             self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
-
             return
         
-        QMessageBox.information(self, "提示", f"正在运行 {selected_algorithm} 算法")
-        self.info_label.setText(str(result))
+        # draw confusion matrix
+        if self.plot_correlation_map_checkbox.isChecked():
+            cleaned_df = X.copy()
+            cleaned_df[ycol] = y
+            try:
+                plot_correlation_map(data=cleaned_df)
+            except Exception:
+                self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
+                return
+            
+        # display result
+        self.info_label.setText(str(result[:-1])+f"\n\n{result[-1]}")
 
-
-    def select_algorithm(self, algorithm:str):
-        self.selected_algorithm = algorithm
-        self.run_ml_button.setText(f"运行{algorithm}算法")
-
-    def select_plot_style(self, plot_style:str):
-        self.selected_plot_style = plot_style
-        QMessageBox.information(self, "提示", f"已选择 {plot_style} 样式")
-
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, '提示', "确定退出吗?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.isClosed.emit(True)
-            print("\"MlToolBox\" closed.")
-            event.accept()
-        else:
-            event.ignore()
 
 if __name__ == "__main__":
     import sys

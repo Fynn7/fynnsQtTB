@@ -3,6 +3,7 @@ pyqt6
 numpy
 pandas
 matplotlib
+seaborn
 scikit-learn
 # ML Models
 # xgboost # 99.8 MB
