@@ -1,7 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
-from Components.Tools.funcScaler.funcScaler import FuncScaler
+from Components.Tools.wordSimulator.wordSimulator import WordSimulator
 from Components.Tools.mlToolBox.mlToolBox import MlToolBox
 from Components.Games.Dice.dice import Dice
 
@@ -12,7 +12,7 @@ class ToolBoxUI(object):
     LANGUAGE="中文"
     components = {
         "Tools": {
-            "FuncScaler": None,
+            "WordSimulator": None,
             "PomodoroTimer": None,
             "MlToolBox": None, },
         "Games": {
@@ -71,8 +71,8 @@ class ToolBoxUI(object):
         self.action_language.setObjectName("action_language")
         self.action_pomodoroTimer = QtGui.QAction(parent=mainWindow)
         self.action_pomodoroTimer.setObjectName("action_pomodoroTimer")
-        self.action_funcScaler = QtGui.QAction(parent=mainWindow)
-        self.action_funcScaler.setObjectName("action_funcScaler")
+        self.action_wordSimulator = QtGui.QAction(parent=mainWindow)
+        self.action_wordSimulator.setObjectName("action_wordSimulator")
         self.action_mlToolBox = QtGui.QAction(parent=mainWindow)
         self.action_mlToolBox.setObjectName("action_mlToolBox")
         self.action_font = QtGui.QAction(parent=mainWindow)
@@ -84,7 +84,7 @@ class ToolBoxUI(object):
         self.menu_Alt_S.addAction(self.action_language)
         self.menu_Alt_S.addAction(self.action_font)
         self.menu_toolMenus.addAction(self.action_pomodoroTimer)
-        self.menu_toolMenus.addAction(self.action_funcScaler)
+        self.menu_toolMenus.addAction(self.action_wordSimulator)
         self.menu_toolMenus.addAction(self.action_mlToolBox)
         self.menubar.addAction(self.menu_files.menuAction())
         self.menubar.addAction(self.menu_edit.menuAction())
@@ -99,8 +99,8 @@ class ToolBoxUI(object):
         self.action_pomodoroTimer.triggered.connect(
             lambda: self.open_component_window("Tools","PomodoroTimer"))
 
-        self.action_funcScaler.triggered.connect(
-            lambda: self.open_component_window("Tools","FuncScaler"))
+        self.action_wordSimulator.triggered.connect(
+            lambda: self.open_component_window("Tools","WordSimulator"))
         # 连接机器学习工具集的信号与槽
         self.action_mlToolBox.triggered.connect(
             lambda: self.open_component_window("Tools","MlToolBox"))
@@ -144,7 +144,7 @@ class ToolBoxUI(object):
         self.menu_toolMenus.setTitle(_translate("mainWindow", "菜单(Alt+M)"))
         self.menu_games.setTitle(_translate("mainWindow", "游戏(Alt+G)"))
         self.action_pomodoroTimer.setText(_translate("mainWindow", "番茄时间"))
-        self.action_funcScaler.setText(_translate("mainWindow", "函数绘图"))
+        self.action_wordSimulator.setText(_translate("mainWindow", "Word模拟器"))
         self.action_mlToolBox.setText(_translate("mainWindow", "机器学习工具集"))
         self.action_language.setText(_translate("mainWindow", "语言"))
         self.action_font.setText(_translate("mainWindow", "字体"))
