@@ -1,4 +1,13 @@
+'''
+Diff is: tried to save components in a json file
+but it cannot be done:
+1. json cannot save object
+2. circular import. Basewindow should just contain templates, not main functions e.g. `open_component_window()` of main.py
+
+'''
+
 from PyQt6 import QtWidgets,QtGui
+from PyQt6.QtCore import QEvent
 import traceback
 import json
 
@@ -14,14 +23,104 @@ class Function:
     pass
 
 class BaseWindow(QtWidgets.QMainWindow):
-    WINDOW_TITLE:str = 'Base Window'
+    # class global constants, can be overrided by __init__() after super().__init__()
+    WINDOW_TITLE:str = "Base Window"
+    COMPONENT_CLASS="Base"
+    COMPONENT_NAME="Base"
+    HAS_CLOSE_EVENT:bool=True
+    WINDOW_SIZE:tuple[int,int] = (_settings["windowSize"]["width"],_settings["windowSize"]["height"])
+    LANGUAGE:str=_settings["language"]
+
     def __init__(self):
         super().__init__()
-        self.WINDOW_SIZE:tuple[int,int] = (_settings["windowSize"]["width"],_settings["windowSize"]["height"])
-        self.language:str=_settings["language"]
         self.__layout:LayoutObject=None
         self.__setupBaseUI()
-        self.setFont(QtGui.QFont(_settings["font"]["family"],pointSize=_settings["font"]["size"],italic= _settings["font"]["italic"]))
+        self.setFont(QtGui.QFont(_settings["font"]["family"],pointSize=_settings["font"]["size"],italic=_settings["font"]["italic"]))
+
+    @staticmethod
+    def getEncoding()->str:
+        return _ENCODING
+    
+    def getSettings(self)->dict:
+        return json.load(open("settings.json","r",encoding=_ENCODING))
+    
+    def saveSettings(self,settings:dict)->int:
+        try:
+            json.dump(settings,open("settings.json","w",encoding=_ENCODING),indent=4)
+            return 0
+        except Exception:
+            QtWidgets.QMessageBox.critical(self,"Fatal Error","Failed to save settings.")
+            print(traceback.format_exc())
+            return 1
+        
+    def getComponents(self)->dict:
+        return json.load(open("components.json","r",encoding=_ENCODING))
+
+    def saveComponents(self,components:dict)->int:
+        try:
+            json.dump(components,open("components.json","w",encoding=_ENCODING),indent=4)
+            return 0
+        except Exception:
+            QtWidgets.QMessageBox.critical(self,"Fatal Error","Failed to save components.")
+            print(traceback.format_exc())
+            return 1
+        
+    def closeEvent(self, event:QEvent)->None:
+        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+        if self.HAS_CLOSE_EVENT:
+            reply = QtWidgets.QMessageBox.question(self, self.WINDOW_TITLE,
+                                        "Are you sure to quit?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No, QtWidgets.QMessageBox.StandardButton.No)
+
+            if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+                self.resetComponent(self.COMPONENT_CLASS,self.COMPONENT_NAME)
+                print(self.WINDOW_TITLE,"closed.") # DEBUGGER
+                event.accept()
+            else:
+                event.ignore()
+            event.accept()
+        else:
+            # not display close event
+            event.accept()
+    
+
+    def createAndSaveComponent(self, className:str,componentName: str) -> QtWidgets.QMainWindow:
+        try:
+            component: QtWidgets.QMainWindow = eval(f"{componentName}()")
+            # save component object, otherwise it will be deleted directly after opening this component window
+            components=self.getComponents()
+            components[className][componentName] = component
+            # commit to components.json
+            self.saveComponents(components)
+            return component
+        except NameError as e:
+            self.warn(
+                msg=f"Component {componentName} under class {className} not found.\nOriginal error message:\n{e}")
+            raise NameError(e)
+        except Exception as e:
+            self.warn(
+                msg=f"Unknown error when creating component {componentName} under class {className}.\nOriginal error message:\n{e}")
+            raise Exception(e)
+
+    def resetComponent(self, className:str,componentName: str) -> None:
+        components=self.getComponents()
+        components[className][componentName] = None
+        print("Current components' status =", components)
+        # commit to components.json
+        self.saveComponents(components)
+
+    def openComponentWindow(self, className:str,componentName: str) -> None:
+        # if 1 component is already opened, warn
+        components=self.getComponents()
+        print("Current components' status =", components)
+        if components[className][componentName] == "None":
+            print("Window already opened warning: status =", components)
+            self.warn(f"{className}.{componentName} 已经打开")
+        else:
+            # 创建新的 component 对象并显示
+            component = self.createAndSaveComponent(className,componentName)
+            component.show()
+            print("\"", className,'.',componentName, "\"", "opened.")
+            print("Current components' status =", components)
 
     def __setupBaseUI(self):
         self.setWindowTitle(self.WINDOW_TITLE)
@@ -37,13 +136,6 @@ class BaseWindow(QtWidgets.QMainWindow):
         Initialize basic layout: aka with no widgets.
         '''
         self.updateLayout(QtWidgets.QVBoxLayout())
-
-    @staticmethod
-    def getEncoding()->str:
-        return _ENCODING
-    
-    def getSettings(self)->dict:
-        return json.load(open("settings.json","r",encoding=_ENCODING))
 
     def getLayout(self)->LayoutObject:
         '''
@@ -252,12 +344,24 @@ class BaseWindow(QtWidgets.QMainWindow):
             return QtWidgets.QMessageBox.question(self,"Question",msg,QtWidgets.QMessageBox.StandardButton.Yes|QtWidgets.QMessageBox.StandardButton.No)
         else:
             try:
-                # if msgType is not "question", then set 1 button and to "Ok"
+                # if msgType is not "question", then set button to "Ok"
                 return eval(f"QtWidgets.QMessageBox.{msgType}(self,msgType.capitalize(),msg,QtWidgets.QMessageBox.StandardButton.Ok)")
             except Exception:
                 QtWidgets.QMessageBox.critical(self,"Fatal Error","Failed to show message box.")
                 print(traceback.format_exc())
                 return 1
+            
+    def setCloseEvent(self,hasCloseEvent:bool)->None:
+        '''
+        Public method to set whether this window has close event.
+
+        hasCloseEvent:
+        - True (default)
+        - False
+        '''
+        self.hasCloseEvent=hasCloseEvent
+
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
