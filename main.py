@@ -22,7 +22,7 @@ class ToolBoxUI(object):
 
     def setupUi(self, mainWindow: QtWidgets.QMainWindow) -> None:
         mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(self.WINDOW_SIZE[0], self.WINDOW_SIZE[1])
+        mainWindow.resize(*self.WINDOW_SIZE)
         self.centralwidget = QtWidgets.QWidget(parent=mainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)

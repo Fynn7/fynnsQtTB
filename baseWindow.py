@@ -11,30 +11,53 @@ class Function:
     '''Just for callable type hinting'''
     pass
 
-_WINDOW_TITLE:str = 'Base Window'
-_WINDOW_SIZE:tuple[int,int] = (800, 600)
-
 # Later move to json file as settings.json
 _LANGUAGE_SUPPORTED:str=["zh_CN","en_US","de_DE"]
 _ENCODING:str="utf-8"
 
 class BaseWindow(QtWidgets.QMainWindow):
+    WINDOW_TITLE:str = 'Base Window'
+    WINDOW_SIZE:tuple[int,int] = (800, 600)
     language:str="en_US"
-    hasCloseEvent:bool=True
-    isClosed:pyqtSignal = pyqtSignal(bool)
+    # hasCloseEvent:bool=True
+    # isClosed:pyqtSignal = pyqtSignal(bool)
     __layout:LayoutObject=None
 
     def __init__(self):
         super().__init__()
         self.__setupBaseUI()
 
+    @staticmethod
+    def getLanguageSupported()->list[str]:
+        return _LANGUAGE_SUPPORTED
+    
+    @staticmethod
+    def getEncoding()->str:
+        return _ENCODING
+    
+    # def closeEvent(self, event:QEvent)->None:
+    #     '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+    #     if self.hasCloseEvent:
+    #         reply = QtWidgets.QMessageBox.question(self, self.WINDOW_TITLE,
+    #                                     "Are you sure to quit?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No, QtWidgets.QMessageBox.StandardButton.No)
 
+    #         if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+    #             self.isClosed.emit(True)
+    #             print(self.WINDOW_TITLE,"closed.") # DEBUGGER
+    #             event.accept()
+    #         else:
+    #             event.ignore()
+    #         event.accept()
+    #     else:
+    #         # developer set this window not to display close event
+    #         event.accept()
+            
     def __setupBaseUI(self):
         # Set window title 
-        self.setWindowTitle(_WINDOW_TITLE)
+        self.setWindowTitle(self.WINDOW_TITLE)
         
         # Set window size
-        self.resize(*_WINDOW_SIZE)
+        self.resize(*self.WINDOW_SIZE)
 
         # Setup Menubar
         self.__setupBasicMenubar()
@@ -43,9 +66,7 @@ class BaseWindow(QtWidgets.QMainWindow):
         self.__setupLayout()
 
     def __setupBasicMenubar(self)->None:
-        returnCode=self.createBasicMenubar()
-        print("setupMenu() returned code: ",returnCode) # DEBUGGER
-
+        pass
 
     def __setupLayout(self)->None:
         '''
@@ -93,11 +114,12 @@ class BaseWindow(QtWidgets.QMainWindow):
         # save layout object variable
         self.__layout=layout
 
-    def addWidgetToLayout(self,widgetType:str,text:str="someWidgetDisplayText",conn:Function|None=None)->QtWidgets.QWidget|None:
+    def addWidgetToLayout(self,widgetType:str,text:str|None=None,clickedConn:Function|None=None)->QtWidgets.QWidget|int:
         '''
         Public methode
 
-        For quick and easy adding widget to layout.
+        For quick and easy adding widget to CURRENT layout.
+        NOTE: DIRECTLY ADD WIDGET TO CURRENT LAYOUT
 
         Return:
         returns created widget object
@@ -135,22 +157,25 @@ class BaseWindow(QtWidgets.QMainWindow):
         lo=self.getLayout()
         # create widget and add display text, if it could be added
         try:
-            widget:QtWidgets.QWidget=eval(f"QtWidgets.{widgetType}(text)") # e.g. widget=QPushButton("someWidgetDisplayText")
+            if text:
+                widget:QtWidgets.QWidget=eval(f"QtWidgets.{widgetType}(text)") # e.g. widget=QPushButton("someWidgetDisplayText")
+            else:
+                widget:QtWidgets.QWidget=eval(f"QtWidgets.{widgetType}()") # e.g. widget=QtWidgets.QTimer()
         except NameError:
             # if failed to add display text, just create widget
             widget=eval(f"QtWidgets.{widgetType}()")
         except Exception:
             QtWidgets.QMessageBox.critical(self,"Fatal Error","Failed to create widget object.")
             print(traceback.format_exc())
-            return
+            return 1
         
-        if conn: # if the widget needs connection function
-            widget.clicked.connect(conn)
+        if clickedConn: # if the widget needs connection function
+            widget.clicked.connect(clickedConn)
         lo.addWidget(widget)
         self.updateLayout(lo)
         return widget
     
-    def createBasicMenubar(self)->int:
+    def addBasicMenus(self,withFile:bool=True,withConfig:bool=True)->int:
         '''
         public method to setup BASIC menu.
         NOTE: After use this method, use self.menuBar().addMenu() to add more sub-menus.
@@ -163,47 +188,49 @@ class BaseWindow(QtWidgets.QMainWindow):
             # get current menubar
             baseMenuBar=self.menuBar() 
 
-            # file menu
-            fileMenu=baseMenuBar.addMenu("File (Alt+F)")
-            # add exit action
-            exitAction=QAction("Exit (Alt+F4)",self)
-            exitAction.triggered.connect(self.close)
-            fileMenu.addAction(exitAction)
+            if withFile:
+                # file menu
+                fileMenu=baseMenuBar.addMenu("File (Alt+F)")
+                # add exit action
+                exitAction=QAction("Exit (Alt+F4)",self)
+                exitAction.triggered.connect(self.close)
+                fileMenu.addAction(exitAction)
 
-            # settings menu
-            settingsMenu=baseMenuBar.addMenu("Settings (Alt+S)")
-            # add change language sub-menu
-            languageMenu=QtWidgets.QMenu("Language",self)
-            # add change to chinese action
-            toZhCNAction=QAction("简体中文",self)
-            toZhCNAction.triggered.connect(lambda:self.changeLanguage(lang="zh_CN"))
-            languageMenu.addAction(toZhCNAction)
-            # add change to english action
-            toEnUSAction=QAction("English",self)
-            toEnUSAction.triggered.connect(lambda:self.changeLanguage(lang="en_US"))
-            languageMenu.addAction(toEnUSAction)
-            # add change to german action
-            toDeDEAction=QAction("Deutsch",self)
-            toDeDEAction.triggered.connect(lambda:self.changeLanguage(lang="de_DE"))
-            languageMenu.addAction(toDeDEAction)
-            # add all language options to settings menu
-            settingsMenu.addMenu(languageMenu)
-            # add change font sub-menu
-            fontMenu=QtWidgets.QMenu("Font",self)
-            # add change to font times new roman action
-            toFontTimesNewRomanAction=QAction("Times New Roman",self)
-            toFontTimesNewRomanAction.triggered.connect(lambda:self.changeFont(font="Times New Roman"))
-            fontMenu.addAction(toFontTimesNewRomanAction)
-            # add change to font consolas action
-            toFontConsolasAction=QAction("Consolas",self)
-            toFontConsolasAction.triggered.connect(lambda:self.changeFont(font="Consolas"))
-            fontMenu.addAction(toFontConsolasAction)
-            # add change to font courier new action
-            toFontCourierNewAction=QAction("Courier New",self)
-            toFontCourierNewAction.triggered.connect(lambda:self.changeFont(font="Courier New"))
-            fontMenu.addAction(toFontCourierNewAction)
-            # add all font options to settings menu
-            settingsMenu.addMenu(fontMenu)
+            if withConfig:
+                # settings menu
+                settingsMenu=baseMenuBar.addMenu("Settings (Alt+S)")
+                # add change language sub-menu
+                languageMenu=QtWidgets.QMenu("Language",self)
+                # add change to chinese action
+                toZhCNAction=QAction("简体中文",self)
+                toZhCNAction.triggered.connect(lambda:self.changeLanguage(lang="zh_CN"))
+                languageMenu.addAction(toZhCNAction)
+                # add change to english action
+                toEnUSAction=QAction("English",self)
+                toEnUSAction.triggered.connect(lambda:self.changeLanguage(lang="en_US"))
+                languageMenu.addAction(toEnUSAction)
+                # add change to german action
+                toDeDEAction=QAction("Deutsch",self)
+                toDeDEAction.triggered.connect(lambda:self.changeLanguage(lang="de_DE"))
+                languageMenu.addAction(toDeDEAction)
+                # add all language options to settings menu
+                settingsMenu.addMenu(languageMenu)
+                # add change font sub-menu
+                fontMenu=QtWidgets.QMenu("Font",self)
+                # add change to font times new roman action
+                toFontTimesNewRomanAction=QAction("Times New Roman",self)
+                toFontTimesNewRomanAction.triggered.connect(lambda:self.changeFont(font="Times New Roman"))
+                fontMenu.addAction(toFontTimesNewRomanAction)
+                # add change to font consolas action
+                toFontConsolasAction=QAction("Consolas",self)
+                toFontConsolasAction.triggered.connect(lambda:self.changeFont(font="Consolas"))
+                fontMenu.addAction(toFontConsolasAction)
+                # add change to font courier new action
+                toFontCourierNewAction=QAction("Courier New",self)
+                toFontCourierNewAction.triggered.connect(lambda:self.changeFont(font="Courier New"))
+                fontMenu.addAction(toFontCourierNewAction)
+                # add all font options to settings menu
+                settingsMenu.addMenu(fontMenu)
             return 0
         
         except Exception:
@@ -223,7 +250,7 @@ class BaseWindow(QtWidgets.QMainWindow):
     def changeFont(self,font:str):
         pass
     
-    def showMessageBox(self,msgType:str="information",msg:str="Msgbox content")->QtWidgets.QMessageBox.StandardButton|None:
+    def showMessageBox(self,msgType:str="information",msg:str="Msgbox content")->QtWidgets.QMessageBox.StandardButton|int:
         '''
         Public method to show a message box.
 
@@ -246,25 +273,18 @@ class BaseWindow(QtWidgets.QMainWindow):
             except Exception:
                 QtWidgets.QMessageBox.critical(self,"Fatal Error","Failed to show message box.")
                 print(traceback.format_exc())
-                return
+                return 1
             
+    # def setCloseEvent(self,hasCloseEvent:bool)->None:
+    #     '''
+    #     Public method to set whether this window has close event.
 
-    def closeEvent(self, event:QEvent)->None:
-        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
-        if self.hasCloseEvent:
-            reply = QtWidgets.QMessageBox.question(self, "BaseWindow",
-                                        "Are you sure to quit?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No, QtWidgets.QMessageBox.StandardButton.No)
+    #     hasCloseEvent:
+    #     - True (default)
+    #     - False
+    #     '''
+    #     self.hasCloseEvent=hasCloseEvent
 
-            if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-                self.isClosed.emit(True)
-                print(_WINDOW_TITLE,"closed.") # DEBUGGER
-                event.accept()
-            else:
-                event.ignore()
-            event.accept()
-        else:
-            # developer set this window not to display close event
-            event.accept()
 
 
 if __name__ == '__main__':

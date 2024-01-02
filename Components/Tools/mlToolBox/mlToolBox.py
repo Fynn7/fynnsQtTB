@@ -1,23 +1,35 @@
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel,QLineEdit,QScrollArea,QSpinBox,QWidgetAction,QDoubleSpinBox,QCheckBox
+from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel,QLineEdit,QScrollArea,QSpinBox,QWidgetAction,QDoubleSpinBox,QCheckBox
 from PyQt6.QtCore import pyqtSignal
-import matplotlib.pyplot as plt
-import numpy as np
 from PyQt6.QtGui import QAction
 from Components.Tools.mlToolBox.fynns_tool_model_v2_0 import *
 import traceback
+from baseWindow import BaseWindow
 
-class MlToolBox(QMainWindow):
+
+class MlToolBox(BaseWindow):
     WINDOW_TITLE = "机器学习工具包"
-    WINDOW_SIZE = (800, 600)
-    isClosed = pyqtSignal(bool)
-    selected_algorithm = "RandomForestRegression"
+    selected_algorithm = "RandomForestRegression" # Default as Random Forest Regression
     selected_plot_style = "sp" # Default as Scatter plot
+    isClosed=pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
         self.setup_ui()
 
-    def setup_ui(self):
+    def closeEvent(self, event)->None:
+        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+        reply = QMessageBox.question(self, self.WINDOW_TITLE,
+                                    "Are you sure to quit?",QMessageBox.StandardButton.Yes |QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+
+        if reply ==QMessageBox.StandardButton.Yes:
+            self.isClosed.emit(True)
+            print(self.WINDOW_TITLE,"closed.") # DEBUGGER
+            event.accept()
+        else:
+            event.ignore()
+        event.accept()
+
+    def setup_ui(self): # 用PyQt6原生编程，因为要保存text input box的内容
         self.create_menu_bar()
 
         layout = QVBoxLayout()
@@ -26,7 +38,7 @@ class MlToolBox(QMainWindow):
         self.select_file_button.clicked.connect(self.select_file)
         layout.addWidget(self.select_file_button)
 
-        # Placeholder for displaying file path
+        # Label for displaying the selected file path
         self.file_path_label = QLabel()
         layout.addWidget(self.file_path_label)
 
@@ -59,18 +71,10 @@ class MlToolBox(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.setWindowTitle(self.WINDOW_TITLE)
-        self.setFixedSize(*self.WINDOW_SIZE)
 
     def create_menu_bar(self):
+        self.addBasicMenus(withFile=True,withConfig=True)
         menubar = self.menuBar()
-
-        # Create File menu
-        file_menu = menubar.addMenu("文件")
-
-        # Add Exit action
-        exit_action = QAction("退出", self)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
 
         # Create Algorithm menu
         algorithm_menu = menubar.addMenu("算法")
@@ -201,16 +205,6 @@ class MlToolBox(QMainWindow):
         abbr = {"lp":"折线图", "sp":"散点图"}
         QMessageBox.information(self, "提示", f"已选择 {abbr[plot_style]} 样式")
 
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, '提示', "确定退出吗?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.isClosed.emit(True)
-            print("\"MlToolBox\" closed.")
-            event.accept()
-        else:
-            event.ignore()
-
     def run_ml_algorithm(self)->None: # ycol: user input it in a text input box
         # values from user settings: saved as class attributes
         random_state = self.random_state_spinbox.value()
@@ -256,7 +250,7 @@ class MlToolBox(QMainWindow):
                 self.info_label.setText(f"Invalid model_args: {model_args}\nModel Arguments set to empty")
                 model_args={}
             try:
-                result=fitModel(train_test_split(X,y,train_size=train_size,test_size=test_size,random_state=random_state),selected_algorithm,printInfo=print_info,plotPred=plot_pred,cv=cv,plotStyle=plot_style,**model_args)
+                result=fitModel(train_test_split(X,y,train_size=train_size,test_size=test_size,random_state=random_state),modelName=selected_algorithm,printInfo=print_info,plotPred=plot_pred,cv=cv,plotStyle=plot_style,**model_args)
             except Exception:
                 self.info_label.setText(f"An Error Occurred:\n{traceback.format_exc()}")
                 return

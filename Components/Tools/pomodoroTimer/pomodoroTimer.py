@@ -1,19 +1,36 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QPushButton, QLCDNumber, QMenuBar, QMenu, QMessageBox, QWidget,QDialog,QGraphicsOpacityEffect
-from PyQt6.QtCore import QTimer, QTime, pyqtSignal,QPropertyAnimation
-from PyQt6.QtGui import QAction,QColor
+from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLCDNumber, QMessageBox, QWidget,QDialog
+from PyQt6.QtCore import QTimer, QTime, pyqtSignal
+from PyQt6.QtGui import QAction
 from Components.Tools.pomodoroTimer.setTime import SetTimeDialog
+from baseWindow import BaseWindow
 
-class PomodoroTimer(QMainWindow):
+
+class PomodoroTimer(BaseWindow):
     WINDOW_TITLE = "番茄时钟"
     WINDOW_SIZE = (400, 200)
     isClosed = pyqtSignal(bool)
-    # time=pyqtSignal(tuple[int,int,int]) # got from "setTime" dialog
     costumTime = (0,25,0) # user input
     def __init__(self)->None:
         super().__init__()
-        self.setup_ui()
+        self.setupLayout()
+        self.setupMenu()
+        self.setFixedSize(self.WINDOW_SIZE[0], self.WINDOW_SIZE[1])
+        self.setWindowTitle(self.WINDOW_TITLE)
 
-    def setup_ui(self)->None:
+    def closeEvent(self, event)->None:
+        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+        reply = QMessageBox.question(self, self.WINDOW_TITLE,
+                                    "Are you sure to quit?",QMessageBox.StandardButton.Yes |QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+
+        if reply ==QMessageBox.StandardButton.Yes:
+            self.isClosed.emit(True)
+            print(self.WINDOW_TITLE,"closed.") # DEBUGGER
+            event.accept()
+        else:
+            event.ignore()
+        event.accept()
+
+    def setupLayout(self)->None:
         # 初始化计时器
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
@@ -45,34 +62,16 @@ class PomodoroTimer(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        self.setFixedSize(self.WINDOW_SIZE[0], self.WINDOW_SIZE[1])
-        self.setWindowTitle(self.WINDOW_TITLE)
-        self.create_menu()
-
-    def create_menu(self)->None:
+    def setupMenu(self)->None:
+        self.addBasicMenus(withFile=True,withConfig=False)
+        # get current menubar
         menubar = self.menuBar()
 
-        # 创建 File 菜单
-        file_menu = menubar.addMenu("文件")
-
-        # 添加退出动作
-        exit_action = QAction("退出", self)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
-
-        # 创建 Help 菜单
-        help_menu = menubar.addMenu("帮助")
-
-        # 添加关于动作
-        about_action = QAction("关于", self)
-        about_action.triggered.connect(lambda:QMessageBox.about(self, "About Pomodoro Timer", "Pomodoro Timer\n\nA simple timer application for the Pomodoro Technique."))
-        help_menu.addAction(about_action)
-
-
+        # setting menu
         config_menu = menubar.addMenu("设置")
 
         setTime_action = QAction("时长", self)
-        setTime_action.triggered.connect(lambda:self.setTime())
+        setTime_action.triggered.connect(self.setTime)
         config_menu.addAction(setTime_action)
 
 
@@ -125,14 +124,3 @@ class PomodoroTimer(QMainWindow):
         self.time_left = QTime(h,m,s)
         self.timer_display.display(self.time_left.toString("hh:mm:ss"))
         self.start_pause_button.setText("开始")
-    def closeEvent(self, event)->None:
-        # 重写(overwrite)关闭事件
-        reply = QMessageBox.question(self, '提示',
-                                     "确定退出吗?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.isClosed.emit(True)
-            print("PomodoroTimer closed.")
-            event.accept()
-        else:
-            event.ignore()
