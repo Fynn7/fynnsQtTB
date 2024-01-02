@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_absolute_error,confusion_matrix
+from sklearn.metrics import mean_absolute_error, confusion_matrix
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import traceback
 
 import seaborn as sns
+
 
 def cleanData(X: pd.DataFrame, y: pd.Series | None = None, numColsimputeStrategy: str = 'mean', catColsimputeStrategy: str = 'most_frequent', encoderName: str = 'oe', handle_unknown: str = 'error') -> tuple[pd.DataFrame, pd.Series]:
     '''
@@ -100,7 +101,7 @@ class Model:  # empty class just for hinting (pylance)
         pass
 
 
-def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], modelName: str = 'RandomForestRegressor', cv: int = 5, printInfo: bool = False, plotPred: bool = False, plotStyle:str="sp",worst_n_preds: int = 1, **modelArgs) -> tuple[Model, dict[float | np.ndarray],str]:
+def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], modelName: str = 'RandomForestRegressor', cv: int = 5, printInfo: bool = False, plotPred: bool = False, plotStyle: str = "sp", worst_n_preds: int = 1, **modelArgs) -> tuple[Model, dict[float | np.ndarray], str]:
     '''
     Args:
         tts: train_test_split(X,y)
@@ -275,7 +276,7 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
         'cv_score': array([18132.2284532 , 20960.76239655, 17231.01519692, 17936.10213328,
                 19043.40710616])})
     '''
-    info_str="If you want to get the info, set `printInfo=True`."
+    info_str = "If you want to get the info, set `printInfo=True`."
     # if model is not given or it is given illegally
     Xtrain, Xtest, ytrain, ytest = tts
     if type(ytrain) == np.ndarray and type(ytest) == np.ndarray:
@@ -288,23 +289,25 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
         model = RandomForestRegressor(**modelArgs)
         print(
             f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.\nOriginal error message: {traceback.format_exc()}")
-    
+
     except SyntaxError as e:  # `modelName` type incorrect or unknown model
         model = RandomForestRegressor(**modelArgs)
         print(
             f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.\nOriginal error message: {traceback.format_exc()}")
-    
+
     except Exception as e:
         print(
             f"Unknow error occurs while building the model.\nOriginal error message: {traceback.format_exc()}")
         return
     # variation 1:model = model.fit(Xtrain, ytrain)  (with `model=`)
     model.fit(Xtrain, ytrain)
-    try: # if ytest is pd.DataFrame, convert to pd.Series
-        ytest=ytest[ytest.columns[0]] # convert to pd.Series for plotPred! (for abs(ytest-pred) to work)
-    except AttributeError: # if ytest is pd.Series, we except `AttributeError: 'Series' object has no attribute 'columns'`
+    try:  # if ytest is pd.DataFrame, convert to pd.Series
+        # convert to pd.Series for plotPred! (for abs(ytest-pred) to work)
+        ytest = ytest[ytest.columns[0]]
+    except AttributeError:  # if ytest is pd.Series, we except `AttributeError: 'Series' object has no attribute 'columns'`
         pass
-    pred = pd.Series(model.predict(Xtest), index=ytest.index,name=ytest.name) # convert to pd.Series for plotPred! (for abs(ytest-pred) to work)
+    # convert to pd.Series for plotPred! (for abs(ytest-pred) to work)
+    pred = pd.Series(model.predict(Xtest), index=ytest.index, name=ytest.name)
     score = model.score(Xtest, ytest)
     mae_score = mean_absolute_error(ytest, pred)
     try:
@@ -316,8 +319,7 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
     except Exception as e:
         print(
             f"Unknow error occurs while cross validation.\nOriginal error message: {e}")
-        
-        
+
     if printInfo:
         info_str = f'''
         ------------------------------------------
@@ -329,8 +331,9 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
         model arguments:\n\t\t{modelArgs}
         ------------------------------------------
         '''
-        attrs = list(fitModel.__code__.co_varnames)[:-4] # ignore `attrs`,`attr`,`i` and `diff`
-        attrs.remove('e') # ignore `e` in `except Exception as e`
+        attrs = list(fitModel.__code__.co_varnames)[
+            :-4]  # ignore `attrs`,`attr`,`i` and `diff`
+        attrs.remove('e')  # ignore `e` in `except Exception as e`
         print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!attrs={attrs}")
         info_str += "function arguments: " + str(attrs) + "\n"
         for attr in attrs:
@@ -351,27 +354,31 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
         ------------------------------------------
                   '''
         print(info_str)
-        
 
     if plotPred:  # only fits for 1-dimensional y
-        i=ytest.index
-        if worst_n_preds>len(i): # if worst_n_preds out of range
-            raise ValueError(f"Argument `worst_n_preds` out of range: {worst_n_preds} > {len(i)}.")
+        i = ytest.index
+        if worst_n_preds > len(i):  # if worst_n_preds out of range
+            raise ValueError(
+                f"Argument `worst_n_preds` out of range: {worst_n_preds} > {len(i)}.")
         diff = abs(ytest-pred)
-        print("diff=\n",diff,type(diff))
-        print(f"Worst {worst_n_preds} predictions:\n",diff.nlargest(worst_n_preds))
-        if plotStyle=="sp":
+        print("diff=\n", diff, type(diff))
+        print(f"Worst {worst_n_preds} predictions:\n",
+              diff.nlargest(worst_n_preds))
+        if plotStyle == "sp":
             plt.scatter(i, ytest, c='green', label='y_true')
             plt.scatter(i, pred, c='orange', label='y_pred')
-            plt.scatter(diff.nlargest(worst_n_preds).index, pred[diff.nlargest(worst_n_preds).index], c='red', label='worst_n_preds')
+            plt.scatter(diff.nlargest(worst_n_preds).index, pred[diff.nlargest(
+                worst_n_preds).index], c='red', label='worst_n_preds')
             plt.show()
-        elif plotStyle=="lp": # line plot
+        elif plotStyle == "lp":  # line plot
             plt.plot(i, ytest, c='green', label='y_true')
             plt.plot(i, pred, c='orange', label='y_pred')
-            plt.scatter(diff.nlargest(worst_n_preds).index, pred[diff.nlargest(worst_n_preds).index], c='red', label='worst_n_preds')
+            plt.scatter(diff.nlargest(worst_n_preds).index, pred[diff.nlargest(
+                worst_n_preds).index], c='red', label='worst_n_preds')
             plt.show()
 
-    return model, {'score': score, 'mae_score': mae_score, 'cv_score': cv_score},info_str
+    return model, {'score': score, 'mae_score': mae_score, 'cv_score': cv_score}, info_str
+
 
 def plot_correlation_map(data, method='pearson', annot=True, cmap='coolwarm'):
     """
@@ -389,7 +396,8 @@ def plot_correlation_map(data, method='pearson', annot=True, cmap='coolwarm'):
     correlation_matrix = data.corr(method=method)
 
     plt.figure(figsize=(len(data.columns), len(data.columns)))
-    sns.heatmap(correlation_matrix, annot=annot, cmap=cmap, fmt=".2f", square=True)
+    sns.heatmap(correlation_matrix, annot=annot,
+                cmap=cmap, fmt=".2f", square=True)
 
     plt.title('Correlation Map')
     plt.show()
