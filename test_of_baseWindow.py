@@ -21,16 +21,16 @@ class TestWindow(BaseWindow):
         self.hasCloseEvent=False
 
 
-        # show a msg box
-        self.showMessageBox("information","Hello World!")
+        # # show a msg box
+        # self.showMessageBox("information","Hello World!")
 
-        self.showMessageBox("warning","Hello World!")
+        # self.showMessageBox("warning","Hello World!")
 
-        answer=self.showMessageBox("question","Choose!")
-        if answer==QtWidgets.QMessageBox.StandardButton.Yes:
-            print("User choosed Yes!")
-        else:
-            print("Use r choosed No!")
+        # answer=self.showMessageBox("question","Choose!")
+        # if answer==QtWidgets.QMessageBox.StandardButton.Yes:
+        #     print("User choosed Yes!")
+        # else:
+        #     print("Use r choosed No!")
 
     def testClick(self):
         print("Clicked!".capitalize())
