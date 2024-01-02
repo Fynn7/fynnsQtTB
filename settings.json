@@ -1,0 +1,36 @@
+{
+    "user": {
+        "language": "en-US",
+        "windowSize": {
+            "width": 800,
+            "height": 600
+        },
+        "font": {
+            "family": "Courier New",
+            "size": 12,
+            "italic": false
+        }
+    },
+    "sys": {
+        "components": {
+            "Tools": {
+                "PomodoroTimer": "None",
+                "MLToolBox": "None",
+                "WordSimulator": "None"
+            },
+            "Games": {
+                "Dice": "None",
+                "Chess": "None",
+                "Mahjong": "None",
+                "Minesweeper": "None",
+                "Sudoku": "None",
+                "Spider": "None",
+                "Poker": "None",
+                "Blackjack": "None",
+                "Roulette": "None",
+                "Snake": "None",
+                "2048": "None"
+            }
+        }
+    }
+}

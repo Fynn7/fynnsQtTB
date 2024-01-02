@@ -12,11 +12,11 @@ class TestWindow(BaseWindow):
         self.setWindowTitle("Test Window")
     
         self.addWidgetToLayout("QLabel",text="Hello World!")
-        self.addWidgetToLayout("QPushButton",text="Push me!",conn=self.testClick)
+        self.addWidgetToLayout("QPushButton",text="Push me!",clickedConn=self.testClick)
         self.addWidgetToLayout("QLineEdit",text="Type here!")
         # self.addWidgetToLayout("XXX",text="Type here!") # raised fatal error. TEST COMPLETED.
-
-
+        
+        self.addBasicMenus()
         # dont set close event (default true)
         self.hasCloseEvent=False
 

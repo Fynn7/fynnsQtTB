@@ -7,16 +7,17 @@ from baseWindow import BaseWindow
 
 class PomodoroTimer(BaseWindow):
     WINDOW_TITLE = "番茄时钟"
-    WINDOW_SIZE = (400, 200)
     isClosed = pyqtSignal(bool)
     costumTime = (0,25,0) # user input
+
     def __init__(self)->None:
         super().__init__()
+        self.WINDOW_SIZE = (400, 200)
         self.setupLayout()
         self.setupMenu()
-        self.setFixedSize(self.WINDOW_SIZE[0], self.WINDOW_SIZE[1])
         self.setWindowTitle(self.WINDOW_TITLE)
-
+        self.resize(*self.WINDOW_SIZE)
+        
     def closeEvent(self, event)->None:
         '''Override the close event to perform custom actions if hasCloseEvent is True.'''
         reply = QMessageBox.question(self, self.WINDOW_TITLE,

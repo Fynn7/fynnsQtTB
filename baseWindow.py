@@ -1,40 +1,39 @@
-from PyQt6 import QtWidgets 
-# from PyQt6.QtWidgets import QMainWindow, QMenuBar, QVBoxLayout, QWidget, QApplication,QMessageBox,QMenu,QPushButton,QLabel
-from PyQt6.QtGui import QAction
+from PyQt6 import QtWidgets,QtGui
 from PyQt6.QtCore import pyqtSignal,QEvent
 import traceback
+import json
+
+_ENCODING:str="utf-8"
+_settings:dict=json.load(open("settings.json","r",encoding=_ENCODING))
 
 class LayoutObject:
-    '''Just for type hinting'''
-    pass
-class Function:
-    '''Just for callable type hinting'''
+    '''Unused class just for layout type hinting'''
     pass
 
-# Later move to json file as settings.json
-_LANGUAGE_SUPPORTED:str=["zh_CN","en_US","de_DE"]
-_ENCODING:str="utf-8"
+class Function:
+    '''Unused class just for callable type hinting'''
+    pass
 
 class BaseWindow(QtWidgets.QMainWindow):
     WINDOW_TITLE:str = 'Base Window'
-    WINDOW_SIZE:tuple[int,int] = (800, 600)
-    language:str="en_US"
-    # hasCloseEvent:bool=True
-    # isClosed:pyqtSignal = pyqtSignal(bool)
-    __layout:LayoutObject=None
-
     def __init__(self):
         super().__init__()
+        self.WINDOW_SIZE:tuple[int,int] = (_settings["user"]["windowSize"]["width"],_settings["user"]["windowSize"]["height"])
+        self.language:str=_settings["user"]["language"]
+        # hasCloseEvent:bool=True
+        # isClosed:pyqtSignal = pyqtSignal(bool)
+        self.__layout:LayoutObject=None
         self.__setupBaseUI()
+        self.setFont(QtGui.QFont(_settings["user"]["font"]["family"],pointSize=_settings["user"]["font"]["size"],italic= _settings["user"]["font"]["italic"]))
 
-    @staticmethod
-    def getLanguageSupported()->list[str]:
-        return _LANGUAGE_SUPPORTED
-    
     @staticmethod
     def getEncoding()->str:
         return _ENCODING
     
+    def getSettings(self)->dict:
+        return json.load(open("settings.json","r",encoding=_ENCODING))
+    
+
     # def closeEvent(self, event:QEvent)->None:
     #     '''Override the close event to perform custom actions if hasCloseEvent is True.'''
     #     if self.hasCloseEvent:
@@ -192,7 +191,7 @@ class BaseWindow(QtWidgets.QMainWindow):
                 # file menu
                 fileMenu=baseMenuBar.addMenu("File (Alt+F)")
                 # add exit action
-                exitAction=QAction("Exit (Alt+F4)",self)
+                exitAction=QtGui.QAction("Exit (Alt+F4)",self)
                 exitAction.triggered.connect(self.close)
                 fileMenu.addAction(exitAction)
 
@@ -202,15 +201,15 @@ class BaseWindow(QtWidgets.QMainWindow):
                 # add change language sub-menu
                 languageMenu=QtWidgets.QMenu("Language",self)
                 # add change to chinese action
-                toZhCNAction=QAction("简体中文",self)
+                toZhCNAction=QtGui.QAction("简体中文",self)
                 toZhCNAction.triggered.connect(lambda:self.changeLanguage(lang="zh_CN"))
                 languageMenu.addAction(toZhCNAction)
                 # add change to english action
-                toEnUSAction=QAction("English",self)
+                toEnUSAction=QtGui.QAction("English",self)
                 toEnUSAction.triggered.connect(lambda:self.changeLanguage(lang="en_US"))
                 languageMenu.addAction(toEnUSAction)
                 # add change to german action
-                toDeDEAction=QAction("Deutsch",self)
+                toDeDEAction=QtGui.QAction("Deutsch",self)
                 toDeDEAction.triggered.connect(lambda:self.changeLanguage(lang="de_DE"))
                 languageMenu.addAction(toDeDEAction)
                 # add all language options to settings menu
@@ -218,16 +217,16 @@ class BaseWindow(QtWidgets.QMainWindow):
                 # add change font sub-menu
                 fontMenu=QtWidgets.QMenu("Font",self)
                 # add change to font times new roman action
-                toFontTimesNewRomanAction=QAction("Times New Roman",self)
-                toFontTimesNewRomanAction.triggered.connect(lambda:self.changeFont(font="Times New Roman"))
+                toFontTimesNewRomanAction=QtGui.QAction("Times New Roman",self)
+                toFontTimesNewRomanAction.triggered.connect(lambda:self.changeFont(family="Times New Roman"))
                 fontMenu.addAction(toFontTimesNewRomanAction)
                 # add change to font consolas action
-                toFontConsolasAction=QAction("Consolas",self)
-                toFontConsolasAction.triggered.connect(lambda:self.changeFont(font="Consolas"))
+                toFontConsolasAction=QtGui.QAction("Consolas",self)
+                toFontConsolasAction.triggered.connect(lambda:self.changeFont(family="Consolas"))
                 fontMenu.addAction(toFontConsolasAction)
                 # add change to font courier new action
-                toFontCourierNewAction=QAction("Courier New",self)
-                toFontCourierNewAction.triggered.connect(lambda:self.changeFont(font="Courier New"))
+                toFontCourierNewAction=QtGui.QAction("Courier New",self)
+                toFontCourierNewAction.triggered.connect(lambda:self.changeFont(family="Courier New"))
                 fontMenu.addAction(toFontCourierNewAction)
                 # add all font options to settings menu
                 settingsMenu.addMenu(fontMenu)
@@ -247,10 +246,23 @@ class BaseWindow(QtWidgets.QMainWindow):
     def changeLanguage(self,lang:str):
         pass
     
-    def changeFont(self,font:str):
-        pass
-    
-    def showMessageBox(self,msgType:str="information",msg:str="Msgbox content")->QtWidgets.QMessageBox.StandardButton|int:
+    def changeFont(self,family:str|None=None,size:int|None=None,italic:bool|None=None)->int:
+        if family:
+            _settings["user"]["font"]["family"]=family
+        if size:
+            _settings["user"]["font"]["size"]=size
+        if italic!=None:
+            _settings["user"]["font"]["italic"]=italic
+        try:
+            json.dump(_settings,open("settings.json","w",encoding=_ENCODING),indent=4)
+            QtWidgets.QMessageBox.information(self,"Success","Please restart the program to apply changes.")
+            return 0
+        except Exception:
+            QtWidgets.QMessageBox.critical(self,"Fatal Error","Failed to change font.")
+            print(traceback.format_exc())
+            return 1
+        
+    def showMessageBox(self,msgType:str="information",msg:str="")->QtWidgets.QMessageBox.StandardButton|int:
         '''
         Public method to show a message box.
 

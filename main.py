@@ -4,9 +4,9 @@ from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
 from Components.Tools.wordSimulator.wordSimulator import WordSimulator
 from Components.Tools.mlToolBox.mlToolBox import MlToolBox
 from Components.Games.Dice.dice import Dice
+from baseWindow import BaseWindow
 
-
-class ToolBoxUI(object):
+class ToolBoxUI(BaseWindow):
     WINDOW_TITLE = "万能工具盒"
     WINDOW_SIZE = (800, 600)
     LANGUAGE="中文"
