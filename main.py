@@ -12,12 +12,14 @@ def showSysMsgBox(msg: str|BaseException, title: str, msgType: str = "info") -> 
         raise ValueError("msgType must be one of \"info\", \"warning\", \"error\".")
 try:
     from PyQt6 import QtCore, QtGui, QtWidgets
-
+    # from .Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
+    # from .Components.Tools.wordSimulator.wordSimulator import WordSimulator
+    # from .Components.Tools.mlToolBox.mlToolBox import MlToolBox
+    # from .Components.Games.Dice.dice import Dice
     from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
     from Components.Tools.wordSimulator.wordSimulator import WordSimulator
     from Components.Tools.mlToolBox.mlToolBox import MlToolBox
     from Components.Games.Dice.dice import Dice
-
     from baseWindow import BaseWindow
 except ImportError as ie:
     showSysMsgBox(ie, title="Import Error", msgType="error")

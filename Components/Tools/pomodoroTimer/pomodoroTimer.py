@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLCDNumber, QMessageBox, QWidget, QDialog
 from PyQt6.QtCore import QTimer, QTime, pyqtSignal
 from PyQt6.QtGui import QAction
-from Components.Tools.pomodoroTimer.setTime import SetTimeDialog
+from .setTime import SetTimeDialog
 from baseWindow import BaseWindow
 
 
