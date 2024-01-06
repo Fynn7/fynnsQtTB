@@ -1,26 +1,27 @@
 import sys
 import ctypes
+import traceback
+
 def showSysMsgBox(msg: str|BaseException, title: str, msgType: str = "info") -> None:
     '''Show system default message box.'''
-    if msgType == "info":
-        ctypes.windll.user32.MessageBoxW(0, str(msg), title, 0)
-    elif msgType == "warning":
-        ctypes.windll.user32.MessageBoxW(0, str(msg), title, 0x00000030)
-    elif msgType == "error":
-        ctypes.windll.user32.MessageBoxW(0, str(msg), title, 0x00000010)
-    else:
+    msgboxTypes={
+        "info": 0,
+        "warning": 0x00000030,
+        "error": 0x00000010,
+    }
+    try:
+        ctypes.windll.user32.MessageBoxW(0, str(msg), title, msgboxTypes[msgType])
+    except KeyError:
         raise ValueError("msgType must be one of \"info\", \"warning\", \"error\".")
+    print(traceback.format_exc())
 try:
     from PyQt6 import QtCore, QtGui, QtWidgets
-    # from .Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
-    # from .Components.Tools.wordSimulator.wordSimulator import WordSimulator
-    # from .Components.Tools.mlToolBox.mlToolBox import MlToolBox
-    # from .Components.Games.Dice.dice import Dice
+    from baseWindow import BaseWindow
     from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
     from Components.Tools.wordSimulator.wordSimulator import WordSimulator
     from Components.Tools.mlToolBox.mlToolBox import MlToolBox
     from Components.Games.Dice.dice import Dice
-    from baseWindow import BaseWindow
+
 except ImportError as ie:
     showSysMsgBox(ie, title="Import Error", msgType="error")
     sys.exit()
