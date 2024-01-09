@@ -1,9 +1,10 @@
-from PyQt6 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui,QtCore
 import traceback
 import json
 
 _ENCODING: str = "utf-8"
-_settings: dict = json.load(open("settings.json", "r", encoding=_ENCODING))
+_SETTINGS_FILE_PATH: str = "settings.json"
+_settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
 
 
 class LayoutObject:
@@ -280,3 +281,21 @@ class BaseWindow(QtWidgets.QMainWindow):
                     self, "Fatal Error", "Failed to show message box.")
                 print(traceback.format_exc())
                 return 1
+
+    # press ESC to close window
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key.Key_Escape:
+            self.close()
+        elif event.key() == QtCore.Qt.Key.Key_F11:
+            if self.isFullScreen():
+                self.showNormal()
+            else:
+                self.showFullScreen()
+        # press Alt+F to open file menu
+        elif event.key() == QtCore.Qt.Key.Key_F and event.modifiers() == QtCore.Qt.KeyboardModifier.AltModifier:
+            self.menuBar().actions()[0].menu().exec(QtGui.QCursor.pos())
+        # press Alt+S to open settings menu
+        elif event.key() == QtCore.Qt.Key.Key_S and event.modifiers() == QtCore.Qt.KeyboardModifier.AltModifier:
+            self.menuBar().actions()[1].menu().exec(QtGui.QCursor.pos())
+        else:
+            super().keyPressEvent(event) # inherit keyEvent from parent class

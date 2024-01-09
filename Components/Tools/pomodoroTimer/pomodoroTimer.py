@@ -29,7 +29,6 @@ class PomodoroTimer(BaseWindow):
             event.accept()
         else:
             event.ignore()
-        event.accept()
 
     def setupLayout(self) -> None:
         # 初始化计时器

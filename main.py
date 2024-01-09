@@ -63,7 +63,6 @@ class ToolBoxUI(BaseWindow):
             event.accept()
         else:
             event.ignore()
-        event.accept()
 
     def setupUI(self):
         self.addWidgetToLayout("QLabel", text="Recent Used Application(s):")

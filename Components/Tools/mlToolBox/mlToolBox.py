@@ -28,7 +28,6 @@ class MlToolBox(BaseWindow):
             event.accept()
         else:
             event.ignore()
-        event.accept()
 
     def setup_ui(self):  # 用PyQt6原生编程，因为要保存text input box的内容
         self.create_menu_bar()
