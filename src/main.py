@@ -2,20 +2,12 @@ import sys
 import ctypes
 import traceback
 
-def showSysMsgBox(msg: str|BaseException, title: str, msgType: str = "info") -> None:
-    '''Show system default message box.'''
-    msgboxTypes={
-        "info": 0,
-        "warning": 0x00000030,
-        "error": 0x00000010,
-    }
-    try:
-        ctypes.windll.user32.MessageBoxW(0, str(msg), title, msgboxTypes[msgType])
-    except KeyError:
-        raise ValueError("msgType must be one of \"info\", \"warning\", \"error\".")
-    print(traceback.format_exc())
 try:
-    from PyQt6 import QtCore, QtGui, QtWidgets
+    from PyQt6 import (
+        QtCore, 
+        QtGui,
+        QtWidgets
+    )
     from baseWindow import BaseWindow
     from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
     from Components.Tools.wordSimulator.wordSimulator import WordSimulator
@@ -23,12 +15,13 @@ try:
     from Components.Games.Dice.dice import Dice
 
 except ImportError as ie:
-    showSysMsgBox(ie, title="Import Error", msgType="error")
+    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
+    print(traceback.format_exc())
     sys.exit()
 
 except Exception as e:
-    # show system default error message box
-    showSysMsgBox(e, title="Unknown Error", msgType="error")
+    ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
+    print(traceback.format_exc())
     sys.exit()
 
 class ToolBoxUI(BaseWindow):

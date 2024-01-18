@@ -1,6 +1,31 @@
-from PyQt6 import QtWidgets, QtGui,QtCore
+import sys
+import ctypes
 import traceback
 import json
+
+try:
+    from PyQt6 import QtWidgets, QtGui,QtCore
+
+except ImportError as ie:
+    ctypes.windll.user32.MessageBoxW(0, "Module PyQt6 cannot be imported. Trying PySide6...", "Import Error",0x10)
+    print(traceback.format_exc())
+    try:
+        from PySide6 import QtWidgets, QtGui,QtCore
+
+    except ImportError as ie:
+        ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
+        print(traceback.format_exc())
+        sys.exit()
+
+    except Exception as e:
+        ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
+        print(traceback.format_exc())
+        sys.exit()
+
+except Exception as e:
+    ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
+    print(traceback.format_exc())
+    sys.exit()
 
 _ENCODING: str = "utf-8"
 _SETTINGS_FILE_PATH: str = "settings.json"
