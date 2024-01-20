@@ -3,6 +3,19 @@ import ctypes
 import traceback
 import json
 
+ORIG_SETTINGS:dict={
+    "language": "en_US",
+    "windowSize": {
+        "width": 800,
+        "height": 600
+    },
+    "font": {
+        "family": "Consolas",
+        "size": 12,
+        "italic": False
+    }
+}
+
 try:
     from PyQt6 import QtWidgets, QtGui,QtCore
 
@@ -46,6 +59,7 @@ class BaseWindow(QtWidgets.QMainWindow):
     WINDOW_TITLE: str = 'Base Window'
 
     def __init__(self):
+        print("BaseWindow initializing...")
         super().__init__()
         self.WINDOW_SIZE: tuple[int, int] = (
             _settings["windowSize"]["width"], _settings["windowSize"]["height"])
@@ -54,28 +68,73 @@ class BaseWindow(QtWidgets.QMainWindow):
         self.__setupBaseUI()
         self.setFont(QtGui.QFont(
             _settings["font"]["family"], pointSize=_settings["font"]["size"], italic=_settings["font"]["italic"]))
+        print("BaseWindow initialized.")
 
     def __setupBaseUI(self):
+        print("Setting up basic UI...")
+        # check language
+        if self.language == "en_US":
+            print("Language detected: English.")
+            # TODO: use QTranslator , build qm file, add to resource file
+            # self.translator = QtCore.QTranslator(self)
+            # self.translator.load("en_US.qm")
+            # QtWidgets.QApplication.installTranslator(self.translator)
+            ... 
+        elif self.language == "zh_CN":
+            print("Language detected: Simplified Chinese.")
+            ...
+        elif self.language == "de_DE":
+            print("Language detected: German.")
+            ...
+        else:
+            print("Language not supported. Using default language: English.")
+            ...
+
         self.setWindowTitle(self.WINDOW_TITLE)
         self.resize(*self.WINDOW_SIZE)
         self.__setupBasicMenubar()
         self.__setupLayout()
+        print("Basic UI set up.")
 
     def __setupBasicMenubar(self) -> None:
+        print("Setting up basic menubar...")
+        self.addBasicMenus(withFile=False,withConfig=False)
+        print("Basic menubar set up.")
         pass
 
     def __setupLayout(self) -> None:
         '''
         Initialize basic layout: aka with no widgets.
         '''
+        print("Setting up basic layout...")
         self.updateLayout(QtWidgets.QVBoxLayout())
+        print("Basic layout set up.")
 
     @staticmethod
     def getEncoding() -> str:
         return _ENCODING
 
+    def resetSettings(self) -> int:
+        print("Resetting settings applied.")
+        reply=QtWidgets.QMessageBox.warning(
+            self, "Warning", "This will reset all settings to default. Are you sure to continue?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No, QtWidgets.QMessageBox.StandardButton.No)
+        if reply==QtWidgets.QMessageBox.StandardButton.Yes:
+            try:
+                json.dump(ORIG_SETTINGS, open(_SETTINGS_FILE_PATH,
+                        "w", encoding=_ENCODING), indent=4)
+                QtWidgets.QMessageBox.information(
+                    self, "Success", "Please restart the program to apply changes.")
+                return 0
+            except Exception:
+                QtWidgets.QMessageBox.critical(
+                    self, "Fatal Error", "Failed to reset settings.")
+                print(traceback.format_exc())
+                return 1
+        else:
+            return 0
+        
     def getSettings(self) -> dict:
-        return json.load(open("settings.json", "r", encoding=_ENCODING))
+        return json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
 
     def getLayout(self) -> LayoutObject:
         '''
@@ -243,6 +302,12 @@ class BaseWindow(QtWidgets.QMainWindow):
                 toFontCourierNewAction.triggered.connect(
                     lambda: self.changeFont(family="Courier New"))
                 fontMenu.addAction(toFontCourierNewAction)
+
+                # add reset settings action to settings menu
+                resetSettingsAction = QtGui.QAction("Reset Settings", self)
+                resetSettingsAction.triggered.connect(self.resetSettings)
+                settingsMenu.addAction(resetSettingsAction)
+
                 # add all font options to settings menu
                 settingsMenu.addMenu(fontMenu)
             return 0
@@ -259,9 +324,20 @@ class BaseWindow(QtWidgets.QMainWindow):
         '''
         return self.menuBar()
 
-    def changeLanguage(self, lang: str):
-        pass
-
+    def changeLanguage(self, lang: str)->int:
+        try:
+            _settings["language"] = lang
+            QtWidgets.QMessageBox.information(
+                    self, "Success", "Please restart the program to apply changes.")
+            json.dump(_settings, open(_SETTINGS_FILE_PATH,
+                      "w", encoding=_ENCODING), indent=4)
+            return 0
+        except Exception:
+            QtWidgets.QMessageBox.critical(
+                self, "Fatal Error", "Failed to change language.")
+            print(traceback.format_exc())
+            return 1
+        
     def changeFont(self, family: str | None = None, size: int | None = None, italic: bool | None = None) -> int:
         if family:
             _settings["font"]["family"] = family
@@ -270,7 +346,7 @@ class BaseWindow(QtWidgets.QMainWindow):
         if italic != None:
             _settings["font"]["italic"] = italic
         try:
-            json.dump(_settings, open("settings.json",
+            json.dump(_settings, open(_SETTINGS_FILE_PATH,
                       "w", encoding=_ENCODING), indent=4)
             QtWidgets.QMessageBox.information(
                 self, "Success", "Please restart the program to apply changes.")
