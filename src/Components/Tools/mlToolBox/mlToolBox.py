@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel, QLineEdit, QScrollArea, QSpinBox, QWidgetAction, QDoubleSpinBox, QCheckBox
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QAction
+from PySide6.QtWidgets import QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel, QLineEdit, QScrollArea, QSpinBox, QWidgetAction, QDoubleSpinBox, QCheckBox
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QAction
 from Components.Tools.mlToolBox.fynns_tool_model_v2_0 import *
 import traceback
 from baseWindow import BaseWindow
@@ -11,7 +11,7 @@ class MlToolBox(BaseWindow):
     # Default as Random Forest Regression
     selected_algorithm = "RandomForestRegression"
     selected_plot_style = "sp"  # Default as Scatter plot
-    isClosed = pyqtSignal(bool)
+    isClosed = Signal(bool)
 
     def __init__(self):
         super().__init__()
@@ -29,7 +29,7 @@ class MlToolBox(BaseWindow):
         else:
             event.ignore()
 
-    def setup_ui(self):  # 用PyQt6原生编程，因为要保存text input box的内容
+    def setup_ui(self):  # 用PySide6原生编程，因为要保存text input box的内容
         self.create_menu_bar()
 
         layout = QVBoxLayout()

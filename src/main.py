@@ -2,8 +2,9 @@ import sys
 import ctypes
 import traceback
 
+
 try:
-    from PyQt6 import (
+    from PySide6 import (
         QtCore, 
         QtGui,
         QtWidgets
@@ -24,6 +25,10 @@ except Exception as e:
     print(traceback.format_exc())
     sys.exit()
 
+
+
+
+
 class ToolBoxUI(BaseWindow):
     WINDOW_TITLE = "Tool Box"
     components = {
@@ -37,7 +42,7 @@ class ToolBoxUI(BaseWindow):
         }
     }
 
-    isClosed = QtCore.pyqtSignal(bool)
+    isClosed = QtCore.Signal(bool)
 
     def __init__(self):
         super().__init__()

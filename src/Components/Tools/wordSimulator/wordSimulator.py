@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox
-from PyQt6.QtCore import pyqtSignal
+from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
+from PySide6.QtCore import Signal
 import sys
 from baseWindow import BaseWindow
 
@@ -7,7 +7,7 @@ from baseWindow import BaseWindow
 class WordSimulator(BaseWindow):
     WINDOW_TITLE = "Word模拟器"
     FILE_SUPPORTED = "记事本(*.txt);;文档(*.doc,*.docx,*.oct);;所有文件 (*)"
-    isClosed = pyqtSignal(bool)
+    isClosed = Signal(bool)
 
     def __init__(self):
         super().__init__()

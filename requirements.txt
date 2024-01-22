@@ -1,4 +1,5 @@
-pyqt6
+# pyqt6
+pyside6
 # Machine Learning
 numpy
 pandas

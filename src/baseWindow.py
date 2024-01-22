@@ -17,23 +17,12 @@ ORIG_SETTINGS:dict={
 }
 
 try:
-    from PyQt6 import QtWidgets, QtGui,QtCore
+    from PySide6 import QtWidgets, QtGui,QtCore
 
 except ImportError as ie:
-    ctypes.windll.user32.MessageBoxW(0, "Module PyQt6 cannot be imported. Trying PySide6...", "Import Error",0x10)
+    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
     print(traceback.format_exc())
-    try:
-        from PySide6 import QtWidgets, QtGui,QtCore
-
-    except ImportError as ie:
-        ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
-        print(traceback.format_exc())
-        sys.exit()
-
-    except Exception as e:
-        ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
-        print(traceback.format_exc())
-        sys.exit()
+    sys.exit()
 
 except Exception as e:
     ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)

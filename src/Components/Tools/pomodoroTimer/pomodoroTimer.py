@@ -1,13 +1,28 @@
-from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLCDNumber, QMessageBox, QWidget, QDialog
-from PyQt6.QtCore import QTimer, QTime, pyqtSignal
-from PyQt6.QtGui import QAction
-from .setTime import SetTimeDialog
-from baseWindow import BaseWindow
+import sys
+import ctypes
+import traceback
 
+try:
+    from PySide6.QtWidgets import QVBoxLayout, QPushButton, QLCDNumber, QMessageBox, QWidget, QDialog
+    from PySide6.QtCore import QTimer, QTime, Signal
+    from PySide6.QtGui import QAction
+
+    from .setTime import SetTimeDialog
+    from baseWindow import BaseWindow
+
+except ImportError as ie:
+    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
+    print(traceback.format_exc())
+    sys.exit()
+
+except Exception as e:
+    ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
+    print(traceback.format_exc())
+    sys.exit()
 
 class PomodoroTimer(BaseWindow):
     WINDOW_TITLE = "番茄时钟"
-    isClosed = pyqtSignal(bool)
+    isClosed = Signal(bool)
     costumTime = (0, 25, 0)  # user input
 
     def __init__(self) -> None:

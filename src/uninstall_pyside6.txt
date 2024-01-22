@@ -1,0 +1,1 @@
+$ pip uninstall PySide6 PySide6_Addons-6.6.1.dist-info PySide6_Essentials-6.6.1.dist-info
