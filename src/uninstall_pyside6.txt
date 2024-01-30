@@ -1,3 +1,0 @@
-$ pip uninstall pyside6,shiboken6, PySide6-Essentials, PySide6-Addons
-
-$ pip uninstall PyQt6,PyQt6-Essentials, PyQt6-Addons, pyqt6-sip,PyQt6-Qt6

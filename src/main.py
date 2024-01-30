@@ -47,8 +47,8 @@ class ToolBoxUI(BaseWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(self.WINDOW_TITLE)
-        self.setupUI()
-        self.setupMenubar()
+        self.setup_ui()
+        self.setup_menubar()
 
     def closeEvent(self, event) -> None:
         '''Override the close event to perform custom actions if hasCloseEvent is True.'''
@@ -62,10 +62,10 @@ class ToolBoxUI(BaseWindow):
         else:
             event.ignore()
 
-    def setupUI(self):
+    def setup_ui(self):
         self.addWidgetToLayout("QLabel", text="Recent Used Application(s):")
 
-    def setupMenubar(self) -> None:
+    def setup_menubar(self) -> None:
         self.addBasicMenus()
         menubar = self.getCurrentMenubar()
         # components menu
@@ -111,6 +111,8 @@ class ToolBoxUI(BaseWindow):
         # append component name into resent used list
         print("Component", class_name, '.', component_name,
               "added into resent used list.")
+        # TODO
+        ...
 
     def open_component_window(self, class_name: str, component_name: str) -> None:
         # if 1 component is already opened, warn
@@ -118,7 +120,6 @@ class ToolBoxUI(BaseWindow):
             self.showMessageBox(msgType="warning",
                                 msg=f"{class_name}.{component_name} 已经打开")
         else:
-            # 创建新的 component 对象并显示
             component = self.create_and_save_component(
                 class_name, component_name)
             component.show()
