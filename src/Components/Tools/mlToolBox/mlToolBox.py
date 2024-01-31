@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel, QLineEdit, QScrollArea, QSpinBox, QWidgetAction, QDoubleSpinBox, QCheckBox
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QAction
-from Components.Tools.mlToolBox.fynns_tool_model_v2_0 import *
+from components.tools.mlToolBox.fynns_tool_model_v2_0 import *
 import traceback
 from baseWindow import BaseWindow
 

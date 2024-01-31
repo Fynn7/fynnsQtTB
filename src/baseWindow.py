@@ -3,19 +3,6 @@ import ctypes
 import traceback
 import json
 
-ORIG_SETTINGS:dict={
-    "language": "en_US",
-    "windowSize": {
-        "width": 800,
-        "height": 600
-    },
-    "font": {
-        "family": "Consolas",
-        "size": 12,
-        "italic": False
-    }
-}
-
 try:
     from PySide6 import QtWidgets, QtGui,QtCore
 
@@ -29,8 +16,21 @@ except Exception as e:
     print(traceback.format_exc())
     sys.exit()
 
+
+ORIG_SETTINGS:dict={
+    "language": "en_US",
+    "windowSize": {
+        "width": 800,
+        "height": 600
+    },
+    "font": {
+        "family": "Consolas",
+        "size": 12,
+        "italic": False
+    }
+}
 _ENCODING: str = "utf-8"
-_SETTINGS_FILE_PATH: str = "settings.json"
+_SETTINGS_FILE_PATH: str = "fynnsQtTB/src/settings.json"
 _settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
 
 

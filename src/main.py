@@ -10,10 +10,10 @@ try:
         QtWidgets
     )
     from baseWindow import BaseWindow
-    from Components.Tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
-    from Components.Tools.wordSimulator.wordSimulator import WordSimulator
-    from Components.Tools.mlToolBox.mlToolBox import MlToolBox
-    from Components.Games.Dice.dice import Dice
+    from components.tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
+    from components.tools.wordSimulator.wordSimulator import WordSimulator
+    from components.tools.mlToolBox.mlToolBox import MlToolBox
+    from components.games.dice.dice import Dice
 
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
