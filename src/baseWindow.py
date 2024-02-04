@@ -46,7 +46,7 @@ class Function:
 
 class BaseWindow(QtWidgets.QMainWindow):
     WINDOW_TITLE: str = 'Base Window'
-
+    
     def __init__(self):
         print("BaseWindow initializing...")
         super().__init__()
@@ -245,15 +245,22 @@ class BaseWindow(QtWidgets.QMainWindow):
 
             if withFile:
                 # file menu
-                fileMenu = baseMenuBar.addMenu("File (Alt+F)")
+                fileMenu = baseMenuBar.addMenu("File")
                 # add exit action
-                exitAction = QtGui.QAction("Exit (Alt+F4)", self)
+                exitAction = QtGui.QAction("Exit", self)
                 exitAction.triggered.connect(self.close)
                 fileMenu.addAction(exitAction)
 
             if withConfig:
                 # settings menu
-                settingsMenu = baseMenuBar.addMenu("Settings (Alt+S)")
+                settingsMenu = baseMenuBar.addMenu("Settings")
+
+                # add reset settings action to settings menu
+                resetSettingsAction = QtGui.QAction("Reset Settings", self)
+                resetSettingsAction.triggered.connect(self.resetSettings)
+                settingsMenu.addAction(resetSettingsAction)
+
+
                 # add change language sub-menu
                 languageMenu = QtWidgets.QMenu("Language", self)
                 # add change to chinese action
@@ -291,14 +298,19 @@ class BaseWindow(QtWidgets.QMainWindow):
                 toFontCourierNewAction.triggered.connect(
                     lambda: self.changeFont(family="Courier New"))
                 fontMenu.addAction(toFontCourierNewAction)
-
-                # add reset settings action to settings menu
-                resetSettingsAction = QtGui.QAction("Reset Settings", self)
-                resetSettingsAction.triggered.connect(self.resetSettings)
-                settingsMenu.addAction(resetSettingsAction)
+                
+                # add change font size action
+                changeFontSizeAction = QtGui.QAction("Font Size", self)
+                changeFontSizeAction.triggered.connect(self.changeFontSize)
+                fontMenu.addAction(changeFontSizeAction)
 
                 # add all font options to settings menu
                 settingsMenu.addMenu(fontMenu)
+
+                # NOTE: HERE FOR DEBUG THE BUTTONS ARE DISABLED
+                toZhCNAction.setEnabled(False)
+                toEnUSAction.setEnabled(False)
+                toDeDEAction.setEnabled(False)
             return 0
 
         except Exception:
@@ -346,6 +358,18 @@ class BaseWindow(QtWidgets.QMainWindow):
             print(traceback.format_exc())
             return 1
 
+    def changeFontSize(self)->int:
+        try:
+            changed_size,save_setting=QtWidgets.QInputDialog.getInt(self, "Change Font Size", "Enter font size:",value=_settings["font"]["size"],minValue=7,maxValue=20)
+        except Exception:
+            QtWidgets.QMessageBox.critical(
+                self, "Fatal Error", "Failed to change font size.")
+            print(traceback.format_exc())
+            return 1
+        if save_setting:
+            self.changeFont(size=changed_size)
+            print("Font size changed to",changed_size)
+        return 0
     def showMessageBox(self, msgType: str = "information", msg: str = "") -> QtWidgets.QMessageBox.StandardButton | int:
         '''
         Public method to show a message box.
@@ -374,6 +398,7 @@ class BaseWindow(QtWidgets.QMainWindow):
 
     # press ESC to close window
     def keyPressEvent(self, event):
+        '''override keyPressEvent by BaseWindow'''
         if event.key() == QtCore.Qt.Key.Key_Escape:
             self.close()
         elif event.key() == QtCore.Qt.Key.Key_F11:
@@ -381,11 +406,12 @@ class BaseWindow(QtWidgets.QMainWindow):
                 self.showNormal()
             else:
                 self.showFullScreen()
-        # press Alt+F to open file menu
-        elif event.key() == QtCore.Qt.Key.Key_F and event.modifiers() == QtCore.Qt.KeyboardModifier.AltModifier:
-            self.menuBar().actions()[0].menu().exec(QtGui.QCursor.pos())
-        # press Alt+S to open settings menu
-        elif event.key() == QtCore.Qt.Key.Key_S and event.modifiers() == QtCore.Qt.KeyboardModifier.AltModifier:
-            self.menuBar().actions()[1].menu().exec(QtGui.QCursor.pos())
         else:
-            super().keyPressEvent(event) # inherit keyEvent from parent class
+            super().keyPressEvent(event) # inherit keyEvent from QMainWindow
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    base_window = BaseWindow()
+    base_window.addBasicMenus()
+    base_window.show()
+    sys.exit(app.exec())

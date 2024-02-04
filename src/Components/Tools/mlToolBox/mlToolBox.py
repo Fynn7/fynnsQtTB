@@ -7,7 +7,7 @@ from baseWindow import BaseWindow
 
 
 class MlToolBox(BaseWindow):
-    WINDOW_TITLE = "机器学习工具包"
+    WINDOW_TITLE = "Machine Learning ToolBox"
     # Default as Random Forest Regression
     selected_algorithm = "RandomForestRegression"
     selected_plot_style = "sp"  # Default as Scatter plot
@@ -18,7 +18,7 @@ class MlToolBox(BaseWindow):
         self.setup_ui()
 
     def closeEvent(self, event) -> None:
-        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+        '''Override the close event to perform custom actions'''
         reply = QMessageBox.question(self, self.WINDOW_TITLE,
                                      "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
@@ -29,12 +29,12 @@ class MlToolBox(BaseWindow):
         else:
             event.ignore()
 
-    def setup_ui(self):  # 用PySide6原生编程，因为要保存text input box的内容
+    def setup_ui(self):
         self.create_menu_bar()
 
         layout = QVBoxLayout()
 
-        self.select_file_button = QPushButton("选择文件")
+        self.select_file_button = QPushButton("Choose File")
         self.select_file_button.clicked.connect(self.select_file)
         layout.addWidget(self.select_file_button)
 
@@ -44,27 +44,27 @@ class MlToolBox(BaseWindow):
 
         # 文本输入框用于用户输入y列的名称
         self.ycol_input = QLineEdit()
-        self.ycol_input.setPlaceholderText("输入y列的名称")
+        self.ycol_input.setPlaceholderText("input target column name")
         layout.addWidget(self.ycol_input)
 
         # 文本输入框用于用户输入其他参数
         self.model_args_input = QLineEdit()
         self.model_args_input.setPlaceholderText(
-            "（可选）输入其他fitModel参数（以逗号分隔，例如: arg1=value1, arg2=value2）")
+            "(optional) input model arguments in format: arg1=v1,arg2=v2,...")
         layout.addWidget(self.model_args_input)
 
-        self.run_ml_button = QPushButton(f"运行{self.selected_algorithm}算法")
+        self.run_ml_button = QPushButton(f"Run {self.selected_algorithm}")
         self.run_ml_button.clicked.connect(self.run_ml_algorithm)
         layout.addWidget(self.run_ml_button)
 
         # Placeholder for displaying the selected algorithm and scores
-        self.info_label = QLabel("尚无结果")
+        self.info_label = QLabel("No result yet.")
 
         scroll_area = QScrollArea()
         scroll_area.setWidget(self.info_label)
-        scroll_area.setWidgetResizable(True)  # 使得内容可以调整大小
+        scroll_area.setWidgetResizable(True)  # Make the label resize with the scroll area
 
-        layout.addWidget(scroll_area)  # 将 QScrollArea 放入布局
+        layout.addWidget(scroll_area)  # Add the scroll area to the layout
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
@@ -77,7 +77,7 @@ class MlToolBox(BaseWindow):
         menubar = self.menuBar()
 
         # Create Algorithm menu
-        algorithm_menu = menubar.addMenu("算法")
+        algorithm_menu = menubar.addMenu("Algorithm")
 
         # Add Linear Regression action
         self.linear_regression_action = QAction("Linear Regression", self)
@@ -98,21 +98,21 @@ class MlToolBox(BaseWindow):
         algorithm_menu.addAction(self.neural_network_action)
 
         # Create Style menu
-        style_menu = menubar.addMenu("样式")
+        style_menu = menubar.addMenu("Style")
 
         # Add Line Plot action
-        line_plot_action = QAction("折线图", self)
+        line_plot_action = QAction("Line Plot", self)
         line_plot_action.triggered.connect(
             lambda: self.select_plot_style("lp"))
         style_menu.addAction(line_plot_action)
 
         # Add Scatter Plot action
-        scatter_plot_action = QAction("散点图 (默认)", self)
+        scatter_plot_action = QAction("Scatter Plot (default)", self)
         scatter_plot_action.triggered.connect(
             lambda: self.select_plot_style("sp"))
         style_menu.addAction(scatter_plot_action)
 
-        self.parameters_menu = menubar.addMenu("参数")
+        self.parameters_menu = menubar.addMenu("Parameters")
 
         # 创建 QSpinBox 用于设置参数 "cv"
         self.cv_spinbox = QSpinBox()
@@ -172,10 +172,10 @@ class MlToolBox(BaseWindow):
         self.parameters_menu.addAction(print_info_widget_action)
 
         # result menu
-        self.result_menu = menubar.addMenu("结果展示")
+        self.result_menu = menubar.addMenu("Result")
 
         # 展示关联矩阵
-        self.plot_correlation_map_checkbox = QCheckBox("输出关联矩阵")
+        self.plot_correlation_map_checkbox = QCheckBox("Output Correlation Map")
         self.plot_correlation_map_checkbox.setChecked(True)
         plot_correlation_map_widget_action = QWidgetAction(self)
         plot_correlation_map_widget_action.setDefaultWidget(
@@ -183,29 +183,29 @@ class MlToolBox(BaseWindow):
         self.result_menu.addAction(plot_correlation_map_widget_action)
 
     def reset_info_label(self) -> None:
-        self.info_label.setText("尚无结果")
+        self.info_label.setText("No result yet.")
 
     def select_file(self) -> None:
         options = QFileDialog.Option.DontUseNativeDialog
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(
-            self, "选择csv文件", ".csv", "csv文件(*.csv)", options=options)
+            self, "Choose CSV File", ".csv", "csv文件(*.csv)", options=options)
 
         if file_path:
-            print(f"已选择文件: {file_path}")
+            print(f"Chosen File: {file_path}")
             self.file_path_label.setText(f"{file_path}")
             self.reset_info_label()
         else:
-            print("未选择文件")
+            print("File not chosen.")
 
     def select_algorithm(self, algorithm: str):
         self.selected_algorithm = algorithm
-        self.run_ml_button.setText(f"运行{algorithm}算法")
+        self.run_ml_button.setText(f"Run {algorithm}.")
 
     def select_plot_style(self, plot_style: str):
         self.selected_plot_style = plot_style
-        abbr = {"lp": "折线图", "sp": "散点图"}
-        QMessageBox.information(self, "提示", f"已选择 {abbr[plot_style]} 样式")
+        abbr = {"lp": "line plot", "sp": "scatter plot"}
+        QMessageBox.information(self, "Success", f"Plot style {abbr[plot_style]} chosen")
 
     def run_ml_algorithm(self) -> None:  # ycol: user input it in a text input box
         # values from user settings: saved as class attributes
@@ -231,7 +231,7 @@ class MlToolBox(BaseWindow):
             return
         except Exception:
             self.info_label.setText(
-                f"An Error Occurred:\n{traceback.format_exc()}")
+                f"An Unknown Error Occurred:\n{traceback.format_exc()}")
             return
         try:
             X = df.drop(ycol, axis=1)
@@ -248,8 +248,11 @@ class MlToolBox(BaseWindow):
         X, y = cleanData(X, y)
         # for other arguments for fitModel(), let user input in a text input box
         try:
+            # handling string input
             model_args = self.model_args_input.text()
+            # split args by comma
             model_args = model_args.split(",")
+            # arg format "argName=v"
             model_args = [arg.split("=") for arg in model_args]
             print(model_args)
             try:
@@ -264,12 +267,12 @@ class MlToolBox(BaseWindow):
                                   modelName=selected_algorithm, printInfo=print_info, plotPred=plot_pred, cv=cv, plotStyle=plot_style, **model_args)
             except Exception:
                 self.info_label.setText(
-                    f"An Error Occurred:\n{traceback.format_exc()}")
+                    f"Fit Model Failed:\n{traceback.format_exc()}")
                 return
 
         except Exception:
             self.info_label.setText(
-                f"An Error Occurred:\n{traceback.format_exc()}")
+                f"An Unknown Error Occurred:\n{traceback.format_exc()}")
             return
 
         # draw confusion matrix
@@ -280,7 +283,7 @@ class MlToolBox(BaseWindow):
                 plot_correlation_map(data=cleaned_df)
             except Exception:
                 self.info_label.setText(
-                    f"An Error Occurred:\n{traceback.format_exc()}")
+                    f"Correlation Map Error:\n{traceback.format_exc()}")
                 return
 
         # display result

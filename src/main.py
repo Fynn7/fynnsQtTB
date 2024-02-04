@@ -26,9 +26,6 @@ except Exception as e:
     sys.exit()
 
 
-
-
-
 class ToolBoxUI(BaseWindow):
     WINDOW_TITLE = "Tool Box"
     components = {
@@ -49,9 +46,9 @@ class ToolBoxUI(BaseWindow):
         self.setWindowTitle(self.WINDOW_TITLE)
         self.setup_ui()
         self.setup_menubar()
-
+    
     def closeEvent(self, event) -> None:
-        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+        '''Override closeEvent by main.py'''
         reply = QtWidgets.QMessageBox.question(self, self.WINDOW_TITLE,
                                                "Are you sure to quit?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,  QtWidgets.QMessageBox.StandardButton.No)
 
@@ -70,20 +67,21 @@ class ToolBoxUI(BaseWindow):
         menubar = self.getCurrentMenubar()
         # components menu
         components_menu = menubar.addMenu("components")
+
         # pomodoro timer action
-        pomodoro_timer_action = QtGui.QAction("pomodoro timer", self)
+        pomodoro_timer_action = QtGui.QAction("🍅 Pomodoro Timer", self)
         pomodoro_timer_action.triggered.connect(
             lambda: self.open_component_window("Tools", "PomodoroTimer"))
         components_menu.addAction(pomodoro_timer_action)
 
         # word simulator action
-        word_simulator_action = QtGui.QAction("word simulator", self)
+        word_simulator_action = QtGui.QAction("🖋 Word", self)
         word_simulator_action.triggered.connect(
             lambda: self.open_component_window("Tools", "WordSimulator"))
         components_menu.addAction(word_simulator_action)
 
         # ml toolbox action
-        ml_toolbox_action = QtGui.QAction("ml toolbox", self)
+        ml_toolbox_action = QtGui.QAction("🤖 Machine Learning", self)
         ml_toolbox_action.triggered.connect(
             lambda: self.open_component_window("Tools", "MlToolBox"))
         components_menu.addAction(ml_toolbox_action)
@@ -118,7 +116,7 @@ class ToolBoxUI(BaseWindow):
         # if 1 component is already opened, warn
         if self.components[class_name][component_name]:
             self.showMessageBox(msgType="warning",
-                                msg=f"{class_name}.{component_name} 已经打开")
+                                msg=f"{class_name}.{component_name} already opened.")
         else:
             component = self.create_and_save_component(
                 class_name, component_name)

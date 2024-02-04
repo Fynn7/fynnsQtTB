@@ -21,7 +21,7 @@ except Exception as e:
     sys.exit()
 
 class PomodoroTimer(BaseWindow):
-    WINDOW_TITLE = "番茄时钟"
+    WINDOW_TITLE = "Pomodoro Timer"
     isClosed = Signal(bool)
     costumTime = (0, 25, 0)  # user input
 
@@ -34,7 +34,7 @@ class PomodoroTimer(BaseWindow):
         self.resize(*self.WINDOW_SIZE)
 
     def closeEvent(self, event) -> None:
-        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
+        '''Override the close event to perform custom actions'''
         reply = QMessageBox.question(self, self.WINDOW_TITLE,
                                      "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
@@ -65,11 +65,11 @@ class PomodoroTimer(BaseWindow):
         layout.addWidget(self.timer_display)
 
         # 创建按钮
-        self.start_pause_button = QPushButton("启动")
+        self.start_pause_button = QPushButton("Start")
         self.start_pause_button.clicked.connect(self.start_pause_timer)
         layout.addWidget(self.start_pause_button)
 
-        self.reset_button = QPushButton("重置")
+        self.reset_button = QPushButton("Reset")
         self.reset_button.clicked.connect(self.reset_timer)
         layout.addWidget(self.reset_button)
 
@@ -84,9 +84,9 @@ class PomodoroTimer(BaseWindow):
         menubar = self.menuBar()
 
         # setting menu
-        config_menu = menubar.addMenu("设置")
+        config_menu = menubar.addMenu("Setting")
 
-        setTime_action = QAction("时长", self)
+        setTime_action = QAction("Time", self)
         setTime_action.triggered.connect(self.setTime)
         config_menu.addAction(setTime_action)
 
@@ -97,7 +97,7 @@ class PomodoroTimer(BaseWindow):
             # check if the time is valid (>0)
             print("Got time:", time)
             if time == (0, 0, 0):
-                QMessageBox.warning(self, "设置时间失败", "时间不能为0")
+                QMessageBox.warning(self, "Failed to set time", "Time cannot be 0. Please set a valid time.")
                 return
             else:  # time is valid, set the time
                 self.costumTime = time  # save it into attribute to use in reset_timer()
@@ -114,7 +114,7 @@ class PomodoroTimer(BaseWindow):
             self.is_running = False
             self.start_pause_button.setText("↓↓↓")
             self.start_pause_button.setDisabled(True)
-            self.reset_button.setText("重新启动")
+            self.reset_button.setText("Rerun Timer")
             self.timer_display.setStyleSheet("color: red")
 
     def start_pause_timer(self) -> None:
@@ -122,12 +122,12 @@ class PomodoroTimer(BaseWindow):
             # 如果计时器未运行，启动计时器
             self.timer.start(1000)  # 以1秒为单位更新
             self.is_running = True
-            self.start_pause_button.setText("暂停")
+            self.start_pause_button.setText("Pause")
         else:
             # 如果计时器正在运行，暂停计时器
             self.timer.stop()
             self.is_running = False
-            self.start_pause_button.setText("继续")
+            self.start_pause_button.setText("Continue")
 
     def reset_timer(self) -> None:
         # 重置计时器为初始状态
@@ -138,4 +138,4 @@ class PomodoroTimer(BaseWindow):
         h, m, s = self.costumTime
         self.time_left = QTime(h, m, s)
         self.timer_display.display(self.time_left.toString("hh:mm:ss"))
-        self.start_pause_button.setText("开始")
+        self.start_pause_button.setText("Start")

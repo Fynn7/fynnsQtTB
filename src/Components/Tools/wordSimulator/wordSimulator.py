@@ -5,8 +5,8 @@ from baseWindow import BaseWindow
 
 
 class WordSimulator(BaseWindow):
-    WINDOW_TITLE = "Word模拟器"
-    FILE_SUPPORTED = "记事本(*.txt);;文档(*.doc,*.docx,*.oct);;所有文件 (*)"
+    WINDOW_TITLE = "Word"
+    FILE_SUPPORTED = "Notebook(*.txt);;Word File(*.doc,*.docx,*.oct);;All Files (*)"
     isClosed = Signal(bool)
 
     def __init__(self):
@@ -15,11 +15,10 @@ class WordSimulator(BaseWindow):
         self.resize(*self.WINDOW_SIZE)
         self.addBasicMenus()
         self.addWidgetToLayout("QTextEdit")
-        self.addWidgetToLayout("QPushButton", text="保存",
+        self.addWidgetToLayout("QPushButton", text="Save",
                                clickedConn=self.save_document)
 
     def closeEvent(self, event) -> None:
-        '''Override the close event to perform custom actions if hasCloseEvent is True.'''
         reply = QMessageBox.question(self, self.WINDOW_TITLE,
                                      "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
@@ -33,7 +32,7 @@ class WordSimulator(BaseWindow):
 
     def save_document(self):
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "保存文档", "", self.FILE_SUPPORTED)
+            self, "Save", "", self.FILE_SUPPORTED)
         if file_path:
             with open(file_path, 'w') as file:
                 file.write(self.text_edit.toPlainText())
