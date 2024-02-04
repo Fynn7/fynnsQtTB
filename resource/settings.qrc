@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC>
+    <qresource prefix="/">
+        <file>settings.json</file>
+        <!-- Add more files as needed -->
+    </qresource>
+</RCC>

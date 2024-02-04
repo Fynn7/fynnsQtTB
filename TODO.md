@@ -28,7 +28,12 @@ sprint backlog:
         get more test dataset for mlToolBox
 
     other
-        install Qt Creator  *not possible, wait for student package!*
 
     test feedback
         performance bad: to slow, need too much time to setup
+
+
+Done:
+
+        install Qt Creator  *not possible, wait for student package!*
+        Qt Creator cannot be used correctly, I prefer just using VScode

@@ -1,0 +1,12 @@
+{
+    "language": "en_US",
+    "windowSize": {
+        "width": 800,
+        "height": 600
+    },
+    "font": {
+        "family": "Consolas",
+        "size": 12,
+        "italic": false
+    }
+}
