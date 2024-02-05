@@ -1,3 +1,4 @@
+# from abc import ABC, abstractmethod
 import sys
 import ctypes
 import traceback
@@ -27,7 +28,8 @@ ORIG_SETTINGS:dict={
         "family": "Consolas",
         "size": 12,
         "italic": False
-    }
+    },
+    "enable_closeEvent": True
 }
 _ENCODING: str = "utf-8"
 _SETTINGS_FILE_PATH: str = "fynnsQtTB/src/settings.json"
@@ -45,19 +47,80 @@ class Function:
 
 
 class BaseWindow(QtWidgets.QMainWindow):
-    WINDOW_TITLE: str = 'Base Window'
+    '''
+    NOTE: This class is not meant to be used directly. It's a base class for other windows. Even though it is not defined as an abstract class
     
+    Steps:
+    (* means optional step)
+    1. Create a new class that inherits from BaseWindow
+    2. Overwrite the WINDOW_TITLE attribute
+    3. Call the parent class __init__ method
+    4. Setup the UI in the setup_ui method
+    5. Add the basic menus in the setup_ui method
+    6. Add widgets to the layout in the setup_ui method
+    7. * Resize the window in the setup_ui method
+    8. * Add other methods and attributes as needed
+    9. Run the program
+
+    Example:
+
+    ```
+class Dice(BaseWindow):
+    def __init__(self):
+        self.WINDOW_TITLE = "Dice Game" # overwriting the parent class attribute before parent calling its __init__
+        # self.enable_closeEvent = False # overwriting the parent class attribute before parent calling its __init__
+        super(Dice, self).__init__()
+        self.setup_ui()
+
+
+    def setup_ui(self):
+        self.addBasicMenus() # optional if you want to add menu bar to this window
+        self.addWidgetToLayout("QLabel", text="Dice Game") # optional
+        self.addWidgetToLayout("QPushButton", text="Roll Dice", clickedConn=self.roll_dice) # optional
+        self.resize(300, 200) # optional
+
+    def roll_dice(self):
+        import random
+        dice = random.randint(1, 6)
+        self.addWidgetToLayout("QLabel", text=f"You rolled a {dice}")
+    ```
+    '''
+    WINDOW_TITLE: str = 'Base Window'
+    isClosed = QtCore.Signal(bool)
+
     def __init__(self):
         print("BaseWindow initializing...")
         super().__init__()
+        # Read settings
         self.WINDOW_SIZE: tuple[int, int] = (
             _settings["windowSize"]["width"], _settings["windowSize"]["height"])
         self.language: str = _settings["language"]
+        self.enable_closeEvent: bool = _settings["enable_closeEvent"]
+
         self.__layout: LayoutObject = None
         self.__setupBaseUI()
         self.setFont(QtGui.QFont(
             _settings["font"]["family"], pointSize=_settings["font"]["size"], italic=_settings["font"]["italic"]))
         print("BaseWindow initialized.")
+    
+    if _settings["enable_closeEvent"]:
+        def closeEvent(self, event) -> None:
+            '''Override closeEvent'''
+            reply = QtWidgets.QMessageBox.question(self, self.WINDOW_TITLE,
+                                                "Are you sure to quit?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,  QtWidgets.QMessageBox.StandardButton.No)
+
+            if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+                self.isClosed.emit(True)
+                print(self.WINDOW_TITLE, "closed.")
+                event.accept()
+            else:
+                event.ignore()
+    else: # without popup, but still emitting signal
+        def closeEvent(self, event) -> None:
+            '''Override closeEvent'''
+            self.isClosed.emit(True)
+            print(self.WINDOW_TITLE, "closed.")
+            event.accept()
 
     def __setupBaseUI(self):
         print("Setting up basic UI...")
@@ -122,6 +185,7 @@ class BaseWindow(QtWidgets.QMainWindow):
         else:
             return 0
         
+
     def getSettings(self) -> dict:
         return json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
 
@@ -260,6 +324,15 @@ class BaseWindow(QtWidgets.QMainWindow):
                 resetSettingsAction.triggered.connect(self.resetSettings)
                 settingsMenu.addAction(resetSettingsAction)
 
+                # add enable/disable closeEvent action to settings menu
+                enableCloseEventCheckBox = QtWidgets.QCheckBox("Enable closeEvent")
+                enableCloseEventCheckBox.setChecked(_settings["enable_closeEvent"])
+                enableCloseEventWidgetAction = QtWidgets.QWidgetAction(self)
+                enableCloseEventWidgetAction.setDefaultWidget(enableCloseEventCheckBox)
+                enableCloseEventCheckBox.stateChanged.connect(self.handleCloseEvent)
+                settingsMenu.addAction(enableCloseEventWidgetAction)
+                # save the checkbox as class attribute in order to get the value in handleCloseEvent
+                self.enableCloseEventCheckBox=enableCloseEventCheckBox
 
                 # add change language sub-menu
                 languageMenu = QtWidgets.QMenu("Language", self)
@@ -395,6 +468,20 @@ class BaseWindow(QtWidgets.QMainWindow):
                     self, "Fatal Error", "Failed to show message box.")
                 print(traceback.format_exc())
                 return 1
+            
+    def handleCloseEvent(self) -> int:
+        _settings["enable_closeEvent"]=self.enableCloseEventCheckBox.isChecked()
+        try:
+            json.dump(_settings, open(_SETTINGS_FILE_PATH,
+                      "w", encoding=_ENCODING), indent=4)
+            QtWidgets.QMessageBox.information(
+                self, "Success", "Please restart the program to apply changes.")
+            return 0
+        except Exception:
+            QtWidgets.QMessageBox.critical(
+                self, "Fatal Error", "Failed to change closeEvent settings.")
+            print(traceback.format_exc())
+            return 1
 
     # press ESC to close window
     def keyPressEvent(self, event):

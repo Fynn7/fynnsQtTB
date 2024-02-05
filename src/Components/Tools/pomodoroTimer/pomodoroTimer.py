@@ -21,29 +21,15 @@ except Exception as e:
     sys.exit()
 
 class PomodoroTimer(BaseWindow):
-    WINDOW_TITLE = "Pomodoro Timer"
-    isClosed = Signal(bool)
     costumTime = (0, 25, 0)  # user input
 
     def __init__(self) -> None:
+        self.WINDOW_TITLE="Pomodoro Timer" # overwriting the parent class attribute before parent calling its __init__
         super().__init__()
         self.WINDOW_SIZE = (400, 200)
         self.setupLayout()
         self.setupMenu()
-        self.setWindowTitle(self.WINDOW_TITLE)
         self.resize(*self.WINDOW_SIZE)
-
-    def closeEvent(self, event) -> None:
-        '''Override the close event to perform custom actions'''
-        reply = QMessageBox.question(self, self.WINDOW_TITLE,
-                                     "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.isClosed.emit(True)
-            print(self.WINDOW_TITLE, "closed.")  # DEBUGGER
-            event.accept()
-        else:
-            event.ignore()
 
     def setupLayout(self) -> None:
         # 初始化计时器

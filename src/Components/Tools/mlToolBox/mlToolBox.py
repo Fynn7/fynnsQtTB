@@ -11,24 +11,11 @@ class MlToolBox(BaseWindow):
     # Default as Random Forest Regression
     selected_algorithm = "RandomForestRegression"
     selected_plot_style = "sp"  # Default as Scatter plot
-    isClosed = Signal(bool)
 
     def __init__(self):
         super().__init__()
         self.setup_ui()
-
-    def closeEvent(self, event) -> None:
-        '''Override the close event to perform custom actions'''
-        reply = QMessageBox.question(self, self.WINDOW_TITLE,
-                                     "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.isClosed.emit(True)
-            print(self.WINDOW_TITLE, "closed.")  # DEBUGGER
-            event.accept()
-        else:
-            event.ignore()
-
+        
     def setup_ui(self):
         self.create_menu_bar()
 
