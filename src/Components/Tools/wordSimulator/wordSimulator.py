@@ -10,7 +10,7 @@ class WordSimulator(BaseWindow):
         self.WINDOW_TITLE = "Word Simulator" # overwriting the parent class attribute before parent calling its __init__
         super().__init__()
         self.resize(*self.WINDOW_SIZE)
-        self.addBasicMenus()
+        self.addBasicMenus(withConfig=False)
         self.addWidgetToLayout("QTextEdit")
         self.addWidgetToLayout("QPushButton", text="Save",
                                clickedConn=self.save_document)

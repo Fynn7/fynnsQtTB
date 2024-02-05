@@ -60,7 +60,7 @@ class MlToolBox(BaseWindow):
         self.setWindowTitle(self.WINDOW_TITLE)
 
     def create_menu_bar(self):
-        self.addBasicMenus(withFile=True, withConfig=True)
+        self.addBasicMenus(withFile=True, withConfig=False)
         menubar = self.menuBar()
 
         # Create Algorithm menu
