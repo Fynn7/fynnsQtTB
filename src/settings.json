@@ -5,9 +5,9 @@
         "height": 600
     },
     "font": {
-        "family": "Courier New",
+        "family": "Consolas",
         "size": 12,
         "italic": false
     },
-    "enable_closeEvent": true
+    "enable_closeEvent": false
 }

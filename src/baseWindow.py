@@ -29,7 +29,7 @@ ORIG_SETTINGS:dict={
         "size": 12,
         "italic": False
     },
-    "enable_closeEvent": True
+    "enable_closeEvent": False
 }
 _ENCODING: str = "utf-8"
 _SETTINGS_FILE_PATH: str = "fynnsQtTB/src/settings.json"
@@ -172,10 +172,11 @@ class Dice(BaseWindow):
             self, "Warning", "This will reset all settings to default. Are you sure to continue?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No, QtWidgets.QMessageBox.StandardButton.No)
         if reply==QtWidgets.QMessageBox.StandardButton.Yes:
             try:
+                # set enableCloseEventCheckBox to default value: false
+                self.enableCloseEventCheckBox.setChecked(False)
+
                 json.dump(ORIG_SETTINGS, open(_SETTINGS_FILE_PATH,
                         "w", encoding=_ENCODING), indent=4)
-                QtWidgets.QMessageBox.information(
-                    self, "Success", "Please restart the program to apply changes.")
                 return 0
             except Exception:
                 QtWidgets.QMessageBox.critical(
