@@ -46,7 +46,7 @@ class ToolBoxUI(BaseWindow):
         self.setup_menubar()
 
 
-    def setup_ui(self):
+    def setup_ui(self)->None:
         self.addWidgetToLayout("QLabel", text="Recent Used Application(s):")
 
     def setup_menubar(self) -> None:

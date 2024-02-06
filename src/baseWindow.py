@@ -38,7 +38,8 @@ _settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
 
 class LayoutObject:
     '''Unused class just for layout type hinting'''
-    pass
+    def count(self):
+        pass
 
 
 class Function:

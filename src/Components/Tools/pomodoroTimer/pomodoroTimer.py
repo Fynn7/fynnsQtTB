@@ -78,13 +78,14 @@ class PomodoroTimer(BaseWindow):
 
     def setTime(self) -> None:
         dialog = SetTimeDialog(self)
+        # if the dialog is accepted, get the time from the dialog
         if dialog.exec() == QDialog.DialogCode.Accepted:
+            # get the time from the dialog
             time = dialog.get_time()
             # check if the time is valid (>0)
             print("Got time:", time)
             if time == (0, 0, 0):
                 QMessageBox.warning(self, "Failed to set time", "Time cannot be 0. Please set a valid time.")
-                return
             else:  # time is valid, set the time
                 self.costumTime = time  # save it into attribute to use in reset_timer()
                 self.time_left = QTime(time[0], time[1], time[2])
