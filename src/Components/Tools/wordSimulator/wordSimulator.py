@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Slot
 import sys
 from baseWindow import BaseWindow
 
@@ -16,6 +16,7 @@ class WordSimulator(BaseWindow):
                                clickedConn=self.save_document)
 
 
+    @Slot()
     def save_document(self):
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Save", "", self.FILE_SUPPORTED)

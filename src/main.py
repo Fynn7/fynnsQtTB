@@ -85,6 +85,7 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Games", "Dice"))
         game_menu.addAction(dice_action)
 
+
     def create_and_save_component(self, class_name: str, component_name: str) -> QtWidgets.QMainWindow:
         try:
             component: QtWidgets.QMainWindow = eval(f"{component_name}()")
@@ -100,6 +101,7 @@ class ToolBoxUI(BaseWindow):
                                 msg=f"Unknown error when creating component {component_name} under class {class_name}.\nOriginal error message:\n{e}")
             raise Exception(e)
 
+    @QtCore.Slot()
     def reset_component(self, class_name: str, component_name: str) -> None:
         self.components[class_name][component_name] = None
         print("Current components' status =", self.components)
@@ -111,6 +113,7 @@ class ToolBoxUI(BaseWindow):
         # TODO
         ...
 
+    @QtCore.Slot()
     def open_component_window(self, class_name: str, component_name: str) -> None:
         # if 1 component is already opened, warn
         if self.components[class_name][component_name]:

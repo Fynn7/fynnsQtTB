@@ -37,7 +37,7 @@ class Dice(BaseWindow):
         '''
         
         # remove labels first
-        self.clear_layout()
+        self.clearLayout()
 
         # TODO: make the game more interesting
         self.addWidgetToLayout("QLabel", text="0€")
@@ -85,13 +85,6 @@ class Dice(BaseWindow):
 
 
             self.reset_dice_labels() # set labels according to user settings
-
-    def clear_layout(self):
-        layout=self.getLayout()
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
 
         
             

@@ -4,7 +4,7 @@ import traceback
 
 try:
     from PySide6.QtWidgets import QVBoxLayout, QPushButton, QLCDNumber, QMessageBox, QWidget, QDialog
-    from PySide6.QtCore import QTimer, QTime, Signal
+    from PySide6.QtCore import QTimer, QTime, Slot
     from PySide6.QtGui import QAction
 
     from .setTime import SetTimeDialog
@@ -76,6 +76,7 @@ class PomodoroTimer(BaseWindow):
         setTime_action.triggered.connect(self.setTime)
         config_menu.addAction(setTime_action)
 
+    @Slot() # syntax sugar for slot connector function
     def setTime(self) -> None:
         dialog = SetTimeDialog(self)
         # if the dialog is accepted, get the time from the dialog
@@ -91,6 +92,7 @@ class PomodoroTimer(BaseWindow):
                 self.time_left = QTime(time[0], time[1], time[2])
                 self.timer_display.display(self.time_left.toString("hh:mm:ss"))
 
+    @Slot() # syntax sugar for slot connector function
     def update_timer(self) -> None:
         if self.time_left > QTime(0, 0, 0):
             self.time_left = self.time_left.addSecs(-1)
@@ -104,6 +106,7 @@ class PomodoroTimer(BaseWindow):
             self.reset_button.setText("Rerun Timer")
             self.timer_display.setStyleSheet("color: red")
 
+    @Slot() # syntax sugar for slot connector function
     def start_pause_timer(self) -> None:
         if not self.is_running:
             # 如果计时器未运行，启动计时器
@@ -116,6 +119,7 @@ class PomodoroTimer(BaseWindow):
             self.is_running = False
             self.start_pause_button.setText("Continue")
 
+    @Slot() # syntax sugar for slot connector function
     def reset_timer(self) -> None:
         # 重置计时器为初始状态
         self.timer_display.setStyleSheet("color: black")

@@ -39,8 +39,17 @@ _settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
 class LayoutObject:
     '''Unused class just for layout type hinting'''
     def count(self):
+        '''
+        Return the number of items in the layout.
+        NOTE: this is only a hint for type checking
+        '''
         pass
-
+    def takeAt(self,index:int)->QtWidgets.QLayoutItem:
+        '''
+        Return the item at position index from the layout.
+        NOTE: this is only a hint for type checking
+        '''
+        pass
 
 class Function:
     '''Unused class just for callable type hinting'''
@@ -400,6 +409,7 @@ class Dice(BaseWindow):
         '''
         return self.menuBar()
 
+    @QtCore.Slot() # syntax sugar for signal-slot connection
     def changeLanguage(self, lang: str)->int:
         try:
             _settings["language"] = lang
@@ -413,7 +423,8 @@ class Dice(BaseWindow):
                 self, "Fatal Error", "Failed to change language.")
             print(traceback.format_exc())
             return 1
-        
+    
+    @QtCore.Slot() # syntax sugar for signal-slot connection
     def changeFont(self, family: str | None = None, size: int | None = None, italic: bool | None = None) -> int:
         if family:
             _settings["font"]["family"] = family
@@ -433,6 +444,7 @@ class Dice(BaseWindow):
             print(traceback.format_exc())
             return 1
 
+    @QtCore.Slot() # syntax sugar for signal-slot connection
     def changeFontSize(self)->int:
         try:
             changed_size,save_setting=QtWidgets.QInputDialog.getInt(self, "Change Font Size", "Enter font size:",value=_settings["font"]["size"],minValue=7,maxValue=20)
@@ -445,6 +457,7 @@ class Dice(BaseWindow):
             self.changeFont(size=changed_size)
             print("Font size changed to",changed_size)
         return 0
+    
     def showMessageBox(self, msgType: str = "information", msg: str = "") -> QtWidgets.QMessageBox.StandardButton | int:
         '''
         Public method to show a message box.
@@ -470,7 +483,8 @@ class Dice(BaseWindow):
                     self, "Fatal Error", "Failed to show message box.")
                 print(traceback.format_exc())
                 return 1
-            
+    
+    @QtCore.Slot() # syntax sugar for signal-slot connection
     def handleCloseEvent(self) -> int:
         _settings["enable_closeEvent"]=self.enableCloseEventCheckBox.isChecked()
         try:
@@ -498,8 +512,16 @@ class Dice(BaseWindow):
         else:
             super().keyPressEvent(event) # inherit keyEvent from QMainWindow
 
+    def clearLayout(self):
+        '''Clearout all widgets in the layout'''
+        layout=self.getLayout()
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv) # introduce command line arguments
     base_window = BaseWindow()
     base_window.addBasicMenus()
     base_window.show()
