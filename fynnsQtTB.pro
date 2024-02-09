@@ -1,3 +1,5 @@
+# This File is no more useful since I don't use QCreator to build the whole project.
+####################################################################################
 QT = core gui widgets
 
 
