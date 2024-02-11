@@ -32,9 +32,12 @@ ORIG_SETTINGS:dict={
     "enable_closeEvent": False
 }
 _ENCODING: str = "utf-8"
-_SETTINGS_FILE_PATH: str = "fynnsQtTB/src/settings.json"
-_settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
-
+_SETTINGS_FILE_PATH: str = "src/settings.json"
+try:
+    _settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
+except FileNotFoundError as e:
+    ctypes.windll.user32.MessageBoxW(0, str(e)+"\n`cd fynnsQtTB` into your project folder and try running again. ", "Unknown Error",0x10)
+    sys.exit(1) # stop and break out the program
 
 class LayoutObject:
     '''Unused class just for layout type hinting'''
@@ -520,9 +523,9 @@ class Dice(BaseWindow):
             if child.widget():
                 child.widget().deleteLater()
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv) # introduce command line arguments
-    base_window = BaseWindow()
-    base_window.addBasicMenus()
-    base_window.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv) # introduce command line arguments
+#     base_window = BaseWindow()
+#     base_window.addBasicMenus()
+#     base_window.show()
+#     sys.exit(app.exec())

@@ -47,7 +47,7 @@ class ToolBoxUI(BaseWindow):
 
 
     def setup_ui(self)->None:
-        self.addWidgetToLayout("QLabel", text="Recent Used Application(s):")
+        self.addWidgetToLayout("QLabel", text="Nothing to show (but later can used as a notification area instead of pop-up windows)")
 
     def setup_menubar(self) -> None:
         # add basic menus (baseWindow parent method)
@@ -106,12 +106,6 @@ class ToolBoxUI(BaseWindow):
         self.components[class_name][component_name] = None
         print("Current components' status =", self.components)
 
-    def add_resent_used(self, class_name: str, component_name: str) -> None:
-        # append component name into resent used list
-        print("Component", class_name, '.', component_name,
-              "added into resent used list.")
-        # TODO
-        ...
 
     @QtCore.Slot()
     def open_component_window(self, class_name: str, component_name: str) -> None:
@@ -124,8 +118,6 @@ class ToolBoxUI(BaseWindow):
                 class_name, component_name)
             component.show()
             print("\"", class_name, '.', component_name, "\"", "opened.")
-            # append component name into resent used list
-            self.add_resent_used(class_name, component_name)
             print("Current components' status =", self.components)
             # connect component closed signal with reset_component()
             component.isClosed.connect(

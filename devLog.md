@@ -1,6 +1,6 @@
 venv Startup:
 ```
-$ cd C:\Users\Fynn\OneDrive\_Docs\CODING\GitHub\PROJECT_NAME
+$ cd C:\Users\Fynn\OneDrive\_Docs\CODING\fynns_ws\PROJECT_NAME
 $ python -m venv venv
 
 ```
@@ -8,7 +8,7 @@ $ python -m venv venv
 Start running project:
 ```
 # If you are not in project folder
-$ cd C:\Users\Fynn\OneDrive\_Docs\CODING\GitHub\PROJECT_NAME
+$ cd C:\Users\Fynn\OneDrive\_Docs\CODING\fynns_ws\PROJECT_NAME
 
 # Activate venv
 $ .\venv\Scripts\activate
