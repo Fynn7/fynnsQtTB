@@ -1,3 +1,4 @@
+from typing import type_check_only
 # from abc import ABC, abstractmethod
 import sys
 import ctypes
@@ -39,6 +40,7 @@ except FileNotFoundError as e:
     ctypes.windll.user32.MessageBoxW(0, str(e)+"\n`cd fynnsQtTB` into your project folder and try running again. ", "Unknown Error",0x10)
     sys.exit(1) # stop and break out the program
 
+@type_check_only
 class LayoutObject:
     '''Unused class just for layout type hinting'''
     def count(self):
@@ -54,9 +56,6 @@ class LayoutObject:
         '''
         pass
 
-class Function:
-    '''Unused class just for callable type hinting'''
-    pass
 
 
 class BaseWindow(QtWidgets.QMainWindow):
@@ -243,7 +242,7 @@ class Dice(BaseWindow):
         # save layout object variable
         self.__layout = layout
 
-    def addWidgetToLayout(self, widgetType: str, text: str | None = None, clickedConn: Function | None = None) -> QtWidgets.QWidget | int:
+    def addWidgetToLayout(self, widgetType: str, text: str | None = None, clickedConn: function | None = None) -> QtWidgets.QWidget | int:
         '''
         Public methode
 
