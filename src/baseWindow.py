@@ -1,4 +1,4 @@
-from typing import type_check_only
+# from typing import type_check_only
 # from abc import ABC, abstractmethod
 import sys
 import ctypes
@@ -34,13 +34,17 @@ ORIG_SETTINGS:dict={
 }
 _ENCODING: str = "utf-8"
 _SETTINGS_FILE_PATH: str = "src/settings.json"
+# _DATA_FILE_PATH: str = "src/data.json"
+
 try:
     _settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
+    # _data: dict = json.load(open(_DATA_FILE_PATH, "r", encoding=_ENCODING))
+    
 except FileNotFoundError as e:
     ctypes.windll.user32.MessageBoxW(0, str(e)+"\n`cd fynnsQtTB` into your project folder and try running again. ", "Unknown Error",0x10)
     sys.exit(1) # stop and break out the program
 
-@type_check_only
+# @type_check_only
 class LayoutObject:
     '''Unused class just for layout type hinting'''
     def count(self):
@@ -56,6 +60,15 @@ class LayoutObject:
         '''
         pass
 
+# @type_check_only
+class function:
+    '''Unused class just for function type hinting'''
+    def __call__(self):
+        '''
+        Return the result of calling this function.
+        NOTE: this is only a hint for type checking
+        '''
+        pass
 
 
 class BaseWindow(QtWidgets.QMainWindow):
@@ -98,8 +111,8 @@ class Dice(BaseWindow):
     ```
     '''
     WINDOW_TITLE: str = 'Base Window'
-    isClosed = QtCore.Signal(bool)
-
+    isClosed:QtCore.Signal = QtCore.Signal(bool)
+    changed_balance: QtCore.Signal = QtCore.Signal(float)
     def __init__(self):
         print("BaseWindow initializing...")
         super().__init__()
@@ -501,7 +514,7 @@ class Dice(BaseWindow):
             print(traceback.format_exc())
             return 1
 
-    # press ESC to close window
+    # override keyPressEvent by BaseWindow
     def keyPressEvent(self, event):
         '''override keyPressEvent by BaseWindow'''
         if event.key() == QtCore.Qt.Key.Key_Escape:

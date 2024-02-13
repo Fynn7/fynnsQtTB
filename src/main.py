@@ -1,7 +1,7 @@
 import sys
 import ctypes
 import traceback
-
+import json
 
 try:
     from PySide6 import (
@@ -14,6 +14,8 @@ try:
     from components.tools.wordSimulator.wordSimulator import WordSimulator
     from components.tools.mlToolBox.mlToolBox import MlToolBox
     from components.games.dice.dice import Dice
+
+    from components.basic.shop import Shop
 
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
@@ -36,6 +38,9 @@ class ToolBoxUI(BaseWindow):
         "Games": {
             "Dice": None,
             "Poker":None,
+        },
+        "Basic": {
+            "Shop": None,
         }
     }
 
@@ -54,6 +59,7 @@ class ToolBoxUI(BaseWindow):
         self.addBasicMenus()
         
         menubar = self.getCurrentMenubar()
+
         # tool menu
         tool_menu = menubar.addMenu("Tools")
 
@@ -85,6 +91,13 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Games", "Dice"))
         game_menu.addAction(dice_action)
 
+
+        # shop action: directly add to base menubar
+        init_balance:float= json.load(open("src/data.json", "r"))["balance"]
+        shop_action = QtGui.QAction(str(init_balance)+" €", self)
+        shop_action.triggered.connect(
+            lambda: self.open_component_window("Basic", "Shop"))
+        menubar.addAction(shop_action)
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QtWidgets.QMainWindow:
         try:
@@ -122,10 +135,20 @@ class ToolBoxUI(BaseWindow):
             # connect component closed signal with reset_component()
             component.isClosed.connect(
                 lambda: self.reset_component(class_name, component_name))
+            component.changed_balance.connect(self.update_balance)
 
+    @QtCore.Slot(float)
+    def update_balance(self, new_balance: float) -> None:
+        # update main window display
+        self.getCurrentMenubar().actions()[4].setText(str(new_balance)+" €")
+        json.dump({"balance": new_balance}, open("src/data.json", "w"))
+        print("Balance updated to", new_balance, "€")
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
+def main():
+    app = QtWidgets.QApplication(sys.argv)
     mainWindow = ToolBoxUI()
     mainWindow.show()
-    app.exec()
+    sys.exit(app.exec())
+             
+if __name__ == "__main__":
+    main()
