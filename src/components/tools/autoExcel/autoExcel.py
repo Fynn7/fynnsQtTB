@@ -294,6 +294,7 @@ class AutoExcel(BaseWindow):
         
         self.translation_thread = TranslationThread(df, chosen_columns)
         self.translation_thread.progress_updated.connect(self.progress_dialog.update_progress)
+        self.translation_thread.current_translate_text.connect(self.progress_dialog.update_current_translate_label)
         self.translation_thread.finished.connect(self.progress_dialog.close)
         self.translation_thread.finished.connect(lambda: self.update_table_field(self.translation_thread.df))
         self.translation_thread.start()

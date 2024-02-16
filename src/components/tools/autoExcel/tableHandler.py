@@ -5,6 +5,7 @@ from PySide6.QtCore import QThread, Signal
 
 class TranslationThread(QThread):
     progress_updated = Signal(int)
+    current_translate_text=Signal(str)
 
     def __init__(self, df:pd.DataFrame, chosen_columns:list, dest_lang:str='zh-cn',src_lang:str='de'):
         super().__init__()
@@ -20,6 +21,7 @@ class TranslationThread(QThread):
             nonlocal translated_elements
             try:
                 print("translating element: ", x)
+                self.current_translate_text.emit(f"Translating {x}")
                 translated_text = translator.translate(x, dest=dest_lang,src=src_lang).text
                 translated_elements += 1
                 self.progress_updated.emit(translated_elements * 100 / total_elements)  # Emit signal for each translated element

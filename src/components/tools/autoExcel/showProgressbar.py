@@ -16,8 +16,13 @@ class ShowProgressbar(QDialog):
         self.progressbar = QProgressBar()
         self.progressbar.setAlignment(Qt.AlignCenter)
 
+        self.current_translate_label = QLabel("Translating ...")
         
         layout.addWidget(self.progressbar)
-
-    def update_progress(self, value):
+        layout.addWidget(self.current_translate_label)
+        
+    def update_progress(self, value:int):
         self.progressbar.setValue(value)
+
+    def update_current_translate_label(self, value:str):
+        self.current_translate_label.setText(value)
