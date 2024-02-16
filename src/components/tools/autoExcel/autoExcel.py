@@ -17,7 +17,7 @@ class AutoExcel(BaseWindow):
 
     def setupUi(self):
         self.addWidgetToLayout("QLabel", text="Auto Excel Label")
-
+        browsefile_button = self.addWidgetToLayout("QPushButton", text="Browse File", clickedConn=self.browseFile)
     def setupMenubar(self):
         self.addBasicMenus(withConfig=False)
 

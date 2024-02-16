@@ -175,18 +175,31 @@ class MlToolBox(BaseWindow):
         self.info_label.setText("No result yet.")
 
     @Slot()  # syntax sugar for slot connector function
-    def select_file(self) -> None:
-        options = QFileDialog.Option.DontUseNativeDialog
+    def select_file(self):
         file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(
-            self, "Choose CSV File", ".csv", "csv文件(*.csv)", options=options)
+        file_dialog.setFileMode(QFileDialog.ExistingFile)
+        file_dialog.setNameFilter("Data Files (*.csv *.xlsx *.xls)")
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            if selected_files:
+                file_path = selected_files[0]
+                print("Selected file:", file_path)
+                self.file_path_label.setText(file_path)
+                self.reset_info_label()
 
-        if file_path:
-            print(f"Chosen File: {file_path}")
-            self.file_path_label.setText(f"{file_path}")
-            self.reset_info_label()
-        else:
-            print("File not chosen.")
+    # @Slot()  # syntax sugar for slot connector function
+    # def select_file(self) -> None:
+    #     options = QFileDialog.Option.DontUseNativeDialog
+    #     file_dialog = QFileDialog()
+    #     file_path, _ = file_dialog.getOpenFileName(
+    #         self, "Choose CSV File", ".csv", "csv文件(*.csv)", options=options)
+
+    #     if file_path:
+    #         print(f"Chosen File: {file_path}")
+    #         self.file_path_label.setText(f"{file_path}")
+    #         self.reset_info_label()
+    #     else:
+    #         print("File not chosen.")
 
     @Slot()  # syntax sugar for slot connector function
     def select_algorithm(self, algorithm: str):
@@ -249,6 +262,7 @@ class MlToolBox(BaseWindow):
             # arg format "argName=v"
             model_args = [arg.split("=") for arg in model_args]
             print(model_args)
+            # convert model arguments to dictionary
             try:
                 model_args = {arg[0]: (int(arg[1]) if arg[1].isnumeric(
                 ) else arg[1]) for arg in model_args} if model_args != [['']] else {}
