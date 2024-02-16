@@ -9,18 +9,23 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import (
     Qt,
     Slot,
-    QDir,
+    QThread,
+    Signal,
 )
 from PySide6.QtGui import (
     QWheelEvent,
-    QAction
+    QAction,
 )
 import pandas as pd
+import functools
+
 
 from baseWindow import BaseWindow
 from .tableHandler import *
 from .chooseTable import ChooseTable
-import functools
+from .chooseColumn import ChooseColumn
+from .showProgressbar import ShowProgressbar
+
 
 class AutoExcel(BaseWindow):
     '''
@@ -80,9 +85,18 @@ class AutoExcel(BaseWindow):
         self.save_change_action.setDisabled(True)
         self.save_change_action.setShortcut("Ctrl+S")
 
+        function_menu = menubar.addMenu("Function")
+        
+        self.translate_table_action = QAction("Translate Table", self)
+        function_menu.addAction(self.translate_table_action)
+        self.translate_table_action.triggered.connect(self.translate_table)
+        self.translate_table_action.setDisabled(True)
 
     def disable_signal(func):
-        '''use when the table is being updated by the program, so only when user changes the table, the signal will be emitted'''
+        '''
+        use when the table is being updated by the program, 
+        so only when user changes the table, the signal will be emitted
+        '''
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             self = args[0]  # Assuming the first argument is self
@@ -93,7 +107,7 @@ class AutoExcel(BaseWindow):
         return wrapper
     
     @disable_signal
-    def update_table_field(self, df: pd.DataFrame) -> None:
+    def update_table_field_for_user(self, df: pd.DataFrame) -> None:
         '''
         update the table with the given dataframe
 
@@ -111,6 +125,24 @@ class AutoExcel(BaseWindow):
                     self.table_field.setItem(
                         i, j, QTableWidgetItem(str(df.iloc[i, j])))
 
+    def update_table_field(self, df: pd.DataFrame) -> None:
+        '''
+        update the table with the given dataframe
+
+        TODO: it is better to only update the diff (later work)
+        '''
+        self.table_field.setRowCount(df.shape[0])
+        self.table_field.setColumnCount(df.shape[1])
+        self.table_field.setHorizontalHeaderLabels(df.columns)
+        for i in range(df.shape[0]):
+            for j in range(df.shape[1]):
+                # if the cell is empty, it will be NaN, so we need to convert it to empty string
+                if pd.isna(df.iloc[i, j]):
+                    self.table_field.setItem(i, j, QTableWidgetItem(""))
+                else:
+                    self.table_field.setItem(
+                        i, j, QTableWidgetItem(str(df.iloc[i, j])))
+                    
     @Slot()
     def select_file(self) -> None:
         # first need to confirm if save the change before select a new file
@@ -158,7 +190,7 @@ class AutoExcel(BaseWindow):
                     # self.table_field.itemChanged.disconnect(self.mark_as_changed)
 
                     # show the selected table
-                    self.update_table_field(tables[chosen_table_name])
+                    self.update_table_field_for_user(tables[chosen_table_name])
 
                     # # ★ connect the signal back
                     # self.table_field.itemChanged.connect(self.mark_as_changed)
@@ -168,6 +200,7 @@ class AutoExcel(BaseWindow):
                     if len(table_names) > 1:
                         self.switch_table_action.setEnabled(True)
                     self.save_change_action.setEnabled(True)
+                    self.translate_table_action.setEnabled(True)
                     
             else:
                 self.file_path_label.setText("file unselected")
@@ -178,10 +211,18 @@ class AutoExcel(BaseWindow):
         dialog = ChooseTable(table_names,default_table_name)
         # if the dialog is accepted, get the time from the dialog
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            # get the time from the dialog
             got_chosen_table = dialog.get_chosen_table()
             print("got_chosen_table:", got_chosen_table)
             return got_chosen_table
+        
+    def open_choose_column_dialog(self, column_names: list) -> list | None:
+        dialog = ChooseColumn(column_names)
+        # if the dialog is accepted, get the time from the dialog
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            got_chosen_columns = dialog.get_chosen_columns()
+            print("got_chosen_columns:", got_chosen_columns)
+            return got_chosen_columns
+    
 
     @Slot()
     def save_change(self):
@@ -232,11 +273,38 @@ class AutoExcel(BaseWindow):
         self.chosen_table_name = chosen_table_name
         # update the table name label
         self.table_name_label.setText(f"Table: {chosen_table_name}")
-        self.update_table_field(self.tables[chosen_table_name])
+        self.update_table_field_for_user(self.tables[chosen_table_name])
     
     @Slot()
+    def translate_table(self):
+        '''
+        translate the table using google translator
+        '''
+        # get the current table
+        if self.confirm_save()==2: # if user pressed cancel
+            return
+        df = self.get_current_table()
+        # open a dialog to choose the columns to translate
+        chosen_columns = self.open_choose_column_dialog(df.columns.tolist())
+        if not chosen_columns:
+            print("No column selected")
+            return
+        self.progress_dialog = ShowProgressbar()
+        self.progress_dialog.show()
+        
+        self.translation_thread = TranslationThread(df, chosen_columns)
+        self.translation_thread.progress_updated.connect(self.progress_dialog.update_progress)
+        self.translation_thread.finished.connect(self.progress_dialog.close)
+        self.translation_thread.finished.connect(lambda: self.update_table_field(self.translation_thread.df))
+        self.translation_thread.start()
+
+
+
+        # # update the table field
+        # self.update_table_field(df)
+
     def mark_as_changed(self):
-        print("table change FROM USER detected")
+        # print("table change detected")
         self.setWindowTitle(self.WINDOW_TITLE + " *")
         self.table_changed = True
 
