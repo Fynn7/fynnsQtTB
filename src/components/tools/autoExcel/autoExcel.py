@@ -13,6 +13,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import (
     QWheelEvent,
+    QAction
 )
 import pandas as pd
 
@@ -62,9 +63,22 @@ class AutoExcel(BaseWindow):
         self.addBasicMenus(False,False)
         menubar = self.getCurrentMenubar()
         file_menu = menubar.addMenu("File")
-        file_menu.addAction("Select File", self.select_file)
-        file_menu.addAction("Switch Table", self.switch_table)
-        file_menu.addAction("Save (Ctrl+S)", self.save_change)
+
+        self.select_file_action = QAction("Select File", self)
+        file_menu.addAction(self.select_file_action)
+        self.select_file_action.triggered.connect(self.select_file)
+        
+
+        self.switch_table_action = QAction("Switch Table", self)
+        file_menu.addAction(self.switch_table_action)
+        self.switch_table_action.triggered.connect(self.switch_table)
+        self.switch_table_action.setDisabled(True)
+        
+        self.save_change_action = QAction("Save (Ctrl+S)", self)
+        file_menu.addAction(self.save_change_action)
+        self.save_change_action.triggered.connect(self.save_change)
+        self.save_change_action.setDisabled(True)
+        self.save_change_action.setShortcut("Ctrl+S")
 
 
     def disable_signal(func):
@@ -102,8 +116,6 @@ class AutoExcel(BaseWindow):
         # first need to confirm if save the change before select a new file
         if self.confirm_save()==2: # if user pressed cancel
             return
-
-        self._reset()
         
 
         file_dialog = QFileDialog()
@@ -151,6 +163,11 @@ class AutoExcel(BaseWindow):
                     # # ★ connect the signal back
                     # self.table_field.itemChanged.connect(self.mark_as_changed)
 
+
+                    # enable the switch table and save menu
+                    if len(table_names) > 1:
+                        self.switch_table_action.setEnabled(True)
+                    self.save_change_action.setEnabled(True)
                     
             else:
                 self.file_path_label.setText("file unselected")
@@ -171,10 +188,6 @@ class AutoExcel(BaseWindow):
         '''
         save the change to the current path of the original file
         '''
-        if not self.chosen_table_name:
-            QMessageBox.warning(self, "No table selected",
-                                "Please select a table first")
-            return
         # get data from current table
         df = self.get_current_table()
         # save the whole dataframe
@@ -185,6 +198,13 @@ class AutoExcel(BaseWindow):
             for table_name, df in self.tables.items():
                 df.to_excel(writer, sheet_name=table_name, index=False)
         print("saved the tables to the file:", self.file_path_label.text())
+
+        # resetting after saving:
+
+        # remove the * in the window title
+        self.setWindowTitle(self.WINDOW_TITLE)
+        # reset the table changed flag
+        self.table_changed = False
 
     def get_current_table(self) -> pd.DataFrame:
         data = []
@@ -201,15 +221,14 @@ class AutoExcel(BaseWindow):
         '''
         switch to another table
         '''
-        if not self.chosen_table_name:
-            QMessageBox.warning(self, "No table selected",
-                                "Please select a table first")
-            return
         if self.confirm_save()==2: # if user pressed cancel
             return
         # open choose table dialog
         chosen_table_name = self.open_choose_table_dialog(
             list(self.tables.keys()), self.chosen_table_name)
+        if not chosen_table_name:
+            print("No table selected")
+            return
         self.chosen_table_name = chosen_table_name
         # update the table name label
         self.table_name_label.setText(f"Table: {chosen_table_name}")
@@ -265,12 +284,16 @@ class AutoExcel(BaseWindow):
                 return 0
             elif reply == QMessageBox.Discard:
                 print("User choose to discard the change before the next action")
+                # reset the table changed flag
+                self.table_changed = False
+                # remove the * in the window title
+                self.setWindowTitle(self.WINDOW_TITLE)
                 return 1
             else:
                 print("User choose to cancel the next action")
                 return 2
             
-    def _reset(self):
+    def _reset_all(self):
         # empty the file path label
         self.file_path_label.setText("")
         # empty the table name label
@@ -286,14 +309,16 @@ class AutoExcel(BaseWindow):
         self.tables = {}
         # reset the window title
         self.setWindowTitle(self.WINDOW_TITLE)
+        # disable the switch table and save menu
+        self.switch_table_action.setDisabled(True)
+        self.save_change_action.setDisabled(True)
 
-
-    def keyPressEvent(self, event):
-        # press Ctrl + S to save the file
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
-            self.save_change()
-        else:
-            super().keyPressEvent(event)
+    # def keyPressEvent(self, event):
+    #     # press Ctrl + S to save the file
+    #     if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
+    #         self.save_change()
+    #     else:
+    #         super().keyPressEvent(event)
 
     def closeEvent(self, event) -> QWidget:
         self.confirm_save()
