@@ -6,10 +6,31 @@ import traceback
 import json
 
 try:
-    from PySide6 import QtWidgets, QtGui,QtCore
-
+    from PySide6.QtCore import (
+        Qt,
+        Slot,
+        Signal
+    )
+    from PySide6.QtWidgets import (
+        QWidget,
+        QMenuBar,
+        QMainWindow,
+        QLayoutItem,
+        QVBoxLayout,
+        QWidget,
+        QCheckBox,
+        QMessageBox,
+        QMenu,
+        QWidgetAction,
+        QInputDialog,
+    )
+    from PySide6 import QtWidgets # for "addWidgetToLayout" method
+    from PySide6.QtGui import (
+        QFont,
+        QAction,
+    )
 except ImportError as ie:
-    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
+    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error", 0x10)
     print(traceback.format_exc())
     sys.exit()
 
@@ -19,7 +40,7 @@ except Exception as e:
     sys.exit()
 
 
-ORIG_SETTINGS:dict={
+ORIG_SETTINGS: dict = {
     "language": "en_US",
     "windowSize": {
         "width": 800,
@@ -37,23 +58,29 @@ _SETTINGS_FILE_PATH: str = "src/settings.json"
 # _DATA_FILE_PATH: str = "src/data.json"
 
 try:
-    _settings: dict = json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
+    _settings: dict = json.load(
+        open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
     # _data: dict = json.load(open(_DATA_FILE_PATH, "r", encoding=_ENCODING))
-    
+
 except FileNotFoundError as e:
-    ctypes.windll.user32.MessageBoxW(0, str(e)+"\n`cd fynnsQtTB` into your project folder and try running again. ", "Unknown Error",0x10)
-    sys.exit(1) # stop and break out the program
+    ctypes.windll.user32.MessageBoxW(0, str(
+        e)+"\n`cd fynnsQtTB` into your project folder and try running again. ", "Unknown Error", 0x10)
+    sys.exit(1)  # stop and break out the program
 
 # @type_check_only
+
+
 class LayoutObject:
     '''Unused class just for layout type hinting'''
+
     def count(self):
         '''
         Return the number of items in the layout.
         NOTE: this is only a hint for type checking
         '''
         pass
-    def takeAt(self,index:int)->QtWidgets.QLayoutItem:
+
+    def takeAt(self, index: int) -> QLayoutItem:
         '''
         Return the item at position index from the layout.
         NOTE: this is only a hint for type checking
@@ -61,8 +88,11 @@ class LayoutObject:
         pass
 
 # @type_check_only
+
+
 class function:
     '''Unused class just for function type hinting'''
+
     def __call__(self):
         '''
         Return the result of calling this function.
@@ -71,10 +101,10 @@ class function:
         pass
 
 
-class BaseWindow(QtWidgets.QMainWindow):
+class BaseWindow(QMainWindow):
     '''
     NOTE: This class is not meant to be used directly. It's a base class for other windows. Even though it is not defined as an abstract class
-    
+
     Steps:
     (* means optional step)
     1. Create a new class that inherits from BaseWindow
@@ -111,8 +141,9 @@ class Dice(BaseWindow):
     ```
     '''
     WINDOW_TITLE: str = 'Base Window'
-    isClosed:QtCore.Signal = QtCore.Signal(bool)
-    changed_balance: QtCore.Signal = QtCore.Signal(float)
+    isClosed: Signal = Signal(bool)
+    changed_balance: Signal = Signal(float)
+
     def __init__(self):
         print("BaseWindow initializing...")
         super().__init__()
@@ -124,23 +155,23 @@ class Dice(BaseWindow):
 
         self.__layout: LayoutObject = None
         self.__setupBaseUI()
-        self.setFont(QtGui.QFont(
+        self.setFont(QFont(
             _settings["font"]["family"], pointSize=_settings["font"]["size"], italic=_settings["font"]["italic"]))
         print("BaseWindow initialized.")
-    
+
     if _settings["enable_closeEvent"]:
         def closeEvent(self, event) -> None:
             '''Override closeEvent'''
-            reply = QtWidgets.QMessageBox.question(self, self.WINDOW_TITLE,
-                                                "Are you sure to quit?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,  QtWidgets.QMessageBox.StandardButton.No)
+            reply = QMessageBox.question(self, self.WINDOW_TITLE,
+                                         "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
-            if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 self.isClosed.emit(True)
                 print(self.WINDOW_TITLE, "closed.")
                 event.accept()
             else:
                 event.ignore()
-    else: # without popup, but still emitting signal
+    else:  # without popup, but still emitting signal
         def closeEvent(self, event) -> None:
             '''Override closeEvent'''
             self.isClosed.emit(True)
@@ -156,7 +187,7 @@ class Dice(BaseWindow):
             # self.translator = QtCore.QTranslator(self)
             # self.translator.load("en_US.qm")
             # QtWidgets.QApplication.installTranslator(self.translator)
-            ... 
+            ...
         elif self.language == "zh_CN":
             print("Language detected: Simplified Chinese.")
             ...
@@ -175,7 +206,7 @@ class Dice(BaseWindow):
 
     def __setupBasicMenubar(self) -> None:
         print("Setting up basic menubar...")
-        self.addBasicMenus(withFile=False,withConfig=False)
+        self.addBasicMenus(withFile=False, withConfig=False)
         print("Basic menubar set up.")
         pass
 
@@ -184,7 +215,7 @@ class Dice(BaseWindow):
         Initialize basic layout: aka with no widgets.
         '''
         print("Setting up basic layout...")
-        self.updateLayout(QtWidgets.QVBoxLayout())
+        self.updateLayout(QVBoxLayout())
         print("Basic layout set up.")
 
     @staticmethod
@@ -193,24 +224,23 @@ class Dice(BaseWindow):
 
     def resetSettings(self) -> int:
         print("Resetting settings applied.")
-        reply=QtWidgets.QMessageBox.warning(
-            self, "Warning", "This will reset all settings to default. Are you sure to continue?", QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No, QtWidgets.QMessageBox.StandardButton.No)
-        if reply==QtWidgets.QMessageBox.StandardButton.Yes:
+        reply = QMessageBox.warning(
+            self, "Warning", "This will reset all settings to default. Are you sure to continue?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
             try:
                 # set enableCloseEventCheckBox to default value: false
                 self.enableCloseEventCheckBox.setChecked(False)
 
                 json.dump(ORIG_SETTINGS, open(_SETTINGS_FILE_PATH,
-                        "w", encoding=_ENCODING), indent=4)
+                                              "w", encoding=_ENCODING), indent=4)
                 return 0
             except Exception:
-                QtWidgets.QMessageBox.critical(
+                QMessageBox.critical(
                     self, "Fatal Error", "Failed to reset settings.")
                 print(traceback.format_exc())
                 return 1
         else:
             return 0
-        
 
     def getSettings(self) -> dict:
         return json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
@@ -249,13 +279,13 @@ class Dice(BaseWindow):
         NOTE: Automatically set central widget.
         '''
         # set central widget
-        centralWidget = QtWidgets.QWidget()
+        centralWidget = QWidget()
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
         # save layout object variable
         self.__layout = layout
 
-    def addWidgetToLayout(self, widgetType: str, text: str | None = None, clickedConn: function | None = None) -> QtWidgets.QWidget | int:
+    def addWidgetToLayout(self, widgetType: str, text: str | None = None, clickedConn: function | None = None) -> QWidget | int:
         '''
         Public methode
 
@@ -300,16 +330,16 @@ class Dice(BaseWindow):
         try:
             if text:
                 # e.g. widget=QPushButton("someWidgetDisplayText")
-                widget: QtWidgets.QWidget = eval(
+                widget: QWidget = eval(
                     f"QtWidgets.{widgetType}(text)")
             else:
                 # e.g. widget=QtWidgets.QTimer()
-                widget: QtWidgets.QWidget = eval(f"QtWidgets.{widgetType}()")
+                widget: QWidget = eval(f"QtWidgets.{widgetType}()")
         except NameError:
             # if failed to add display text, just create widget
             widget = eval(f"QtWidgets.{widgetType}()")
         except Exception:
-            QtWidgets.QMessageBox.critical(
+            QMessageBox.critical(
                 self, "Fatal Error", "Failed to create widget object.")
             print(traceback.format_exc())
             return 1
@@ -337,7 +367,7 @@ class Dice(BaseWindow):
                 # file menu
                 fileMenu = baseMenuBar.addMenu("File")
                 # add exit action
-                exitAction = QtGui.QAction("Exit", self)
+                exitAction = QAction("Exit", self)
                 exitAction.triggered.connect(self.close)
                 fileMenu.addAction(exitAction)
 
@@ -346,60 +376,63 @@ class Dice(BaseWindow):
                 settingsMenu = baseMenuBar.addMenu("Settings")
 
                 # add reset settings action to settings menu
-                resetSettingsAction = QtGui.QAction("Reset Settings", self)
+                resetSettingsAction = QAction("Reset Settings", self)
                 resetSettingsAction.triggered.connect(self.resetSettings)
                 settingsMenu.addAction(resetSettingsAction)
 
                 # add enable/disable closeEvent action to settings menu
-                enableCloseEventCheckBox = QtWidgets.QCheckBox("Enable closeEvent")
-                enableCloseEventCheckBox.setChecked(_settings["enable_closeEvent"])
-                enableCloseEventWidgetAction = QtWidgets.QWidgetAction(self)
-                enableCloseEventWidgetAction.setDefaultWidget(enableCloseEventCheckBox)
-                enableCloseEventCheckBox.stateChanged.connect(self.handleCloseEvent)
+                enableCloseEventCheckBox = QCheckBox("Enable closeEvent")
+                enableCloseEventCheckBox.setChecked(
+                    _settings["enable_closeEvent"])
+                enableCloseEventWidgetAction = QWidgetAction(self)
+                enableCloseEventWidgetAction.setDefaultWidget(
+                    enableCloseEventCheckBox)
+                enableCloseEventCheckBox.stateChanged.connect(
+                    self.handleCloseEvent)
                 settingsMenu.addAction(enableCloseEventWidgetAction)
                 # save the checkbox as class attribute in order to get the value in handleCloseEvent
-                self.enableCloseEventCheckBox=enableCloseEventCheckBox
+                self.enableCloseEventCheckBox = enableCloseEventCheckBox
 
                 # add change language sub-menu
-                languageMenu = QtWidgets.QMenu("Language", self)
+                languageMenu = QMenu("Language", self)
                 # add change to chinese action
-                toZhCNAction = QtGui.QAction("简体中文", self)
+                toZhCNAction = QAction("简体中文", self)
                 toZhCNAction.triggered.connect(
                     lambda: self.changeLanguage(lang="zh_CN"))
                 languageMenu.addAction(toZhCNAction)
                 # add change to english action
-                toEnUSAction = QtGui.QAction("English", self)
+                toEnUSAction = QAction("English", self)
                 toEnUSAction.triggered.connect(
                     lambda: self.changeLanguage(lang="en_US"))
                 languageMenu.addAction(toEnUSAction)
                 # add change to german action
-                toDeDEAction = QtGui.QAction("Deutsch", self)
+                toDeDEAction = QAction("Deutsch", self)
                 toDeDEAction.triggered.connect(
                     lambda: self.changeLanguage(lang="de_DE"))
                 languageMenu.addAction(toDeDEAction)
                 # add all language options to settings menu
                 settingsMenu.addMenu(languageMenu)
                 # add change font sub-menu
-                fontMenu = QtWidgets.QMenu("Font", self)
+                fontMenu = QMenu("Font", self)
                 # add change to font times new roman action
-                toFontTimesNewRomanAction = QtGui.QAction(
+                toFontTimesNewRomanAction = QAction(
                     "Times New Roman", self)
                 toFontTimesNewRomanAction.triggered.connect(
                     lambda: self.changeFont(family="Times New Roman"))
                 fontMenu.addAction(toFontTimesNewRomanAction)
                 # add change to font consolas action
-                toFontConsolasAction = QtGui.QAction("Consolas", self)
+                toFontConsolasAction = QAction("Consolas", self)
                 toFontConsolasAction.triggered.connect(
                     lambda: self.changeFont(family="Consolas"))
                 fontMenu.addAction(toFontConsolasAction)
                 # add change to font courier new action
-                toFontCourierNewAction = QtGui.QAction("Courier New", self)
+                toFontCourierNewAction = QAction("Courier New", self)
                 toFontCourierNewAction.triggered.connect(
                     lambda: self.changeFont(family="Courier New"))
                 fontMenu.addAction(toFontCourierNewAction)
-                
+
                 # add change font size action
-                changeFontSizeAction = QtGui.QAction("Font Size", self)
+                changeFontSizeAction = QAction("Font Size", self)
                 changeFontSizeAction.triggered.connect(self.changeFontSize)
                 fontMenu.addAction(changeFontSizeAction)
 
@@ -413,33 +446,33 @@ class Dice(BaseWindow):
             return 0
 
         except Exception:
-            QtWidgets.QMessageBox.critical(
+            QMessageBox.critical(
                 self, "Fatal Error", "Failed to create basic menu.")
             print(traceback.format_exc())
             return 1
 
-    def getCurrentMenubar(self) -> QtWidgets.QMenuBar | None:
+    def getCurrentMenubar(self) -> QMenuBar | None:
         '''
         Built-in method from QMainwindow to get current menubar.
         '''
         return self.menuBar()
 
-    @QtCore.Slot() # syntax sugar for signal-slot connection
-    def changeLanguage(self, lang: str)->int:
+    @Slot()  # syntax sugar for signal-slot connection
+    def changeLanguage(self, lang: str) -> int:
         try:
             _settings["language"] = lang
-            QtWidgets.QMessageBox.information(
-                    self, "Success", "Please restart the program to apply changes.")
+            QMessageBox.information(
+                self, "Success", "Please restart the program to apply changes.")
             json.dump(_settings, open(_SETTINGS_FILE_PATH,
                       "w", encoding=_ENCODING), indent=4)
             return 0
         except Exception:
-            QtWidgets.QMessageBox.critical(
+            QMessageBox.critical(
                 self, "Fatal Error", "Failed to change language.")
             print(traceback.format_exc())
             return 1
-    
-    @QtCore.Slot() # syntax sugar for signal-slot connection
+
+    @Slot()  # syntax sugar for signal-slot connection
     def changeFont(self, family: str | None = None, size: int | None = None, italic: bool | None = None) -> int:
         if family:
             _settings["font"]["family"] = family
@@ -450,30 +483,31 @@ class Dice(BaseWindow):
         try:
             json.dump(_settings, open(_SETTINGS_FILE_PATH,
                       "w", encoding=_ENCODING), indent=4)
-            QtWidgets.QMessageBox.information(
+            QMessageBox.information(
                 self, "Success", "Please restart the program to apply changes.")
             return 0
         except Exception:
-            QtWidgets.QMessageBox.critical(
+            QMessageBox.critical(
                 self, "Fatal Error", "Failed to change font.")
             print(traceback.format_exc())
             return 1
 
-    @QtCore.Slot() # syntax sugar for signal-slot connection
-    def changeFontSize(self)->int:
+    @Slot()  # syntax sugar for signal-slot connection
+    def changeFontSize(self) -> int:
         try:
-            changed_size,save_setting=QtWidgets.QInputDialog.getInt(self, "Change Font Size", "Enter font size:",value=_settings["font"]["size"],minValue=7,maxValue=20)
+            changed_size, save_setting = QInputDialog.getInt(
+                self, "Change Font Size", "Enter font size:", value=_settings["font"]["size"], minValue=7, maxValue=20)
         except Exception:
-            QtWidgets.QMessageBox.critical(
+            QMessageBox.critical(
                 self, "Fatal Error", "Failed to change font size.")
             print(traceback.format_exc())
             return 1
         if save_setting:
             self.changeFont(size=changed_size)
-            print("Font size changed to",changed_size)
+            print("Font size changed to", changed_size)
         return 0
-    
-    def showMessageBox(self, msgType: str = "information", msg: str = "") -> QtWidgets.QMessageBox.StandardButton | int:
+
+    def showMessageBox(self, msgType: str = "information", msg: str = "") -> QMessageBox.StandardButton | int:
         '''
         Public method to show a message box.
 
@@ -488,28 +522,28 @@ class Dice(BaseWindow):
         the button which is clicked. (Yes Button  or no button)
         '''
         if msgType == "question":
-            return QtWidgets.QMessageBox.question(self, "Question", msg, QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            return QMessageBox.question(self, "Question", msg, QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         else:
             try:
                 # if msgType is not "question", then set 1 button and to "Ok"
                 return eval(f"QtWidgets.QMessageBox.{msgType}(self,msgType.capitalize(),msg,QtWidgets.QMessageBox.StandardButton.Ok)")
             except Exception:
-                QtWidgets.QMessageBox.critical(
+                QMessageBox.critical(
                     self, "Fatal Error", "Failed to show message box.")
                 print(traceback.format_exc())
                 return 1
-    
-    @QtCore.Slot() # syntax sugar for signal-slot connection
+
+    @Slot()  # syntax sugar for signal-slot connection
     def handleCloseEvent(self) -> int:
-        _settings["enable_closeEvent"]=self.enableCloseEventCheckBox.isChecked()
+        _settings["enable_closeEvent"] = self.enableCloseEventCheckBox.isChecked()
         try:
             json.dump(_settings, open(_SETTINGS_FILE_PATH,
                       "w", encoding=_ENCODING), indent=4)
-            QtWidgets.QMessageBox.information(
+            QMessageBox.information(
                 self, "Success", "Please restart the program to apply changes.")
             return 0
         except Exception:
-            QtWidgets.QMessageBox.critical(
+            QMessageBox.critical(
                 self, "Fatal Error", "Failed to change closeEvent settings.")
             print(traceback.format_exc())
             return 1
@@ -517,19 +551,19 @@ class Dice(BaseWindow):
     # override keyPressEvent by BaseWindow
     def keyPressEvent(self, event):
         '''override keyPressEvent by BaseWindow'''
-        if event.key() == QtCore.Qt.Key.Key_Escape:
+        if event.key() == Qt.Key.Key_Escape:
             self.close()
-        elif event.key() == QtCore.Qt.Key.Key_F11:
+        elif event.key() == Qt.Key.Key_F11:
             if self.isFullScreen():
                 self.showNormal()
             else:
                 self.showFullScreen()
         else:
-            super().keyPressEvent(event) # inherit keyEvent from QMainWindow
+            super().keyPressEvent(event)  # inherit keyEvent from QMainWindow
 
     def clearLayout(self):
         '''Clearout all widgets in the layout'''
-        layout=self.getLayout()
+        layout = self.getLayout()
         while layout.count():
             child = layout.takeAt(0)
             if child.widget():

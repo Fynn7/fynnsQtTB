@@ -1,13 +1,17 @@
-# pyqt6
 pyside6
-# Machine Learning
+
 numpy
 pandas
 matplotlib
 seaborn
 scikit-learn
-# ML Models
+
 # xgboost # 99.8 MB
-# tensorflow # > 300 MB, so use it globally, not in venv, which needs to be syncronized on OneDrive
+# tensorflow # > 300 MB
 # keras
+# pytorch
+
+
+# openpyxl # excel handling
 # schedule
+

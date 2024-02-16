@@ -15,7 +15,7 @@ class MlToolBox(BaseWindow):
     def __init__(self):
         super().__init__()
         self.setup_ui()
-        
+
     def setup_ui(self):
         self.create_menu_bar()
 
@@ -49,7 +49,8 @@ class MlToolBox(BaseWindow):
 
         scroll_area = QScrollArea()
         scroll_area.setWidget(self.info_label)
-        scroll_area.setWidgetResizable(True)  # Make the label resize with the scroll area
+        # Make the label resize with the scroll area
+        scroll_area.setWidgetResizable(True)
 
         layout.addWidget(scroll_area)  # Add the scroll area to the layout
 
@@ -162,7 +163,8 @@ class MlToolBox(BaseWindow):
         self.result_menu = menubar.addMenu("Result")
 
         # 展示关联矩阵
-        self.plot_correlation_map_checkbox = QCheckBox("Output Correlation Map")
+        self.plot_correlation_map_checkbox = QCheckBox(
+            "Output Correlation Map")
         self.plot_correlation_map_checkbox.setChecked(True)
         plot_correlation_map_widget_action = QWidgetAction(self)
         plot_correlation_map_widget_action.setDefaultWidget(
@@ -172,7 +174,7 @@ class MlToolBox(BaseWindow):
     def reset_info_label(self) -> None:
         self.info_label.setText("No result yet.")
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def select_file(self) -> None:
         options = QFileDialog.Option.DontUseNativeDialog
         file_dialog = QFileDialog()
@@ -186,18 +188,19 @@ class MlToolBox(BaseWindow):
         else:
             print("File not chosen.")
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def select_algorithm(self, algorithm: str):
         self.selected_algorithm = algorithm
         self.run_ml_button.setText(f"Run {algorithm}.")
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def select_plot_style(self, plot_style: str):
         self.selected_plot_style = plot_style
         abbr = {"lp": "line plot", "sp": "scatter plot"}
-        QMessageBox.information(self, "Success", f"Plot style {abbr[plot_style]} chosen")
+        QMessageBox.information(
+            self, "Success", f"Plot style {abbr[plot_style]} chosen")
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def run_ml_algorithm(self) -> None:  # ycol: user input it in a text input box
         # values from user settings: saved as class attributes
         random_state = self.random_state_spinbox.value()
