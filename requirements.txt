@@ -12,6 +12,8 @@ scikit-learn
 # pytorch
 
 
-# openpyxl # excel handling
+# excel handling
+openpyxl 
+xlrd
 # schedule
 
