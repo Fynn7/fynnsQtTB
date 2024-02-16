@@ -28,5 +28,5 @@ class ChooseTable(QDialog):
 
         layout.addWidget(result_buttonBox)
 
-    def get_chosen_table(self) -> str:
+    def get_chosen_table(self) -> str|None:
         return self.choose_table_combobox.currentText()
