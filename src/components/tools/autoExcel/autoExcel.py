@@ -46,27 +46,26 @@ class AutoExcel(BaseWindow):
     def setupUi(self):
         self.file_path_label = self.addWidgetToLayout(
             "QLabel", text="click the button to select file")
-        self.select_file_button = self.addWidgetToLayout(
-            "QPushButton", text="select file", clickedConn=self.select_file)
+
         # setup a field to show the table
         self.table_name_label = self.addWidgetToLayout(
             "QLabel", text="Table: -")
-        self.switch_table_button = self.addWidgetToLayout(
-            "QPushButton", text="Switch Table", clickedConn=self.switch_table)
         
         self.table_field = self.addWidgetToLayout("QTableWidget")
 
         self.hint_label = self.addWidgetToLayout(
             "QLabel", text="Use Ctrl + Mouse Wheel to zoom in/out")
 
-        self.save_button = self.addWidgetToLayout(
-            "QPushButton", text="Save (Ctrl+S)", clickedConn=self.save_change)
-
         # self.save_as_button = self.addWidgetToLayout(
         #     "QPushButton", text="Save As", clickedConn=self.save_as)
     def setupMenubar(self):
-        self.addBasicMenus(withConfig=False)
+        self.addBasicMenus(False,False)
         menubar = self.getCurrentMenubar()
+        file_menu = menubar.addMenu("File")
+        file_menu.addAction("Select File", self.select_file)
+        file_menu.addAction("Switch Table", self.switch_table)
+        file_menu.addAction("Save (Ctrl+S)", self.save_change)
+
 
     def disable_signal(func):
         '''use when the table is being updated by the program, so only when user changes the table, the signal will be emitted'''
