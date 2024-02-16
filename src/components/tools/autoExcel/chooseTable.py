@@ -2,10 +2,11 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QDialogBu
 
 
 class ChooseTable(QDialog):
-    def __init__(self, table_names: list):
+    def __init__(self, table_names: list,default_table_name: str|None = None):
         super().__init__()
 
         self.table_names = table_names
+        self.default_table_name = default_table_name
         print("got table names:", table_names)
         self.init_ui()
 
@@ -17,6 +18,8 @@ class ChooseTable(QDialog):
 
         self.choose_table_combobox = QComboBox()
         self.choose_table_combobox.addItems(self.table_names)
+        if self.default_table_name:
+            self.choose_table_combobox.setCurrentText(self.default_table_name)
 
         result_buttonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)

@@ -51,6 +51,9 @@ class AutoExcel(BaseWindow):
         # setup a field to show the table
         self.table_name_label = self.addWidgetToLayout(
             "QLabel", text="Table: -")
+        self.switch_table_button = self.addWidgetToLayout(
+            "QPushButton", text="Switch Table", clickedConn=self.switch_table)
+        
         self.table_field = self.addWidgetToLayout("QTableWidget")
 
         self.hint_label = self.addWidgetToLayout(
@@ -154,9 +157,9 @@ class AutoExcel(BaseWindow):
                 self.file_path_label.setText("file unselected")
                 print("No file selected")
 
-    def open_choose_table_dialog(self, table_names: list) -> str | None:
+    def open_choose_table_dialog(self, table_names: list,default_table_name:str|None=None) -> str | None:
         # send last settings of dim and amount of dices to the dialog
-        dialog = ChooseTable(table_names)
+        dialog = ChooseTable(table_names,default_table_name)
         # if the dialog is accepted, get the time from the dialog
         if dialog.exec() == QDialog.DialogCode.Accepted:
             # get the time from the dialog
@@ -194,7 +197,24 @@ class AutoExcel(BaseWindow):
             data, columns=self.tables[self.chosen_table_name].columns)
         return df
 
-
+    @Slot()
+    def switch_table(self):
+        '''
+        switch to another table
+        '''
+        if not self.chosen_table_name:
+            QMessageBox.warning(self, "No table selected",
+                                "Please select a table first")
+            return
+        if self.confirm_save()==2: # if user pressed cancel
+            return
+        # open choose table dialog
+        chosen_table_name = self.open_choose_table_dialog(
+            list(self.tables.keys()), self.chosen_table_name)
+        self.chosen_table_name = chosen_table_name
+        # update the table name label
+        self.table_name_label.setText(f"Table: {chosen_table_name}")
+        self.update_table_field(self.tables[chosen_table_name])
     
     @Slot()
     def mark_as_changed(self):
