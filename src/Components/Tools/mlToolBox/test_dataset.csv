@@ -1,7 +1,0 @@
-color,int_size,size,int_gone_bad
-Red,7.0,Big,1.0
-Green,8.0,Big,0.0
-Green,2.0,Small,NaN
-Green,5.0,Medium,0.0
-Red,4.0,NaN,0.0
-Green,NaN,Small,0.0
