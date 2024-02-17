@@ -21,7 +21,7 @@ import functools
 
 
 from baseWindow import BaseWindow
-from .tableHandler import *
+from .tableHandler import TranslationThread
 from .chooseTable import ChooseTable
 from .chooseColumn import ChooseColumn
 from .showProgressbar import ShowProgressbar
@@ -235,9 +235,14 @@ class AutoExcel(BaseWindow):
         self.tables[self.chosen_table_name] = df
         print("saved the change to the table:", self.chosen_table_name)
         # save changes to the original file, aka overwrite the original file
-        with pd.ExcelWriter(self.file_path_label.text()) as writer:
-            for table_name, df in self.tables.items():
-                df.to_excel(writer, sheet_name=table_name, index=False)
+        try:
+            with pd.ExcelWriter(self.file_path_label.text()) as writer:
+                for table_name, df in self.tables.items():
+                    df.to_excel(writer, sheet_name=table_name, index=False)
+        except PermissionError as e:
+            print("PermissionError:", e)
+            QMessageBox.critical(self, "Permission Error", "Permission Error: Please close the file before saving the change")
+            return
         print("saved the tables to the file:", self.file_path_label.text())
 
         # resetting after saving:
@@ -292,12 +297,22 @@ class AutoExcel(BaseWindow):
         self.progress_dialog = ShowProgressbar()
         self.progress_dialog.show()
         
-        self.translation_thread = TranslationThread(df, chosen_columns)
-        self.translation_thread.progress_updated.connect(self.progress_dialog.update_progress)
-        self.translation_thread.current_translate_text.connect(self.progress_dialog.update_current_translate_label)
-        self.translation_thread.finished.connect(self.progress_dialog.close)
-        self.translation_thread.finished.connect(lambda: self.update_table_field(self.translation_thread.df))
-        self.translation_thread.start()
+
+        self.progress_dialog.translation_thread = TranslationThread(df, chosen_columns)
+        self.progress_dialog.translation_thread.progress_updated.connect(self.progress_dialog.update_progress)
+        self.progress_dialog.translation_thread.current_translate_text.connect(self.progress_dialog.update_current_translate_label)
+        
+        # connect the cancel button to stop the translation
+        self.progress_dialog.cancel_button.clicked.connect(self.progress_dialog.translation_thread.stop)
+        # connect the canceled signal to close the dialog
+        self.progress_dialog.translation_thread.canceled.connect(self.progress_dialog.close)
+        
+        # # also reset the data when the translation is canceled
+        # self.progress_dialog.translation_thread.canceled.connect(lambda: self.update_table_field(self.tables[self.chosen_table_name]))
+
+        self.progress_dialog.translation_thread.finished.connect(self.progress_dialog.close)
+        self.progress_dialog.translation_thread.finished.connect(lambda: self.update_table_field(self.progress_dialog.translation_thread.df))
+        self.progress_dialog.translation_thread.start()
 
 
 
@@ -350,9 +365,15 @@ class AutoExcel(BaseWindow):
             if reply == QMessageBox.Save:
                 self.save_change()
                 print("User choose to save the change before the next action")
+                # reset the table changed flag
+                self.table_changed = False
+                # remove the * in the window title
+                self.setWindowTitle(self.WINDOW_TITLE)
                 return 0
             elif reply == QMessageBox.Discard:
                 print("User choose to discard the change before the next action")
+                # reset all the data
+                self.update_table_field(self.tables[self.chosen_table_name])
                 # reset the table changed flag
                 self.table_changed = False
                 # remove the * in the window title

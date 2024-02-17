@@ -6,19 +6,27 @@ from PySide6.QtCore import QThread, Signal
 class TranslationThread(QThread):
     progress_updated = Signal(int)
     current_translate_text=Signal(str)
-
+    canceled=Signal()
     def __init__(self, df:pd.DataFrame, chosen_columns:list, dest_lang:str='zh-cn',src_lang:str='de'):
         super().__init__()
         self.df = df
         self.chosen_columns = chosen_columns
         self.dest_lang = dest_lang
         self.src_lang = src_lang
+        self._is_running = True
+
+    def stop(self):
+        self._is_running = False
+        self.terminate()
+        self.canceled.emit()
 
     def translate_df(self, df, chosen_columns, dest_lang,src_lang):
         total_elements = sum(df[col].count() for col in chosen_columns if df[col].dtype == 'O')
         translated_elements = 0
         def translate(x):
             nonlocal translated_elements
+            if not self._is_running:
+                return x
             try:
                 print("translating element: ", x)
                 self.current_translate_text.emit(f"Translating {x}")
@@ -34,6 +42,7 @@ class TranslationThread(QThread):
             translator = Translator()
             if df[col].dtype == 'O':
                 df[col] = df[col].apply(translate)
+        
         return df
 
     def run(self):

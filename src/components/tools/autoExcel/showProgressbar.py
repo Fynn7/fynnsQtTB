@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar, QPushButton
 from PySide6.QtCore import Qt, QThread
 from PySide6.QtCore import Signal
 import time
@@ -16,9 +16,12 @@ class ShowProgressbar(QDialog):
         self.progressbar = QProgressBar()
         self.progressbar.setAlignment(Qt.AlignCenter)
 
+        self.cancel_button = QPushButton("Cancel Translation")
+
         self.current_translate_label = QLabel("Translating ...")
         
         layout.addWidget(self.progressbar)
+        layout.addWidget(self.cancel_button)
         layout.addWidget(self.current_translate_label)
         
     def update_progress(self, value:int):
