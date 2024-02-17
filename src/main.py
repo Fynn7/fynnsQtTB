@@ -25,7 +25,7 @@ try:
     from components.basic.shop import Shop
 
 except ImportError as ie:
-    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error", 0x10)
+    ctypes.windll.user32.MessageBoxW(0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
     print(traceback.format_exc())
     sys.exit()
 
