@@ -37,8 +37,10 @@ easier
 ### How to use
 
 ```
+# 使用--onefile选项将所有文件打包成一个单独的可执行文件：
 
-$
+$ pyinstaller --onefile --distpath=pyinstaller_output src/main.py
+
 
 ```
 
