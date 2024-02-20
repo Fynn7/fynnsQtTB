@@ -42,6 +42,10 @@ easier
 $ pyinstaller --onefile --distpath=pyinstaller_output src/main.py
 
 
+# for bigger project: better pack into a directory instead a single file
+
+$ pyinstaller --onedir --distpath=pyinstaller_output src/main.py
+
 ```
 
 
