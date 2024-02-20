@@ -1,0 +1,13 @@
+THE COMMIT WITH ID `6a41c22` IS A HUGE DIFF
+
+THE FOLLOWING COMMIT MSG WAS SUPPOSED TO COMMIT AS WELL, BUT WASN'T
+
+HERE IS THE COMMIT MSG:
+
+
+- create resource dir in src dir
+- built package
+- import rsc through new path
+- optimized A LOT about settings and data file:
+    all changes could be applied directly without restarting the SW
+- for more see devLog.md inside `docs/`
