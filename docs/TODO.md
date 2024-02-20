@@ -43,8 +43,13 @@ sprint backlog:
 
         inventory window + json data
 
-
         close ALL OTHER SUB- WINDOWS when main window is closed!
+
+        direct apply changes from settings, not after restart the software
+            by using `self.load_settings()`
+                NOTE: closeEvent() can be already "directly applied"
+
+        change `update_balance()` more general: `update_data()`
     opt
         get more test dataset for mlToolBox
 

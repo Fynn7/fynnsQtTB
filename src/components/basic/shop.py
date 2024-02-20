@@ -1,13 +1,11 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from baseWindow import BaseWindow
-import json
-
 
 class Shop(BaseWindow):
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
         self.WINDOW_TITLE = "Shop"
-        self.balance: float = json.load(open("src/data.json", "r"))["balance"]
+        self.balance: float = self.load_data()["balance"]
         super().__init__()
         self.setupUi()
         self.setupMenubar()

@@ -4,6 +4,7 @@ import sys
 import ctypes
 import traceback
 import json
+import pkg_resources
 
 try:
     from PySide6.QtCore import (
@@ -24,13 +25,14 @@ try:
         QWidgetAction,
         QInputDialog,
     )
-    from PySide6 import QtWidgets # for "addWidgetToLayout" method
+    from PySide6 import QtWidgets  # for "addWidgetToLayout" method
     from PySide6.QtGui import (
         QFont,
         QAction,
     )
 except ImportError as ie:
-    ctypes.windll.user32.MessageBoxW(0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
+    ctypes.windll.user32.MessageBoxW(
+        0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
     print(traceback.format_exc())
     sys.exit()
 
@@ -42,10 +44,6 @@ except Exception as e:
 
 ORIG_SETTINGS: dict = {
     "language": "en_US",
-    "windowSize": {
-        "width": 800,
-        "height": 600
-    },
     "font": {
         "family": "Consolas",
         "size": 12,
@@ -57,19 +55,8 @@ _ENCODING: str = "utf-8"
 _SETTINGS_FILE_PATH: str = "src/settings.json"
 # _DATA_FILE_PATH: str = "src/data.json"
 
-try:
-    _settings: dict = json.load(
-        open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
-    # _data: dict = json.load(open(_DATA_FILE_PATH, "r", encoding=_ENCODING))
-
-except FileNotFoundError as e:
-    ctypes.windll.user32.MessageBoxW(0, str(
-        e)+"\n`cd fynnsQtTB` into your project folder and try running again. ", "Unknown Error", 0x10)
-    sys.exit(1)  # stop and break out the program
 
 # @type_check_only
-
-
 class LayoutObject:
     '''Unused class just for layout type hinting'''
 
@@ -148,20 +135,118 @@ class Dice(BaseWindow):
         print("BaseWindow initializing...")
         super().__init__()
         # Read settings
-        self.WINDOW_SIZE: tuple[int, int] = (
-            _settings["windowSize"]["width"], _settings["windowSize"]["height"])
-        self.language: str = _settings["language"]
-        self.enable_closeEvent: bool = _settings["enable_closeEvent"]
+        self.WINDOW_SIZE: tuple[int, int] = 800, 600
 
         self.__layout: LayoutObject = None
         self.__setupBaseUI()
         self.setFont(QFont(
-            _settings["font"]["family"], pointSize=_settings["font"]["size"], italic=_settings["font"]["italic"]))
+            self.load_settings()["font"]["family"], pointSize=self.load_settings()["font"]["size"], italic=self.load_settings()["font"]["italic"]))
         print("BaseWindow initialized.")
 
-    if _settings["enable_closeEvent"]:
-        def closeEvent(self, event) -> None:
-            '''Override closeEvent'''
+    def load_settings(self) -> dict | None:
+        settings_path = pkg_resources.resource_filename(
+            __name__, 'resources/settings.json')
+
+        try:
+            with open(settings_path, 'r') as file:
+                settings_data = json.load(file)
+        except Exception as e:
+            print(traceback.format_exc())
+            QMessageBox.critical(
+                self, "Fatal Error", "Failed to load settings: "+str(e))
+            sys.exit(1)
+        return settings_data
+
+    def update_settings_file(self, new_settings: dict) -> int | None:
+        '''
+        write new settings to settings file
+        and update GUI
+        '''
+        try:
+            current_settings = self.load_settings()
+            current_settings.update(new_settings)
+            # write to file
+            settings_path = pkg_resources.resource_filename(
+                __name__, 'resources/settings.json')
+
+            with open(settings_path, 'w') as file:
+                json.dump(current_settings, file, indent=4)
+
+            # update GUI
+            self.update_settings_to_gui(current_settings)
+            return 0
+        except Exception:
+            print(traceback.format_exc())
+            QMessageBox.critical(
+                self, "Fatal Error", "Failed to update settings file.")
+            sys.exit(1)
+
+    def update_settings_to_gui(self, new_settings: dict) -> int | None:
+        '''
+        update GUI with new settings
+        '''
+        try:
+            # update GUI
+            self.setFont(QFont(
+                new_settings["font"]["family"], pointSize=new_settings["font"]["size"], italic=new_settings["font"]["italic"]))
+            self.enableCloseEventCheckBox.setChecked(
+                new_settings["enable_closeEvent"])
+            # update all text according to language settings
+            ...
+            # adapt the window size after font size changed
+            self.resize(self.WINDOW_SIZE[0]*new_settings['font']['size'] //
+                        12, self.WINDOW_SIZE[1]*new_settings['font']['size']//12)
+            return 0
+
+        except Exception:
+            print(traceback.format_exc())
+            QMessageBox.critical(
+                self, "Fatal Error", "Failed to update settings file.")
+            sys.exit(1)
+
+    def load_data(self) -> dict | None:
+        data_path = pkg_resources.resource_filename(
+            __name__, 'resources/data.json')
+
+        try:
+            with open(data_path, 'r') as file:
+                data = json.load(file)
+        except Exception as e:
+            print(traceback.format_exc())
+            QMessageBox.critical(
+                self, "Fatal Error", "Failed to load data: "+str(e))
+            sys.exit(1)
+        return data
+
+    def update_data_file(self, new_data: dict) -> int | None:
+        '''
+        write new data to data file
+        '''
+        try:
+            # write to file
+            data_path = pkg_resources.resource_filename(
+                __name__, 'resources/data.json')
+
+            with open(data_path, 'w') as file:
+                json.dump(new_data, file, indent=4)
+            return 0
+        except Exception:
+            print(traceback.format_exc())
+            QMessageBox.critical(
+                self, "Fatal Error", "Failed to update data file.")
+            sys.exit(1)
+
+    # virtual method for update data to gui
+    def update_data_to_gui(self, new_data: dict) -> int | None:
+        '''
+        looking for developers to override this method
+        '''
+        raise NotImplementedError(
+            "This method should be overridden by developers.")
+
+    def closeEvent(self, event) -> None:
+        '''Override closeEvent'''
+        if self.load_settings()["enable_closeEvent"]:
             reply = QMessageBox.question(self, self.WINDOW_TITLE,
                                          "Are you sure to quit?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
@@ -171,33 +256,12 @@ class Dice(BaseWindow):
                 event.accept()
             else:
                 event.ignore()
-    else:  # without popup, but still emitting signal
-        def closeEvent(self, event) -> None:
-            '''Override closeEvent'''
+        else:  # without popup, but still emitting signal
             self.isClosed.emit(True)
             print(self.WINDOW_TITLE, "closed.")
             event.accept()
 
     def __setupBaseUI(self):
-        print("Setting up basic UI...")
-        # check language
-        if self.language == "en_US":
-            print("Language detected: English.")
-            # TODO: use QTranslator , build qm file, add to resource file
-            # self.translator = QtCore.QTranslator(self)
-            # self.translator.load("en_US.qm")
-            # QtWidgets.QApplication.installTranslator(self.translator)
-            ...
-        elif self.language == "zh_CN":
-            print("Language detected: Simplified Chinese.")
-            ...
-        elif self.language == "de_DE":
-            print("Language detected: German.")
-            ...
-        else:
-            print("Language not supported. Using default language: English.")
-            ...
-
         self.setWindowTitle(self.WINDOW_TITLE)
         self.resize(*self.WINDOW_SIZE)
         self.__setupBasicMenubar()
@@ -223,27 +287,19 @@ class Dice(BaseWindow):
         return _ENCODING
 
     def resetSettings(self) -> int:
+        '''
+        rvales:
+        0: Success
+        -1: User clicked "No"
+        1: Failed
+        '''
         print("Resetting settings applied.")
         reply = QMessageBox.warning(
             self, "Warning", "This will reset all settings to default. Are you sure to continue?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
-            try:
-                # set enableCloseEventCheckBox to default value: false
-                self.enableCloseEventCheckBox.setChecked(False)
-
-                json.dump(ORIG_SETTINGS, open(_SETTINGS_FILE_PATH,
-                                              "w", encoding=_ENCODING), indent=4)
-                return 0
-            except Exception:
-                QMessageBox.critical(
-                    self, "Fatal Error", "Failed to reset settings.")
-                print(traceback.format_exc())
-                return 1
-        else:
-            return 0
-
-    def getSettings(self) -> dict:
-        return json.load(open(_SETTINGS_FILE_PATH, "r", encoding=_ENCODING))
+            self.enableCloseEventCheckBox.setChecked(False)
+            return self.update_settings_file(ORIG_SETTINGS)
+        return -1  # if user clicked "No"
 
     def getLayout(self) -> LayoutObject:
         '''
@@ -339,9 +395,9 @@ class Dice(BaseWindow):
             # if failed to add display text, just create widget
             widget = eval(f"QtWidgets.{widgetType}()")
         except Exception:
+            print(traceback.format_exc())
             QMessageBox.critical(
                 self, "Fatal Error", "Failed to create widget object.")
-            print(traceback.format_exc())
             return 1
 
         if clickedConn:  # if the widget needs connection function
@@ -383,7 +439,7 @@ class Dice(BaseWindow):
                 # add enable/disable closeEvent action to settings menu
                 enableCloseEventCheckBox = QCheckBox("Enable closeEvent")
                 enableCloseEventCheckBox.setChecked(
-                    _settings["enable_closeEvent"])
+                    self.load_settings()["enable_closeEvent"])
                 enableCloseEventWidgetAction = QWidgetAction(self)
                 enableCloseEventWidgetAction.setDefaultWidget(
                     enableCloseEventCheckBox)
@@ -398,17 +454,17 @@ class Dice(BaseWindow):
                 # add change to chinese action
                 toZhCNAction = QAction("简体中文", self)
                 toZhCNAction.triggered.connect(
-                    lambda: self.changeLanguage(lang="zh_CN"))
+                    lambda: self.update_settings_file({"language": "zh_CN"}))
                 languageMenu.addAction(toZhCNAction)
                 # add change to english action
                 toEnUSAction = QAction("English", self)
                 toEnUSAction.triggered.connect(
-                    lambda: self.changeLanguage(lang="en_US"))
+                    lambda: self.update_settings_file({"language": "en_US"}))
                 languageMenu.addAction(toEnUSAction)
                 # add change to german action
                 toDeDEAction = QAction("Deutsch", self)
                 toDeDEAction.triggered.connect(
-                    lambda: self.changeLanguage(lang="de_DE"))
+                    lambda: self.update_settings_file({"language": "de_DE"}))
                 languageMenu.addAction(toDeDEAction)
                 # add all language options to settings menu
                 settingsMenu.addMenu(languageMenu)
@@ -446,9 +502,9 @@ class Dice(BaseWindow):
             return 0
 
         except Exception:
+            print(traceback.format_exc())
             QMessageBox.critical(
                 self, "Fatal Error", "Failed to create basic menu.")
-            print(traceback.format_exc())
             return 1
 
     def getCurrentMenubar(self) -> QMenuBar | None:
@@ -458,54 +514,25 @@ class Dice(BaseWindow):
         return self.menuBar()
 
     @Slot()  # syntax sugar for signal-slot connection
-    def changeLanguage(self, lang: str) -> int:
-        try:
-            _settings["language"] = lang
-            QMessageBox.information(
-                self, "Success", "Please restart the program to apply changes.")
-            json.dump(_settings, open(_SETTINGS_FILE_PATH,
-                      "w", encoding=_ENCODING), indent=4)
-            return 0
-        except Exception:
-            QMessageBox.critical(
-                self, "Fatal Error", "Failed to change language.")
-            print(traceback.format_exc())
-            return 1
-
-    @Slot()  # syntax sugar for signal-slot connection
     def changeFont(self, family: str | None = None, size: int | None = None, italic: bool | None = None) -> int:
+        # should update the whole font settings
+        font_settings: dict = self.load_settings()["font"]
         if family:
-            _settings["font"]["family"] = family
+            font_settings["family"] = family
         if size:
-            _settings["font"]["size"] = size
+            font_settings["size"] = size
         if italic != None:
-            _settings["font"]["italic"] = italic
-        try:
-            json.dump(_settings, open(_SETTINGS_FILE_PATH,
-                      "w", encoding=_ENCODING), indent=4)
-            QMessageBox.information(
-                self, "Success", "Please restart the program to apply changes.")
-            return 0
-        except Exception:
-            QMessageBox.critical(
-                self, "Fatal Error", "Failed to change font.")
-            print(traceback.format_exc())
-            return 1
+            font_settings["italic"] = italic
+        return self.update_settings_file({"font": font_settings})
 
     @Slot()  # syntax sugar for signal-slot connection
     def changeFontSize(self) -> int:
-        try:
-            changed_size, save_setting = QInputDialog.getInt(
-                self, "Change Font Size", "Enter font size:", value=_settings["font"]["size"], minValue=7, maxValue=20)
-        except Exception:
-            QMessageBox.critical(
-                self, "Fatal Error", "Failed to change font size.")
-            print(traceback.format_exc())
-            return 1
+        font_settings: dict = self.load_settings()["font"]
+        changed_size, save_setting = QInputDialog.getInt(
+            self, "Change Font Size", "Enter font size:", value=font_settings["size"], minValue=7, maxValue=20)
         if save_setting:
-            self.changeFont(size=changed_size)
-            print("Font size changed to", changed_size)
-        return 0
+            font_settings["size"] = changed_size
+            return self.update_settings_file({"font": font_settings})
 
     def showMessageBox(self, msgType: str = "information", msg: str = "") -> QMessageBox.StandardButton | int:
         '''
@@ -528,25 +555,15 @@ class Dice(BaseWindow):
                 # if msgType is not "question", then set 1 button and to "Ok"
                 return eval(f"QtWidgets.QMessageBox.{msgType}(self,msgType.capitalize(),msg,QtWidgets.QMessageBox.StandardButton.Ok)")
             except Exception:
+                print(traceback.format_exc())
                 QMessageBox.critical(
                     self, "Fatal Error", "Failed to show message box.")
-                print(traceback.format_exc())
                 return 1
 
     @Slot()  # syntax sugar for signal-slot connection
     def handleCloseEvent(self) -> int:
-        _settings["enable_closeEvent"] = self.enableCloseEventCheckBox.isChecked()
-        try:
-            json.dump(_settings, open(_SETTINGS_FILE_PATH,
-                      "w", encoding=_ENCODING), indent=4)
-            QMessageBox.information(
-                self, "Success", "Please restart the program to apply changes.")
-            return 0
-        except Exception:
-            QMessageBox.critical(
-                self, "Fatal Error", "Failed to change closeEvent settings.")
-            print(traceback.format_exc())
-            return 1
+        self.update_settings_file(
+            {"enable_closeEvent": self.enableCloseEventCheckBox.isChecked()})
 
     # override keyPressEvent by BaseWindow
     def keyPressEvent(self, event):

@@ -1,7 +1,6 @@
 import sys
 import ctypes
 import traceback
-import json
 
 try:
     from PySide6.QtCore import (
@@ -108,7 +107,7 @@ class ToolBoxUI(BaseWindow):
 
         ############################################################
         # shop action: directly add to base menubar
-        init_balance: float = json.load(open("src/data.json", "r"))["balance"]
+        init_balance: float = self.load_data()["balance"]
         shop_action = QAction(str(init_balance)+" €", self)
         shop_action.triggered.connect(
             lambda: self.open_component_window("Basic", "Shop"))
@@ -155,9 +154,9 @@ class ToolBoxUI(BaseWindow):
     def update_balance(self, new_balance: float) -> None:
         # update main window display
         self.getCurrentMenubar().actions()[4].setText(str(new_balance)+" €")
-        json.dump({"balance": new_balance}, open("src/data.json", "w"))
+        # update data.json
+        self.update_data_file({"balance": new_balance})
         print("Balance updated to", new_balance, "€")
-
 
 def main():
     app = QApplication(sys.argv)
