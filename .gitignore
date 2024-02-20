@@ -1,7 +1,9 @@
 .venv/
 .vscode/
-**/**/__pycache__/
+**/__pycache__/
 
 main.spec
 build/
 pyinstaller_output/
+src/resources/data.json
+src/resources/settings.json
