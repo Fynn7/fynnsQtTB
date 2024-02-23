@@ -52,8 +52,6 @@ ORIG_SETTINGS: dict = {
     "enable_closeEvent": False
 }
 _ENCODING: str = "utf-8"
-_SETTINGS_FILE_PATH: str = "src/settings.json"
-# _DATA_FILE_PATH: str = "src/data.json"
 
 
 # @type_check_only

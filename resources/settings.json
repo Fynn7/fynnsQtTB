@@ -1,0 +1,9 @@
+{
+    "language": "en_US",
+    "font": {
+        "family": "Consolas",
+        "size": 14,
+        "italic": false
+    },
+    "enable_closeEvent": false
+}

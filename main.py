@@ -14,14 +14,14 @@ try:
         QAction,
     )
     from baseWindow import BaseWindow
-    from components.tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
-    from components.tools.wordSimulator.wordSimulator import WordSimulator
-    from components.tools.mlToolBox.mlToolBox import MlToolBox
-    from components.tools.autoExcel.autoExcel import AutoExcel
+    from src.components.tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
+    from src.components.tools.wordSimulator.wordSimulator import WordSimulator
+    from src.components.tools.mlToolBox.mlToolBox import MlToolBox
+    from src.components.tools.autoExcel.autoExcel import AutoExcel
 
-    from components.games.dice.dice import Dice
+    from src.components.games.dice.dice import Dice
 
-    from components.basic.shop import Shop
+    from src.components.basic.shop import Shop
 
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)

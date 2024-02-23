@@ -5,5 +5,5 @@
 main.spec
 build/
 pyinstaller_output/
-src/resources/data.json
-src/resources/settings.json
+# src/resources/data.json
+# src/resources/settings.json
