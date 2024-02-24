@@ -85,6 +85,12 @@ class AutoExcel(BaseWindow):
         self.save_change_action.setDisabled(True)
         self.save_change_action.setShortcut("Ctrl+S")
 
+        # add discard action
+        self.discard_change_action = QAction("Discard (Ctrl+D)", self)
+        file_menu.addAction(self.discard_change_action)
+        self.discard_change_action.triggered.connect(self.confirm_save)
+        self.discard_change_action.setDisabled(True)
+        self.discard_change_action.setShortcut("Ctrl+D")
         function_menu = menubar.addMenu("Function")
         
         self.translate_table_action = QAction("Translate Table", self)
@@ -200,6 +206,7 @@ class AutoExcel(BaseWindow):
                     if len(table_names) > 1:
                         self.switch_table_action.setEnabled(True)
                     self.save_change_action.setEnabled(True)
+                    self.discard_change_action.setEnabled(True)
                     self.translate_table_action.setEnabled(True)
                     
             else:
@@ -307,8 +314,8 @@ class AutoExcel(BaseWindow):
         # connect the canceled signal to close the dialog
         self.progress_dialog.translation_thread.canceled.connect(self.progress_dialog.close)
         
-        # # also reset the data when the translation is canceled
-        # self.progress_dialog.translation_thread.canceled.connect(lambda: self.update_table_field(self.tables[self.chosen_table_name]))
+        # also reset the data when the translation is canceled
+        self.progress_dialog.translation_thread.canceled.connect(lambda: self.update_table_field(self.tables[self.chosen_table_name]))
 
         self.progress_dialog.translation_thread.finished.connect(self.progress_dialog.close)
         self.progress_dialog.translation_thread.finished.connect(lambda: self.update_table_field(self.progress_dialog.translation_thread.df))
@@ -355,6 +362,12 @@ class AutoExcel(BaseWindow):
     def confirm_save(self)->int:
         '''
         confirm if save the change before close
+
+        return:
+        0: user choose to save the change before the next action
+        1: user choose to discard the change before the next action
+        2: user choose to cancel the next action
+
         '''
         if not self.table_changed:
             return -1
@@ -381,9 +394,13 @@ class AutoExcel(BaseWindow):
                 return 1
             else:
                 print("User choose to cancel the next action")
+                # deal canceling outside this function by detecting the return value == 2
                 return 2
             
-    def _reset_all(self):
+    def _reset_gui(self):
+        '''
+        reset the table display (gui)
+        '''
         # empty the file path label
         self.file_path_label.setText("")
         # empty the table name label
@@ -402,7 +419,7 @@ class AutoExcel(BaseWindow):
         # disable the switch table and save menu
         self.switch_table_action.setDisabled(True)
         self.save_change_action.setDisabled(True)
-
+        self.discard_change_action.setDisabled(True)
     # def keyPressEvent(self, event):
     #     # press Ctrl + S to save the file
     #     if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
@@ -410,6 +427,10 @@ class AutoExcel(BaseWindow):
     #     else:
     #         super().keyPressEvent(event)
 
-    def closeEvent(self, event) -> QWidget:
-        self.confirm_save()
-        return super().closeEvent(event)
+    def closeEvent(self, event) -> None:
+        r=self.confirm_save()
+        if r==2:
+            event.ignore()
+        else:
+            event.accept()
+            super().closeEvent(event)

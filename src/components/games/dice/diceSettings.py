@@ -8,9 +8,9 @@ class DiceSettings(QDialog):
         self.last_dim_of_dice=last_dim_of_dice
         self.last_amount_of_dice=last_amount_of_dice
         print("got last settings: last dim of dice:",last_dim_of_dice,"last amount of dice:",last_amount_of_dice)
-        self.init_ui()
+        self.setup_ui()
 
-    def init_ui(self):
+    def setup_ui(self):
         self.setWindowTitle("Game Settings")
         layout = QVBoxLayout(self)
 

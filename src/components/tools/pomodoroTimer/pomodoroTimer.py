@@ -27,11 +27,11 @@ class PomodoroTimer(BaseWindow):
         self.WINDOW_TITLE="Pomodoro Timer" # overwriting the parent class attribute before parent calling its __init__
         super().__init__()
         self.WINDOW_SIZE = (400, 200)
-        self.setupLayout()
+        self.setup_ui()
         self.setupMenu()
         self.resize(*self.WINDOW_SIZE)
 
-    def setupLayout(self) -> None:
+    def setup_ui(self) -> None:
         # 初始化计时器
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)

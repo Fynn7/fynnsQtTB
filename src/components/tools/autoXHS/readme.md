@@ -1,0 +1,1 @@
+# This script aimed, that every day a german-learning script will be automatically posted on `xiaohongshu.com`.

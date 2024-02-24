@@ -4,9 +4,9 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QSpinBox, QDialogBut
 class SetTimeDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.init_ui()
+        self.setup_ui()
 
-    def init_ui(self):
+    def setup_ui(self):
         self.setWindowTitle("设置时间")
         layout = QVBoxLayout(self)
 

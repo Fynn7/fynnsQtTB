@@ -8,9 +8,9 @@ class ChooseColumn(QDialog):
 
         self.column_names = column_names
         print("got column names:", column_names)
-        self.init_ui()
+        self.setup_ui()
 
-    def init_ui(self):
+    def setup_ui(self):
         self.setWindowTitle("Choose Column")
         layout = QVBoxLayout(self)
 
@@ -22,7 +22,7 @@ class ChooseColumn(QDialog):
         for column_name in self.column_names:
             column_item = QListWidgetItem(column_name)
             column_item.setFlags(column_item.flags() | Qt.ItemIsUserCheckable)
-            column_item.setCheckState(Qt.Checked)
+            column_item.setCheckState(Qt.Unchecked)
             # check item state change
 
             self.choose_column_listwidget.addItem(column_item)
@@ -32,7 +32,7 @@ class ChooseColumn(QDialog):
 
         # add a checkbox for select/deselect all
         self.select_all_checkbox = QCheckBox("Select All")
-        self.select_all_checkbox.setCheckState(Qt.Checked)
+        self.select_all_checkbox.setCheckState(Qt.Unchecked)
         self.select_all_checkbox.stateChanged.connect(self.select_all)
 
         result_buttonBox = QDialogButtonBox(

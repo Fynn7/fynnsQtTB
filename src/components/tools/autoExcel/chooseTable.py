@@ -8,9 +8,9 @@ class ChooseTable(QDialog):
         self.table_names = table_names
         self.default_table_name = default_table_name
         print("got table names:", table_names)
-        self.init_ui()
+        self.setup_ui()
 
-    def init_ui(self):
+    def setup_ui(self):
         self.setWindowTitle("Choose Table")
         layout = QVBoxLayout(self)
 

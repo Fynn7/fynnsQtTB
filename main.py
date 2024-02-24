@@ -18,7 +18,8 @@ try:
     from src.components.tools.wordSimulator.wordSimulator import WordSimulator
     from src.components.tools.mlToolBox.mlToolBox import MlToolBox
     from src.components.tools.autoExcel.autoExcel import AutoExcel
-
+    from src.components.tools.autoXHS.autoXHS import AutoXHS
+    
     from src.components.games.dice.dice import Dice
 
     from src.components.basic.shop import Shop
@@ -41,6 +42,7 @@ class ToolBoxUI(BaseWindow):
             "PomodoroTimer": None,
             "MlToolBox": None,
             "AutoExcel": None,
+            "AutoXHS": None,
         },
         "Games": {
             "Dice": None,
@@ -95,6 +97,13 @@ class ToolBoxUI(BaseWindow):
         auto_excel_action.triggered.connect(
             lambda: self.open_component_window("Tools", "AutoExcel"))
         tool_menu.addAction(auto_excel_action)
+
+        # auto xhs action
+        auto_xhs_action = QAction("📕 Auto XiaoHongShu", self)
+        auto_xhs_action.triggered.connect(
+            lambda: self.open_component_window("Tools", "AutoXHS"))
+        tool_menu.addAction(auto_xhs_action)
+
         ############################################################
         # game menu
         game_menu = menubar.addMenu("Games")
