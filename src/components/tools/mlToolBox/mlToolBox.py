@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel, QLineEdit, QScrollArea, QSpinBox, QWidgetAction, QDoubleSpinBox, QCheckBox
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot,Qt
 from PySide6.QtGui import QAction
 from .fynns_tool_model_v2_0 import *
+from ...templates.fynnsComponents import _select_file
 import traceback
 from baseWindow import BaseWindow
 
@@ -42,6 +43,10 @@ class MlToolBox(BaseWindow):
 
         self.run_ml_button = QPushButton(f"Run {self.selected_algorithm}")
         self.run_ml_button.clicked.connect(self.run_ml_algorithm)
+        self.run_ml_button.setToolTip(
+            "Run the selected algorithm with the selected file and parameters."
+        )
+        self.run_ml_button.setShortcut(Qt.Key_Return)
         layout.addWidget(self.run_ml_button)
 
         # Placeholder for displaying the selected algorithm and scores
@@ -176,16 +181,10 @@ class MlToolBox(BaseWindow):
 
     @Slot()  # syntax sugar for slot connector function
     def select_file(self):
-        file_dialog = QFileDialog()
-        file_dialog.setFileMode(QFileDialog.ExistingFile)
-        file_dialog.setNameFilter("Data Files (*.csv *.xlsx *.xls)")
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            if selected_files:
-                file_path = selected_files[0]
-                print("Selected file:", file_path)
-                self.file_path_label.setText(file_path)
-                self.reset_info_label()
+        file_path = _select_file(name_filter="Data Files (*.csv *.xlsx *.xls)")
+        print("Selected file:", file_path)
+        self.file_path_label.setText(file_path)
+        self.reset_info_label()
 
     # @Slot()  # syntax sugar for slot connector function
     # def select_file(self) -> None:

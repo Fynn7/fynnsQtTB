@@ -214,9 +214,7 @@ class AutoExcel(BaseWindow):
                 print("No file selected")
 
     def open_choose_table_dialog(self, table_names: list,default_table_name:str|None=None) -> str | None:
-        # send last settings of dim and amount of dices to the dialog
         dialog = ChooseTable(table_names,default_table_name)
-        # if the dialog is accepted, get the time from the dialog
         if dialog.exec() == QDialog.DialogCode.Accepted:
             got_chosen_table = dialog.get_chosen_table()
             print("got_chosen_table:", got_chosen_table)
@@ -224,7 +222,6 @@ class AutoExcel(BaseWindow):
         
     def open_choose_column_dialog(self, column_names: list) -> list | None:
         dialog = ChooseColumn(column_names)
-        # if the dialog is accepted, get the time from the dialog
         if dialog.exec() == QDialog.DialogCode.Accepted:
             got_chosen_columns = dialog.get_chosen_columns()
             print("got_chosen_columns:", got_chosen_columns)
