@@ -18,12 +18,14 @@ class FynnsLoginDialog(QDialog):
         login_dialog = FynnsLogin()
         # if the dialog is accepted, get login data
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            got_login_data:tuple[str,str]=login_dialog.get_login_info()
+            got_login_data:tuple[str,str]=login_dialog.get_login_data()
     ```
     '''
-    def __init__(self):
+    def __init__(self,saved_login_data:dict):
         super().__init__()
         self._setup_ui()
+        self.username_input.setText(saved_login_data["username"])
+        self.password_input.setText(saved_login_data["password"])
 
     def _setup_ui(self)->None:
         self.setWindowTitle("Fynns Login Prototype")
@@ -46,5 +48,8 @@ class FynnsLoginDialog(QDialog):
         layout.addWidget(result_buttonBox)
 
         
-    def get_login_info(self)->tuple[str,str]:
-        return self.username_input.text(), self.password_input.text()
+    def get_login_data(self)->dict:
+        return {
+            "username":self.username_input.text(),
+            "password":self.password_input.text()
+        }
