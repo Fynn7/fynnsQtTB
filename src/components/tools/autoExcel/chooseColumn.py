@@ -1,8 +1,8 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QCheckBox, QDialogButtonBox, QListWidget, QListWidgetItem
+from PySide6.QtWidgets import QLabel, QCheckBox, QListWidget, QListWidgetItem
 from PySide6.QtCore import Qt
+from ...templates.fynnsSettingsDialog import FynnsSettingsDialog
 
-
-class ChooseColumn(QDialog):
+class ChooseColumn(FynnsSettingsDialog):
     def __init__(self, column_names: list):
         super().__init__()
 
@@ -12,8 +12,6 @@ class ChooseColumn(QDialog):
 
     def setup_ui(self):
         self.setWindowTitle("Choose Column")
-        layout = QVBoxLayout(self)
-
         choose_column_label = QLabel("Choose columns to execute the function:")
 
         # add a QListWidget to allow multiple selection of columns
@@ -35,15 +33,12 @@ class ChooseColumn(QDialog):
         self.select_all_checkbox.setCheckState(Qt.Unchecked)
         self.select_all_checkbox.stateChanged.connect(self.select_all)
 
-        result_buttonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        result_buttonBox.accepted.connect(self.accept)
-        result_buttonBox.rejected.connect(self.reject)
+        self.layout.addWidget(choose_column_label)
+        self.layout.addWidget(self.choose_column_listwidget)
+        self.layout.addWidget(self.select_all_checkbox)
 
-        layout.addWidget(choose_column_label)
-        layout.addWidget(self.choose_column_listwidget)
-        layout.addWidget(self.select_all_checkbox)
-        layout.addWidget(result_buttonBox)
+        # add the OK and Cancel buttons, inherited from FynnsSettingsDialog
+        self.add_result_buttonBox()
 
     def select_all(self, state: Qt.CheckState):
         states = {

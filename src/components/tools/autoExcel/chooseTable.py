@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QDialogButtonBox
+from PySide6.QtWidgets import QLabel, QComboBox
+from ...templates.fynnsSettingsDialog import FynnsSettingsDialog
 
-
-class ChooseTable(QDialog):
+class ChooseTable(FynnsSettingsDialog):
     def __init__(self, table_names: list,default_table_name: str|None = None):
         super().__init__()
 
@@ -12,24 +12,18 @@ class ChooseTable(QDialog):
 
     def setup_ui(self):
         self.setWindowTitle("Choose Table")
-        layout = QVBoxLayout(self)
-
         choose_table_label = QLabel("Choose a table from the selected file:")
 
         self.choose_table_combobox = QComboBox()
         self.choose_table_combobox.addItems(self.table_names)
         if self.default_table_name:
             self.choose_table_combobox.setCurrentText(self.default_table_name)
+        
+        self.layout.addWidget(choose_table_label)
+        self.layout.addWidget(self.choose_table_combobox)
 
-        result_buttonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        result_buttonBox.accepted.connect(self.accept)
-        result_buttonBox.rejected.connect(self.reject)
-
-        layout.addWidget(choose_table_label)
-        layout.addWidget(self.choose_table_combobox)
-
-        layout.addWidget(result_buttonBox)
+        # add the OK and Cancel buttons to the dialog (inherited from FynnsSettingsDialog)
+        self.add_result_buttonBox()
 
     def get_chosen_table(self) -> str|None:
         return self.choose_table_combobox.currentText()

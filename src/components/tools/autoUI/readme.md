@@ -1,0 +1,1 @@
+# this module aim to realize an automation of keyboard/mouse operations

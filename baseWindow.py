@@ -222,11 +222,13 @@ class Dice(BaseWindow):
         '''
         try:
             # write to file
+            current_data=self.load_data()
+            current_data.update(new_data)
             data_path = pkg_resources.resource_filename(
                 __name__, 'resources/data.json')
 
             with open(data_path, 'w') as file:
-                json.dump(new_data, file, indent=4)
+                json.dump(current_data, file, indent=4)
             return 0
         except Exception:
             print(traceback.format_exc())

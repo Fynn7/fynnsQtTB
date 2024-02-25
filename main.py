@@ -102,6 +102,7 @@ class ToolBoxUI(BaseWindow):
         auto_xhs_action = QAction("📕 Auto XiaoHongShu", self)
         auto_xhs_action.triggered.connect(
             lambda: self.open_component_window("Tools", "AutoXHS"))
+        auto_xhs_action.setDisabled(True)
         tool_menu.addAction(auto_xhs_action)
 
         ############################################################
