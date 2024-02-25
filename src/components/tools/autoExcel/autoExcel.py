@@ -18,6 +18,7 @@ from PySide6.QtGui import (
 )
 import pandas as pd
 import functools
+import traceback
 
 
 from baseWindow import BaseWindow
@@ -25,7 +26,7 @@ from .tableHandler import TranslationThread
 from .chooseTable import ChooseTable
 from .chooseColumn import ChooseColumn
 from .showProgressbar import ShowProgressbar
-
+from .fakeDataGenerator import FakeDataGenerator
 
 class AutoExcel(BaseWindow):
     '''
@@ -98,6 +99,13 @@ class AutoExcel(BaseWindow):
         self.translate_table_action.triggered.connect(self.translate_table)
         self.translate_table_action.setDisabled(True)
 
+
+        tool_menu=menubar.addMenu("Tools")
+
+        self.generate_fake_data_action = QAction("Generate Fake Data", self)
+        tool_menu.addAction(self.generate_fake_data_action)
+        self.generate_fake_data_action.triggered.connect(self.make_faker)
+
     def disable_signal(func):
         '''
         use when the table is being updated by the program, 
@@ -158,7 +166,7 @@ class AutoExcel(BaseWindow):
 
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.ExistingFile)
-        file_dialog.setNameFilter("Excel Files (*.xlsx *.xls)")
+        file_dialog.setNameFilter("Excel Files (*.xlsx *.xls *.csv);; All Files (*)")
         # file_dialog.setDirectory(QDir.current())
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -166,10 +174,19 @@ class AutoExcel(BaseWindow):
                 file_path = selected_files[0]
                 print("Selected files:", selected_files)
 
+                # if the file is an excel file, then read it
+                if file_path.endswith(".xlsx") or file_path.endswith(".xls"):
                 # get all tables from the excel file
-                tables: dict[str, pd.DataFrame] = pd.read_excel(
-                    file_path, sheet_name=None)
-
+                    tables: dict[str, pd.DataFrame] = pd.read_excel(
+                        file_path, sheet_name=None)
+                elif file_path.endswith(".csv"):
+                    tables: dict[str, pd.DataFrame] = {
+                        file_path.split("/")[-1]:pd.read_csv(file_path)
+                        }
+                else:
+                    print("Unsupported file type")
+                    QMessageBox.critical(self, "Unsupported File Type", "The file type is not supported. Please select an Excel file or a CSV file.")
+                    self.select_file()
                 table_names = list(tables.keys())
                 # create a dialog to select the table with a combo box
                 
@@ -240,9 +257,13 @@ class AutoExcel(BaseWindow):
         print("saved the change to the table:", self.chosen_table_name)
         # save changes to the original file, aka overwrite the original file
         try:
-            with pd.ExcelWriter(self.file_path_label.text()) as writer:
-                for table_name, df in self.tables.items():
-                    df.to_excel(writer, sheet_name=table_name, index=False)
+            if self.file_path_label.text().endswith(".csv"):
+                # open the file with the original file path and write the dataframe to it
+                df.to_csv(self.file_path_label.text(), index=False)
+            else:
+                with pd.ExcelWriter(self.file_path_label.text()) as writer:
+                    for table_name, df in self.tables.items():
+                        df.to_excel(writer, sheet_name=table_name, index=False)
         except PermissionError as e:
             print("PermissionError:", e)
             QMessageBox.critical(self, "Permission Error", "Permission Error: Please close the file before saving the change")
@@ -307,6 +328,7 @@ class AutoExcel(BaseWindow):
         self.progress_dialog.translation_thread.current_translate_text.connect(self.progress_dialog.update_current_translate_label)
         
         # connect the cancel button to stop the translation
+        # NOTE: OVERWRITE the cancel button's original connection function
         self.progress_dialog.cancel_button.clicked.connect(self.progress_dialog.translation_thread.stop)
         # connect the canceled signal to close the dialog
         self.progress_dialog.translation_thread.canceled.connect(self.progress_dialog.close)
@@ -424,6 +446,23 @@ class AutoExcel(BaseWindow):
     #     else:
     #         super().keyPressEvent(event)
 
+    def make_faker(self)->int:
+        faker_dialog=FakeDataGenerator()
+        if faker_dialog.exec() == QDialog.DialogCode.Accepted:
+            try:
+                faker_dialog.generate_fake_data()
+            except PermissionError:
+                print(traceback.format_exc())
+                QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or deal with the permission issue manually")
+                # call the function again to let the user choose another folder
+                self.make_faker()
+            except Exception as e:
+                print(traceback.format_exc())
+                QMessageBox.critical(self,"Unknown Error",str(e))
+                return 1
+            return 0
+        return -1 # user pressed cancel
+    
     def closeEvent(self, event) -> None:
         r=self.confirm_save()
         if r==2:

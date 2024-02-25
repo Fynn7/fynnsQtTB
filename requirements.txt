@@ -15,6 +15,7 @@ scikit-learn
 # excel handling
 openpyxl 
 xlrd
+faker
 # schedule
 
 googletrans==4.0.0-rc1
