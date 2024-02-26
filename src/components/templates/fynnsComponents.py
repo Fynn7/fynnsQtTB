@@ -24,15 +24,22 @@ def _select_file(name_filter:str|None=None,file_mode:Any=QFileDialog.ExistingFil
         if selected_files:
             return selected_files[0]
         
-def _select_dir()->str|None:
+
+def _save_file(name_filter:str|None=None,placeholder:str="untitled") -> str | None:
     '''
-    How to use:
+    rvalues:
     
-    ```
-    path=_select_dir()
-    if path:
-        # do something with the path
-        ...
-    ```
-    '''
-    return _select_file(file_mode=QFileDialog.Directory)
+    - str: the selected file path'''
+    file_dialog = QFileDialog()
+    file_dialog.setAcceptMode(QFileDialog.AcceptSave)
+    file_dialog.setOption(QFileDialog.ShowDirsOnly, True)
+    if name_filter:
+        file_dialog.setNameFilter(name_filter)
+    file_dialog.selectFile(placeholder)
+    if file_dialog.exec():
+        selected_files = file_dialog.selectedFiles()
+        if selected_files:
+            return selected_files[0]
+        
+def _simple_save_file()->str|None:
+    return QFileDialog.getSaveFileName()[0]

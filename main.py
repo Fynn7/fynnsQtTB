@@ -15,7 +15,6 @@ try:
     )
     from baseWindow import BaseWindow
     from src.components.tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
-    from src.components.tools.wordSimulator.wordSimulator import WordSimulator
     from src.components.tools.mlToolBox.mlToolBox import MlToolBox
     from src.components.tools.autoExcel.autoExcel import AutoExcel
     from src.components.tools.autoXHS.autoXHS import AutoXHS
@@ -38,7 +37,6 @@ except Exception as e:
 class ToolBoxUI(BaseWindow):
     components = {
         "Tools": {
-            "WordSimulator": None,
             "PomodoroTimer": None,
             "MlToolBox": None,
             "AutoExcel": None,
@@ -62,7 +60,7 @@ class ToolBoxUI(BaseWindow):
 
     def setup_ui(self) -> None:
         self.addWidgetToLayout(
-            "QLabel", text="Nothing to show (but later can used as a notification area instead of pop-up windows)")
+            "QLabel", text="Welcome to Fynn's playground.\nNothing to show (but later can used as a notification area instead of pop-up windows)")
 
     def setup_menubar(self) -> None:
         # add basic menus (baseWindow parent method)
@@ -79,12 +77,6 @@ class ToolBoxUI(BaseWindow):
         pomodoro_timer_action.triggered.connect(
             lambda: self.open_component_window("Tools", "PomodoroTimer"))
         tool_menu.addAction(pomodoro_timer_action)
-
-        # word simulator action
-        word_simulator_action = QAction("🖋 Word", self)
-        word_simulator_action.triggered.connect(
-            lambda: self.open_component_window("Tools", "WordSimulator"))
-        tool_menu.addAction(word_simulator_action)
 
         # ml toolbox action
         ml_toolbox_action = QAction("🤖 Machine Learning", self)

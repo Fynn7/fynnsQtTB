@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 from ...templates.fynnsSettingsDialog import FynnsSettingsDialog
-from ...templates.fynnsComponents import _select_dir
+from ...templates.fynnsComponents import _save_file
 from ...templates.fynnsProgressbar import FynnsProgressbar
 
 class FakeDataGenerator(FynnsSettingsDialog):
@@ -33,7 +33,7 @@ class FakeDataGenerator(FynnsSettingsDialog):
         self.add_result_buttonBox()
     
     def generate_fake_data(self)->None:
-        save_path=_select_dir()+'/fake_data.csv'
+        save_path=_save_file("CSV Files (*.csv)")
         if not save_path: # if the user cancels the file dialog
             return
 
