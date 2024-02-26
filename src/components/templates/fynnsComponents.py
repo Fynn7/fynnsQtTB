@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import (
     QFileDialog,
 )
-# import type hint "any"
 from typing import Any
+import os
 
-def _select_file(name_filter:str|None=None,file_mode:Any=QFileDialog.ExistingFile)->str|None:
+def _select_file(name_filter:str|None=None,file_mode:Any=QFileDialog.ExistingFile,default_dir:str=os.path.abspath(os.path.expanduser('~/Desktop')))->str|None:
     '''
     How to use:
     
@@ -16,6 +16,7 @@ def _select_file(name_filter:str|None=None,file_mode:Any=QFileDialog.ExistingFil
     ```
     '''
     file_dialog = QFileDialog()
+    file_dialog.setDirectory(default_dir)
     file_dialog.setFileMode(file_mode)
     if name_filter:
         file_dialog.setNameFilter(name_filter)
@@ -25,12 +26,13 @@ def _select_file(name_filter:str|None=None,file_mode:Any=QFileDialog.ExistingFil
             return selected_files[0]
         
 
-def _save_file(name_filter:str|None=None,placeholder:str="untitled") -> str | None:
+def _save_file(name_filter:str|None=None,placeholder:str="untitled",default_dir:str=os.path.abspath(os.path.expanduser('~/Desktop'))) -> str | None:
     '''
     rvalues:
     
     - str: the selected file path'''
     file_dialog = QFileDialog()
+    file_dialog.setDirectory(default_dir)
     file_dialog.setAcceptMode(QFileDialog.AcceptSave)
     file_dialog.setOption(QFileDialog.ShowDirsOnly, True)
     if name_filter:

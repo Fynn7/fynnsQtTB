@@ -53,7 +53,7 @@ class ToolBoxUI(BaseWindow):
 
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
-        self.WINDOW_TITLE = "Tool Box"
+        self.WINDOW_TITLE = "Fynns Playground"
         super().__init__()
         self.setup_ui()
         self.setup_menubar()

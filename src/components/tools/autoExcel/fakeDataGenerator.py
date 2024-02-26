@@ -18,15 +18,20 @@ class FakeDataGenerator(FynnsSettingsDialog):
         # self.progressbar = FynnsProgressbar()
 
     def setup_ui(self):
-        amount_label=QLabel("Amount of data to generate:")
-        self.layout.addWidget(amount_label)
+        self.layout.addWidget(QLabel("Amount of data to generate:"))
 
-        self.amount_combobox=QComboBox()
-        self.amount_combobox.addItems(["10","20","50","100","1000","10000","100000"])
-        self.amount_combobox.setCurrentIndex(5)
-        self.layout.addWidget(self.amount_combobox)
+        self.sample_amount_combobox=QComboBox()
+        self.sample_amount_combobox.addItems(["10","20","50","100","1000","10_000","100_000"])
+        self.sample_amount_combobox.setCurrentIndex(5)
+        self.layout.addWidget(self.sample_amount_combobox)
 
-        select_path_label=QLabel("Select the directory to save the fake data\n↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ")
+        self.layout.addWidget(QLabel("Amount of columns to generate:"))
+        self.column_amount_combobox=QComboBox()
+        self.column_amount_combobox.addItems(["1","5","10","20","50","100","1000","10_000","100_000"])
+        self.column_amount_combobox.setCurrentIndex(2)
+        self.layout.addWidget(self.column_amount_combobox)
+
+        select_path_label=QLabel("Select the directory to save the fake data\n")
         self.layout.addWidget(select_path_label)
 
 
@@ -36,20 +41,18 @@ class FakeDataGenerator(FynnsSettingsDialog):
         save_path=_save_file("CSV Files (*.csv)")
         if not save_path: # if the user cancels the file dialog
             return
-
-        data = [['Name', 'Email', 'Phone', 'Address']]
-        amount = int(self.amount_combobox.currentText())
+        
+        sample_amount = int(self.sample_amount_combobox.currentText())
+        column_amount = int(self.column_amount_combobox.currentText())
+        
+        data = [[f"column {i}" for i in range(1,column_amount+1)]]  # Add more column names here
 
         with open(save_path, 'w', newline='') as file:
             # generate fake data INSIDE WITH STATEMENT: in case the path raises an permission error
-            for _ in range(amount):
-                name = self.faker.name()
-                email = self.faker.email()
-                phone = self.faker.phone_number()
-                address = self.faker.address()
-
-                data.append([name, email, phone, address])
-
+            for _ in range(sample_amount):
+                sample= [self.faker.word() for _ in range(column_amount)]
+                data.append(sample)
             writer = csv.writer(file)
             writer.writerows(data)
+
         print("Fake data generated and saved to", save_path)

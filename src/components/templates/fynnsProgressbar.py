@@ -1,5 +1,14 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar, QPushButton
-from PySide6.QtCore import Qt,Signal
+from PySide6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+)
+from PySide6.QtCore import (
+    Qt,
+    Signal,
+)
 
 
 class FynnsProgressbar(QDialog):
