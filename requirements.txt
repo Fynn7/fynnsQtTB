@@ -11,6 +11,8 @@ scikit-learn
 # keras
 # pytorch
 
+# model process bar
+# tqdm
 
 # excel handling
 openpyxl 

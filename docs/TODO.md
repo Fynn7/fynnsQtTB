@@ -19,12 +19,11 @@ product backlog:
 
 
 sprint backlog:
-    dev
-        write into errLog.txt if any UI layer errors occured
-        connect sqlite Database (save all json file data)
 
-        balance ($)
-        shop window
+Not started:
+        write into errLog.txt if any UI layer errors occured
+
+        connect sqlite Database (save all json file data)
 
         events log: eg. write this into file: 
         ```
@@ -45,22 +44,31 @@ sprint backlog:
 
         close ALL OTHER SUB- WINDOWS when main window is closed!
 
+        get more test dataset for mlToolBox
+
+
+
+        combine AI tools/chatbot
+
+        + Data Analysis funcs inside MLtoolbox: ideas/inspirations see ChatGPT dialog before
+
+
+Doing:
+
+
+
+Done:
+
+        install Qt Creator
+
         direct apply changes from settings, not after restart the software
             by using `self.load_settings()`
                 NOTE: closeEvent() can be already "directly applied"
 
         change `update_balance()` more general: `update_data()`
-    opt
-        get more test dataset for mlToolBox
 
-    other
-
-    test feedback
-        performance bad: to slow, need too much time to setup
-
-
-Done:
-        install Qt Creator  *not possible, wait for student package!*
+        balance ($)
+        shop window
 
 Failed:
         Qt Creator cannot be used correctly, I prefer just using VScode

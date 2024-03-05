@@ -35,7 +35,8 @@ except Exception as e:
 
 
 class ToolBoxUI(BaseWindow):
-    components = {
+    # window obj control
+    components:dict= {
         "Tools": {
             "PomodoroTimer": None,
             "MlToolBox": None,
