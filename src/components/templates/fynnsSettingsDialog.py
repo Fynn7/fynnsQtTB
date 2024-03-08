@@ -52,7 +52,7 @@ class FynnsSettingsDialog(QDialog):
         self.layout:QVBoxLayout = QVBoxLayout(self)
         self.setWindowTitle("Fynns Settings Dialog Prototype")
 
-    def add_result_buttonBox(self):
+    def add_result_buttonBox(self)->QDialogButtonBox:
         '''
         add the OK and Cancel buttons to the dialog
         '''
@@ -61,6 +61,7 @@ class FynnsSettingsDialog(QDialog):
         result_buttonBox.accepted.connect(self.accept)
         result_buttonBox.rejected.connect(self.reject)
         self.layout.addWidget(result_buttonBox)
+        return result_buttonBox
 
     def get_settings_data(self)->dict:
         '''transmit the settings data to the main window'''

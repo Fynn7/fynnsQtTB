@@ -65,9 +65,17 @@ class ToolBoxUI(BaseWindow):
 
     def setup_menubar(self) -> None:
         # add basic menus (baseWindow parent method)
-        self.addBasicMenus()
+        self.addBasicMenus(withFile=False)
 
         menubar = self.getCurrentMenubar()
+
+        # file menu
+        file_menu = menubar.addMenu("File")
+
+        # reset data action
+        reset_data_action = QAction("Reset Data", self)
+        reset_data_action.triggered.connect(self.reset_data_with_gui)
+        file_menu.addAction(reset_data_action)
 
         ############################################################
         # tool menu
@@ -161,6 +169,12 @@ class ToolBoxUI(BaseWindow):
         self.update_data_file({"balance": new_balance})
         print("Balance updated to", new_balance, "€")
 
+    def reset_data_with_gui(self) -> None:
+        self.reset_data()
+        # reset also gui
+        current_data=self.load_data()
+        self.getCurrentMenubar().actions()[4].setText(str(current_data["balance"])+" €")
+        
 def main():
     app = QApplication(sys.argv)
     mainWindow = ToolBoxUI()

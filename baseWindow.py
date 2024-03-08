@@ -51,8 +51,21 @@ ORIG_SETTINGS: dict = {
     },
     "enable_closeEvent": False
 }
+ORIG_DATA: dict =  {
+            "balance":10_000,
+            "login_data": {
+                "username": "",
+                "password": ""
+            },
+            "custom_dicts":{
+
+            }
+        }
 _ENCODING: str = "utf-8"
 
+_SETTINGS_PATH: str = pkg_resources.resource_filename(
+                __name__, 'resources/settings.json')
+_DATA_PATH: str = pkg_resources.resource_filename(__name__, 'resources/data.json')
 
 # @type_check_only
 class LayoutObject:
@@ -142,11 +155,8 @@ class Dice(BaseWindow):
         print("BaseWindow initialized.")
 
     def load_settings(self) -> dict | None:
-        settings_path = pkg_resources.resource_filename(
-            __name__, 'resources/settings.json')
-
         try:
-            with open(settings_path, 'r') as file:
+            with open(_SETTINGS_PATH, 'r') as file:
                 settings_data = json.load(file)
         except Exception as e:
             print(traceback.format_exc())
@@ -164,10 +174,8 @@ class Dice(BaseWindow):
             current_settings = self.load_settings()
             current_settings.update(new_settings)
             # write to file
-            settings_path = pkg_resources.resource_filename(
-                __name__, 'resources/settings.json')
 
-            with open(settings_path, 'w') as file:
+            with open(_SETTINGS_PATH, 'w') as file:
                 json.dump(current_settings, file, indent=4)
 
             # update GUI
@@ -203,11 +211,8 @@ class Dice(BaseWindow):
             sys.exit(1)
 
     def load_data(self) -> dict | None:
-        data_path = pkg_resources.resource_filename(
-            __name__, 'resources/data.json')
-
         try:
-            with open(data_path, 'r') as file:
+            with open(_DATA_PATH, 'r') as file:
                 data = json.load(file)
         except Exception as e:
             print(traceback.format_exc())
@@ -224,10 +229,7 @@ class Dice(BaseWindow):
             # write to file
             current_data=self.load_data()
             current_data.update(new_data)
-            data_path = pkg_resources.resource_filename(
-                __name__, 'resources/data.json')
-
-            with open(data_path, 'w') as file:
+            with open(_DATA_PATH, 'w') as file:
                 json.dump(current_data, file, indent=4)
             return 0
         except Exception:
@@ -243,6 +245,37 @@ class Dice(BaseWindow):
         '''
         raise NotImplementedError(
             "This method should be overridden by developers.")
+
+    def reset_data(self) -> int | None:
+        '''
+        reset all data to None but leave the keys
+
+        original data structure:
+            {
+            "balance":10_000,
+            "login_data": {
+                "username": "",
+                "password": ""
+            },
+            "custom_dicts":{
+
+            }
+        }
+        '''
+        reply = QMessageBox.warning(
+            self, "Warning", "This will reset all data to default. Are you sure to continue?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
+            print("Resetting data applied.")
+            try:
+                with open(_DATA_PATH, 'w') as file:
+                    json.dump(ORIG_DATA, file, indent=4)
+                return 0
+            except Exception:
+                print(traceback.format_exc())
+                QMessageBox.critical(
+                    self, "Fatal Error", "Failed to reset data file.")
+                sys.exit(1)
+        return -1  # if user clicked "No"
 
     def closeEvent(self, event) -> None:
         '''Override closeEvent'''
@@ -293,10 +326,10 @@ class Dice(BaseWindow):
         -1: User clicked "No"
         1: Failed
         '''
-        print("Resetting settings applied.")
         reply = QMessageBox.warning(
             self, "Warning", "This will reset all settings to default. Are you sure to continue?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
+            print("Resetting settings applied.")
             self.enableCloseEventCheckBox.setChecked(False)
             return self.update_settings_file(ORIG_SETTINGS)
         return -1  # if user clicked "No"

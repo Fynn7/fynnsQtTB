@@ -4,13 +4,10 @@ from PySide6.QtWidgets import (
     QDialog,
     QTableWidgetItem,
     QMessageBox,
-    QWidget,
 )
 from PySide6.QtCore import (
     Qt,
     Slot,
-    QThread,
-    Signal,
 )
 from PySide6.QtGui import (
     QWheelEvent,
@@ -38,6 +35,7 @@ class AutoExcel(BaseWindow):
         self.WINDOW_TITLE = "Auto Excel"
         super().__init__()
         self.setupUi()
+        self.custom_dict_window=CustomDict()
         self.setupMenubar()
 
         # 添加事件过滤器到表格的视口
@@ -49,6 +47,7 @@ class AutoExcel(BaseWindow):
         # chosen table: (table name, table dataframe)
         self.chosen_table_name: str = ""
         self.tables: dict[str, pd.DataFrame] = {}
+
 
     def setupUi(self):
         self.file_path_label = self.addWidgetToLayout(
@@ -106,7 +105,7 @@ class AutoExcel(BaseWindow):
 
         self.custom_dict_action = QAction("Custom Dictionary", self)
         tool_menu.addAction(self.custom_dict_action)
-        self.custom_dict_action.triggered.connect(self.add_custom_dict)
+        self.custom_dict_action.triggered.connect(self.custom_dict_window.show)
 
     def disable_signal(func):
         '''
@@ -458,23 +457,6 @@ class AutoExcel(BaseWindow):
                 QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or try to close the file")
                 # call the function again to let the user choose another folder
                 self.make_faker()
-            except Exception as e:
-                print(traceback.format_exc())
-                QMessageBox.critical(self,"Unknown Error",str(e))
-                return 1
-            return 0
-        return -1 # user pressed cancel
-    
-    def add_custom_dict(self):
-        custom_dict_dialog=CustomDict()
-        if custom_dict_dialog.exec() == QDialog.DialogCode.Accepted:
-            try:
-                custom_dict_dialog.create_custom_dict()
-            except PermissionError:
-                print(traceback.format_exc())
-                QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or try to close the file")
-                # call the function again to let the user choose another folder 
-                self.add_custom_dict()
             except Exception as e:
                 print(traceback.format_exc())
                 QMessageBox.critical(self,"Unknown Error",str(e))

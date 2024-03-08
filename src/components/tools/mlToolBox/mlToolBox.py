@@ -54,6 +54,7 @@ class MlToolBox(BaseWindow):
 
         scroll_area = QScrollArea()
         scroll_area.setWidget(self.info_label)
+        scroll_area.setWordWrap(True)
         # Make the label resize with the scroll area
         scroll_area.setWidgetResizable(True)
 

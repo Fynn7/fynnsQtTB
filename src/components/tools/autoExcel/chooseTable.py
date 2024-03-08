@@ -2,11 +2,19 @@ from PySide6.QtWidgets import QLabel, QComboBox
 from ...templates.fynnsSettingsDialog import FynnsSettingsDialog
 
 class ChooseTable(FynnsSettingsDialog):
+    '''
+    Example usage:
+    ```
+    tables: dict[str, pd.DataFrame] = pd.read_excel(
+        file_path, sheet_name=None)
+    choose_table_dialog = ChooseTable(tables.keys())
+    ```
+    '''
     def __init__(self, table_names: list,default_table_name: str|None = None):
         super().__init__()
-        self.table_names = table_names
+        self.table_names = list(table_names)
         self.default_table_name = default_table_name
-        print("got table names:", table_names)
+        print("ChooseTable().__init__() got table names:", table_names)
         self.setup_ui()
 
     def setup_ui(self):

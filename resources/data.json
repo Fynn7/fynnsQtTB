@@ -1,7 +1,8 @@
 {
-    "balance":1000.0,
+    "balance": 10000,
     "login_data": {
-        "username": "fynnandreas",
-        "password": "yywrty"
-    }
+        "username": "",
+        "password": ""
+    },
+    "custom_dicts": {}
 }
