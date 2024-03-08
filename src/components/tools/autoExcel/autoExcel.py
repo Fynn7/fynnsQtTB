@@ -27,7 +27,7 @@ from .chooseTable import ChooseTable
 from .chooseColumn import ChooseColumn
 from .showProgressbar import ShowProgressbar
 from .fakeDataGenerator import FakeDataGenerator
-
+from .customDict import CustomDict
 class AutoExcel(BaseWindow):
     '''
     Excel Handling Tool
@@ -92,19 +92,21 @@ class AutoExcel(BaseWindow):
         self.discard_change_action.triggered.connect(self.confirm_save)
         self.discard_change_action.setDisabled(True)
         self.discard_change_action.setShortcut("Ctrl+D")
-        function_menu = menubar.addMenu("Function")
-        
-        self.translate_table_action = QAction("Translate Table", self)
-        function_menu.addAction(self.translate_table_action)
-        self.translate_table_action.triggered.connect(self.translate_table)
-        self.translate_table_action.setDisabled(True)
-
 
         tool_menu=menubar.addMenu("Tools")
+        
+        self.translate_table_action = QAction("Translate Table", self)
+        tool_menu.addAction(self.translate_table_action)
+        self.translate_table_action.triggered.connect(self.translate_table)
+        self.translate_table_action.setDisabled(True)
 
         self.generate_fake_data_action = QAction("Generate Fake Data", self)
         tool_menu.addAction(self.generate_fake_data_action)
         self.generate_fake_data_action.triggered.connect(self.make_faker)
+
+        self.custom_dict_action = QAction("Custom Dictionary", self)
+        tool_menu.addAction(self.custom_dict_action)
+        self.custom_dict_action.triggered.connect(self.add_custom_dict)
 
     def disable_signal(func):
         '''
@@ -453,7 +455,7 @@ class AutoExcel(BaseWindow):
                 faker_dialog.generate_fake_data()
             except PermissionError:
                 print(traceback.format_exc())
-                QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or deal with the permission issue manually")
+                QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or try to close the file")
                 # call the function again to let the user choose another folder
                 self.make_faker()
             except Exception as e:
@@ -463,6 +465,23 @@ class AutoExcel(BaseWindow):
             return 0
         return -1 # user pressed cancel
     
+    def add_custom_dict(self):
+        custom_dict_dialog=CustomDict()
+        if custom_dict_dialog.exec() == QDialog.DialogCode.Accepted:
+            try:
+                custom_dict_dialog.create_custom_dict()
+            except PermissionError:
+                print(traceback.format_exc())
+                QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or try to close the file")
+                # call the function again to let the user choose another folder 
+                self.add_custom_dict()
+            except Exception as e:
+                print(traceback.format_exc())
+                QMessageBox.critical(self,"Unknown Error",str(e))
+                return 1
+            return 0
+        return -1 # user pressed cancel
+
     def closeEvent(self, event) -> None:
         r=self.confirm_save()
         if r==2:
