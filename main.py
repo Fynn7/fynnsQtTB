@@ -20,7 +20,8 @@ try:
     from src.components.tools.autoXHS.autoXHS import AutoXHS
     
     from src.components.games.dice.dice import Dice
-
+    from src.components.games.poker.poker import Poker
+    
     from src.components.basic.shop import Shop
 
 except ImportError as ie:
@@ -115,6 +116,12 @@ class ToolBoxUI(BaseWindow):
         dice_action.triggered.connect(
             lambda: self.open_component_window("Games", "Dice"))
         game_menu.addAction(dice_action)
+
+        # poker action
+        poker_action = QAction("🃏 Poker", self)
+        poker_action.triggered.connect(
+            lambda: self.open_component_window("Games", "Poker"))
+        game_menu.addAction(poker_action)
 
         ############################################################
         # shop action: directly add to base menubar

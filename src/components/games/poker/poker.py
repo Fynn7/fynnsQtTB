@@ -24,11 +24,11 @@ class Poker(BaseWindow):
         self.addWidgetToLayout("QPushButton", "Poker21", self.play_poker21)
 
     def setup_menubar(self):
-        ...
+        self.addBasicMenus(False,withConfig=True)
     
     @Slot()
     def play_poker21(self):
-        if not self.poker21: # if the window is already open, just bring it to the front
+        if not self.poker21:
             self.poker21 = Poker21()    
         self.poker21.show()
         
