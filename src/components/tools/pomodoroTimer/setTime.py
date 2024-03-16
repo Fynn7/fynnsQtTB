@@ -7,18 +7,18 @@ class SetTimeDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        self.setWindowTitle("设置时间")
+        self.setWindowTitle("Set Time")
         layout = QVBoxLayout(self)
 
-        label_hour = QLabel("请输入h数:")
+        label_hour = QLabel("Choose hour:")
         self.spinBox_setHour = QSpinBox()
         self.spinBox_setHour.setRange(0, 99)
 
-        label_min = QLabel("请输入分钟数:")
+        label_min = QLabel("Choose min:")
         self.spinBox_setMin = QSpinBox()
         self.spinBox_setMin.setRange(0, 59)
 
-        label_sec = QLabel("请输入sec数:")
+        label_sec = QLabel("Choose sec:")
         self.spinBox_setSec = QSpinBox()
         self.spinBox_setSec.setRange(0, 59)
 
