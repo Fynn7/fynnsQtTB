@@ -1,4 +1,7 @@
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets
+from PySide6.QtCore import (
+    Slot,
+)
 from baseWindow import BaseWindow
 
 class Shop(BaseWindow):
@@ -27,7 +30,7 @@ class Shop(BaseWindow):
         balanceMenu = menubar.addMenu(str(self.balance)+" €")
         balanceMenu.setEnabled(False)
 
-    @QtCore.Slot(float)
+    @Slot(float)
     def buyItem(self, price: float):
         if self.balance < price:
             QtWidgets.QMessageBox.warning(self, "Not enough balance", "You have only "+str(
@@ -36,5 +39,5 @@ class Shop(BaseWindow):
         self.balance -= price
         # emit signal to notify the balance change in main.py, and call the update_balance method in main.py
         self.changed_balance.emit(self.balance)
-        # update text of balance menu
+        # update GUI in shop.py
         self.getCurrentMenubar().actions()[1].setText(str(self.balance)+" €")

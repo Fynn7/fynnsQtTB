@@ -159,19 +159,21 @@ class ToolBoxUI(BaseWindow):
             # connect component closed signal with reset_component()
             component.isClosed.connect(
                 lambda: self.reset_component(class_name, component_name))
+            
+            # connect component balance changed signal with update_balance()
             component.changed_balance.connect(self.update_balance)
 
     @Slot(float)
     def update_balance(self, new_balance: float) -> None:
-        # update main window display
+        # update main window GUI 
         self.getCurrentMenubar().actions()[4].setText(str(new_balance)+" €")
-        # update data.json
+        # update data file
         self.update_data_file({"balance": new_balance})
         print("Balance updated to", new_balance, "€")
 
     def reset_data_with_gui(self) -> None:
         self.reset_data()
-        # reset also gui
+        # reset gui
         current_data=self.load_data()
         self.getCurrentMenubar().actions()[4].setText(str(current_data["balance"])+" €")
         

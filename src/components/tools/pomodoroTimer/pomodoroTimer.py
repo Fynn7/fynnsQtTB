@@ -27,23 +27,22 @@ class PomodoroTimer(BaseWindow):
         self.WINDOW_TITLE="Pomodoro Timer" # overwriting the parent class attribute before parent calling its __init__
         super().__init__()
         self.WINDOW_SIZE = (400, 200)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_timer)
+        self.time_left = QTime(0, 25, 0)
+        self.is_running = False
+
+        self.time_up_msgBox = QMessageBox() # instead of local variable, save the object into class attribute to avoid garbage collection
+        self.time_up_msgBox.setWindowTitle("Congratulations!")
         self.setup_ui()
         self.setupMenu()
         self.resize(*self.WINDOW_SIZE)
 
+
     def setup_ui(self) -> None:
-        # 初始化计时器
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_timer)
 
-        # 初始化变量
-        self.time_left = QTime(0, 25, 0)
-        self.is_running = False
-
-        # 创建布局
         layout = QVBoxLayout()
 
-        # 显示计时器的标签
         self.timer_display = QLCDNumber()
         # to show hour:minute:second, otherwise without this line it will show only minute:second
         self.timer_display.setDigitCount(8)
@@ -98,7 +97,20 @@ class PomodoroTimer(BaseWindow):
             self.time_left = self.time_left.addSecs(-1)
             self.timer_display.display(self.time_left.toString("hh:mm:ss"))
         else:
-            # 计时结束，停止计时器
+            # Time is up, finish the timer
+            # load the data and update the balance
+            original_balance:float = self.load_data()["balance"]
+            earned:int=self.costumTime[0]*60 + self.costumTime[1] # for each 1 min get 1€
+
+            if earned: # inplicitly, only update balance if the time is more than 1 min
+                # emit signal to main.py
+                self.changed_balance.emit(original_balance+earned)
+
+                self.time_up_msgBox.setText("Time is up! You have earned " + str(earned) + "€! Keep it up!")
+                self.time_up_msgBox.open()
+                # close the information msgBox after 3 seconds automatically
+                QTimer.singleShot(3000, self.time_up_msgBox.close)
+            
             self.timer.stop()
             self.is_running = False
             self.start_pause_button.setText("↓↓↓")
