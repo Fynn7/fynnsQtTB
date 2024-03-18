@@ -321,7 +321,7 @@ class Dice(BaseWindow):
 
     def resetSettings(self) -> int:
         '''
-        rvales:
+        rvalues:
         0: Success
         -1: User clicked "No"
         1: Failed
@@ -336,8 +336,6 @@ class Dice(BaseWindow):
 
     def getLayout(self) -> LayoutObject:
         '''
-        Principle: According to `Information Hiding`
-
         Public method to get current layout.
 
         Use this to add widget:
@@ -358,8 +356,6 @@ class Dice(BaseWindow):
 
     def updateLayout(self, layout: LayoutObject) -> None:
         '''
-        Principle: According to `Information Hiding`
-
         Public method to update and SET a new layout. 
         Layout could be other than QVBoxLayout.
 

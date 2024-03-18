@@ -3,6 +3,10 @@ from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
     QHBoxLayout,
+    QVBoxLayout,
+    QLabel,
+    QPushButton,
+    QWidget,
 )
 from PySide6.QtGui import (
     QAction,
@@ -22,22 +26,94 @@ class Poker21(BaseWindow):
         self.player_hand = []
         self.dealer_hand = []
         self.player_score,self.dealer_score=0,0
-        
+        self.current_balance=self.load_data()["balance"]
+        self.bet_amount=0.0
         self.setup_ui()
 
     def setup_ui(self)->None:
-        self.setLayout(QGridLayout())
-        self.addWidgetToLayout("QLabel", "Dealer's hand:")
-        self.dealer_cards_label=self.addWidgetToLayout("QLabel", "")
-        self.info_label=self.addWidgetToLayout("QLabel", "")  # add a separate line
-        self.addWidgetToLayout("QLabel", "Player's hand:")
-        self.player_cards_label=self.addWidgetToLayout("QLabel", "")
+        # use original coding since the layout is NOT simple
+        layout=QVBoxLayout()
+        dealers_hand_label=QLabel("Dealer's hand:")
+        layout.addWidget(dealers_hand_label)
 
-        self.start_game_button=self.addWidgetToLayout("QPushButton", "Deal cards", self.start_game)
+        self.dealer_cards_label=QLabel("")
+        layout.addWidget(self.dealer_cards_label)
 
-        self.hit_button=self.addWidgetToLayout("QPushButton", "Hit", self.hit)
-        self.stand_button=self.addWidgetToLayout("QPushButton", "Stand", self.stand)
-        self.split_card_button=self.addWidgetToLayout("QPushButton", "Split", self.split_card)
+        self.info_label=QLabel("")
+        layout.addWidget(self.info_label)
+
+        players_hand_label=QLabel("Player's hand:")
+        layout.addWidget(players_hand_label)
+        
+        self.player_cards_label=QLabel("")
+        layout.addWidget(self.player_cards_label)
+
+        self.bet_amount_label=QLabel(f"Current Bet: 0€")
+        layout.addWidget(self.bet_amount_label)
+        # sublayout for bet buttons
+        bet_buttons_layout=QHBoxLayout()
+
+        self.bet_buttons = {
+            1: QPushButton("Bet 1€"),
+            5: QPushButton("Bet 5€"),
+            10: QPushButton("Bet 10€"),
+            50: QPushButton("Bet 50€"),
+            100: QPushButton("Bet 100€"),
+            1000: QPushButton("Bet 1.000€"),
+            10000: QPushButton("Bet 10.000€"),
+        }
+        self.bet_buttons[1].clicked.connect(lambda: self.bet(1))
+        self.bet_buttons[5].clicked.connect(lambda: self.bet(5))
+        self.bet_buttons[10].clicked.connect(lambda: self.bet(10))
+        self.bet_buttons[50].clicked.connect(lambda: self.bet(50))
+        self.bet_buttons[100].clicked.connect(lambda: self.bet(100))
+        self.bet_buttons[1000].clicked.connect(lambda: self.bet(1000))
+        self.bet_buttons[10000].clicked.connect(lambda: self.bet(10000))
+        bet_buttons_layout.addWidget(self.bet_buttons[1])
+        bet_buttons_layout.addWidget(self.bet_buttons[5])
+        bet_buttons_layout.addWidget(self.bet_buttons[10])
+        bet_buttons_layout.addWidget(self.bet_buttons[50])
+        bet_buttons_layout.addWidget(self.bet_buttons[100])
+        bet_buttons_layout.addWidget(self.bet_buttons[1000])
+        bet_buttons_layout.addWidget(self.bet_buttons[10000])
+
+        self.allin_button = QPushButton(f"ALL IN {self.current_balance}€")
+        self.allin_button.clicked.connect(self.allin)
+        bet_buttons_layout.addWidget(self.allin_button)
+
+        self.clear_bet_button=QPushButton("Clear Bet")
+        self.clear_bet_button.clicked.connect(lambda: self.bet(-self.bet_amount))
+        bet_buttons_layout.addWidget(self.clear_bet_button)
+
+        layout.addLayout(bet_buttons_layout)
+
+
+
+        # check balance status and update bet buttons
+        self.update_bet_buttons()
+
+        self.start_game_button=QPushButton("Start Game")
+        self.start_game_button.clicked.connect(self.start_game)
+        layout.addWidget(self.start_game_button)
+
+        # sublayout for action buttons
+        action_buttons_layout=QHBoxLayout()
+        self.hit_button=QPushButton("Hit")
+        self.hit_button.clicked.connect(self.hit)
+        self.stand_button=QPushButton("Stand")
+        self.stand_button.clicked.connect(self.stand)
+        self.split_card_button=QPushButton("Split")
+        self.split_card_button.clicked.connect(self.split_card)
+        action_buttons_layout.addWidget(self.hit_button)
+        action_buttons_layout.addWidget(self.stand_button)
+        action_buttons_layout.addWidget(self.split_card_button)
+        layout.addLayout(action_buttons_layout)
+
+        self.setLayout(layout)
+
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
 
         self.hit_button.setEnabled(False)
         self.stand_button.setEnabled(False)
@@ -142,7 +218,26 @@ class Poker21(BaseWindow):
 
     def split_card(self)->None:
         pass
-            
+                
+    def bet(self,bet:float)->None:
+        print("Player bets:", bet)
+        self.bet_amount+=bet
+        self.bet_amount_label.setText(f"Current Bet: {self.bet_amount}€")
+        self.update_bet_buttons()
+    
+    def allin(self)->None:
+        print("Player goes all in!")
+        self.bet_amount=self.current_balance
+        self.bet_amount_label.setText(f"Current Bet: {self.bet_amount}€")
+        self.update_bet_buttons()
+
+    def update_bet_buttons(self)->None:
+        # disable buttons if the bet amount is more than the current balance
+        if self.current_balance==0:
+            self.allin_button.setDisabled(True)
+        diff=self.current_balance-self.bet_amount
+        for bet_amount,button in self.bet_buttons.items():
+            button.setDisabled(bet_amount>diff)
 
     def reset_game_data(self)->None:
         self.dealer_cards_label.setText("")
@@ -153,6 +248,7 @@ class Poker21(BaseWindow):
         self.player_hand = []
         self.dealer_hand = []
         self.player_score,self.dealer_score=0,0
+        self.bet_amount=0.0
 
     def update_player_cards_ui(self)->None:
         self.player_cards_label.setText("\t".join([f"{card[0]}{card[1]}" for card in self.player_hand]))
