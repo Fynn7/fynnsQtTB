@@ -16,7 +16,7 @@ from PySide6.QtCore import (
     QTimer,
 )
 import random
-import time
+# from ...basic.shop import Shop
 
 class Poker21(BaseWindow):
     def __init__(self)->None:
@@ -29,6 +29,9 @@ class Poker21(BaseWindow):
         self.current_balance=self.load_data()["balance"]
         self.bet_amount=0.0
         self.setup_ui()
+        self.setup_menubar()
+        # check balance status and update bet buttons
+        self.update_bet_buttons()
 
     def setup_ui(self)->None:
         # use original coding since the layout is NOT simple
@@ -77,7 +80,7 @@ class Poker21(BaseWindow):
         bet_buttons_layout.addWidget(self.bet_buttons[1000])
         bet_buttons_layout.addWidget(self.bet_buttons[10000])
 
-        self.allin_button = QPushButton(f"ALL IN {self.current_balance}€")
+        self.allin_button = QPushButton(f"ALL IN")
         self.allin_button.clicked.connect(self.allin)
         bet_buttons_layout.addWidget(self.allin_button)
 
@@ -89,8 +92,6 @@ class Poker21(BaseWindow):
 
 
 
-        # check balance status and update bet buttons
-        self.update_bet_buttons()
 
         self.start_game_button=QPushButton("Start Game")
         self.start_game_button.clicked.connect(self.start_game)
@@ -115,9 +116,16 @@ class Poker21(BaseWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+
         self.hit_button.setEnabled(False)
         self.stand_button.setEnabled(False)
         self.split_card_button.setEnabled(False)
+
+    def setup_menubar(self)->None:
+        menubar=self.menuBar()
+        # add balance menu, just for display
+        balance_display = menubar.addAction(str(self.current_balance)+" €")
+        balance_display.setEnabled(False)
 
     def create_deck(self)->list[tuple[str,str]]:
         suits = ['❤', '♦', '♣', '♠']
@@ -149,6 +157,7 @@ class Poker21(BaseWindow):
 
     def start_game(self)->None:
         self.reset_game_data()
+        self.close_betting()
         self.start_game_button.setEnabled(False)
 
         self.deal_card(self.player_hand)
@@ -176,11 +185,9 @@ class Poker21(BaseWindow):
         print("Player's hand:", self.player_hand)
     
         if self.player_score > 21:
-            self.info_label.setText("Player busts! Dealer wins.")
+            self.info_label.setText(f"Sorry, you busted! You lost {self.bet_amount}€.")
+            self.cash_out(False)
             self.show_dealer_cards_ui()
-            self.start_game_button.setEnabled(True)
-            self.hit_button.setEnabled(False)
-            self.stand_button.setEnabled(False)
         elif self.player_score == 21:
             self.info_label.setText("Player got 21! Dealer's turn.")
             self.hit_button.setEnabled(False)
@@ -201,18 +208,23 @@ class Poker21(BaseWindow):
         print("Dealer's hand:", self.dealer_hand)
         print("Player's score:", self.player_score)
         print("Dealer's score:", self.dealer_score)
-
-        result=""   
+ 
         if self.dealer_score > 21:
-            result="Dealer busts! Player wins."
+            self.info_label.setText(f"Dealer busts! You win {self.bet_amount}€.")
+            self.cash_out(True)
         elif self.player_score > self.dealer_score:
-            result="Player wins."
+            if self.player_score==21 and len(self.player_hand)==2:
+                self.info_label.setText(f"Blackjack! Player wins x2 bet: {self.bet_amount*2}€.")
+                self.cash_out(True,True)
+            else:
+                self.info_label.setText(f"Player wins {self.bet_amount}€.")
+                self.cash_out(True)
         elif self.player_score < self.dealer_score:
-            result="Dealer wins."
+            self.info_label.setText(f"Dealer wins. You lost {self.bet_amount}€.")
+            self.cash_out(False)
         else:
-            result="It's a tie."
-        self.info_label.setText(result)
-        self.start_game_button.setEnabled(True)
+            self.info_label.setText("It's a tie.")
+            self.cash_out(True)
         self.hit_button.setEnabled(False)
         self.stand_button.setEnabled(False)
 
@@ -220,7 +232,6 @@ class Poker21(BaseWindow):
         pass
                 
     def bet(self,bet:float)->None:
-        print("Player bets:", bet)
         self.bet_amount+=bet
         self.bet_amount_label.setText(f"Current Bet: {self.bet_amount}€")
         self.update_bet_buttons()
@@ -235,6 +246,17 @@ class Poker21(BaseWindow):
         # disable buttons if the bet amount is more than the current balance
         if self.current_balance==0:
             self.allin_button.setDisabled(True)
+            self.start_game_button.setDisabled(True)
+            self.clear_bet_button.setDisabled(True)
+        else: # has money
+            self.allin_button.setDisabled(False)
+            if self.bet_amount==0:
+                self.start_game_button.setDisabled(True)
+                self.clear_bet_button.setDisabled(True)
+            else:
+                self.start_game_button.setDisabled(False)
+                self.clear_bet_button.setDisabled(False)
+
         diff=self.current_balance-self.bet_amount
         for bet_amount,button in self.bet_buttons.items():
             button.setDisabled(bet_amount>diff)
@@ -248,7 +270,32 @@ class Poker21(BaseWindow):
         self.player_hand = []
         self.dealer_hand = []
         self.player_score,self.dealer_score=0,0
+
+    def close_betting(self)->None:
+        self.clear_bet_button.setDisabled(True)
+        self.allin_button.setDisabled(True)
+        for button in self.bet_buttons.values():
+            button.setDisabled(True)
+
+    def cash_out(self,won:bool,blackjack:bool=False)->None:
+        if won:
+            if blackjack:
+                self.current_balance=self.current_balance+self.bet_amount*2
+            else:
+                self.current_balance=self.current_balance+self.bet_amount
+        else:
+            self.current_balance=self.current_balance-self.bet_amount
+        # send a signal to main.py to update the balance
+        self.changed_balance.emit(self.current_balance)
+        # update GUI balance in poker21.py
+        self.getCurrentMenubar().actions()[0].setText(str(self.current_balance)+" €")
+        self.allin_button.setText(f"ALL IN")
+        # reset bet amount and update bet buttons
         self.bet_amount=0.0
+        self.bet_amount_label.setText(f"Current Bet: 0€")
+        self.update_bet_buttons()
+        self.hit_button.setEnabled(False)
+        self.stand_button.setEnabled(False)
 
     def update_player_cards_ui(self)->None:
         self.player_cards_label.setText("\t".join([f"{card[0]}{card[1]}" for card in self.player_hand]))

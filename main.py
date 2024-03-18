@@ -20,7 +20,7 @@ try:
     from src.components.tools.autoXHS.autoXHS import AutoXHS
     
     from src.components.games.dice.dice import Dice
-    from src.components.games.poker.poker import Poker
+    from src.components.games.poker.poker21 import Poker21
     
     from src.components.basic.shop import Shop
 
@@ -46,7 +46,7 @@ class ToolBoxUI(BaseWindow):
         },
         "Games": {
             "Dice": None,
-            "Poker": None,
+            "Poker21": None,
         },
         "Basic": {
             "Shop": None,
@@ -120,7 +120,7 @@ class ToolBoxUI(BaseWindow):
         # poker action
         poker_action = QAction("🃏 Poker", self)
         poker_action.triggered.connect(
-            lambda: self.open_component_window("Games", "Poker"))
+            lambda: self.open_component_window("Games", "Poker21"))
         game_menu.addAction(poker_action)
 
         ############################################################
