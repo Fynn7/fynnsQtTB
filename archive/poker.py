@@ -11,6 +11,7 @@ from PySide6.QtCore import (
 )
 from .poker21 import Poker21
 
+
 class Poker(BaseWindow):
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
@@ -18,17 +19,16 @@ class Poker(BaseWindow):
         super(Poker, self).__init__()
         self.setup_ui()
         self.setup_menubar()
-        self.poker21:Poker21=None
+        self.poker21: Poker21 = None
 
     def setup_ui(self):
         self.addWidgetToLayout("QPushButton", "Poker21", self.play_poker21)
 
     def setup_menubar(self):
-        self.addBasicMenus(False,withConfig=True)
-    
+        self.addBasicMenus(False, withConfig=True)
+
     @Slot()
     def play_poker21(self):
         if not self.poker21:
-            self.poker21 = Poker21()    
+            self.poker21 = Poker21()
         self.poker21.show()
-        

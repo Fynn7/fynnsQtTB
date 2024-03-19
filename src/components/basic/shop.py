@@ -4,6 +4,7 @@ from PySide6.QtCore import (
 )
 from baseWindow import BaseWindow
 
+
 class Shop(BaseWindow):
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__

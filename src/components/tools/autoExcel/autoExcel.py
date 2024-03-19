@@ -25,6 +25,8 @@ from .chooseColumn import ChooseColumn
 from .showProgressbar import ShowProgressbar
 from .fakeDataGenerator import FakeDataGenerator
 from .customDict import CustomDict
+
+
 class AutoExcel(BaseWindow):
     '''
     Excel Handling Tool
@@ -35,7 +37,7 @@ class AutoExcel(BaseWindow):
         self.WINDOW_TITLE = "Auto Excel"
         super().__init__()
         self.setupUi()
-        self.custom_dict_window=CustomDict()
+        self.custom_dict_window = CustomDict()
         self.setupMenubar()
 
         # 添加事件过滤器到表格的视口
@@ -48,7 +50,6 @@ class AutoExcel(BaseWindow):
         self.chosen_table_name: str = ""
         self.tables: dict[str, pd.DataFrame] = {}
 
-
     def setupUi(self):
         self.file_path_label = self.addWidgetToLayout(
             "QLabel", text="click the button to select file")
@@ -56,7 +57,7 @@ class AutoExcel(BaseWindow):
         # setup a field to show the table
         self.table_name_label = self.addWidgetToLayout(
             "QLabel", text="Table: -")
-        
+
         self.table_field = self.addWidgetToLayout("QTableWidget")
 
         self.hint_label = self.addWidgetToLayout(
@@ -65,20 +66,19 @@ class AutoExcel(BaseWindow):
         # self.save_as_button = self.addWidgetToLayout(
         #     "QPushButton", text="Save As", clickedConn=self.save_as)
     def setupMenubar(self):
-        self.addBasicMenus(False,False)
+        self.addBasicMenus(False, False)
         menubar = self.getCurrentMenubar()
         file_menu = menubar.addMenu("File")
 
         self.select_file_action = QAction("Select File", self)
         file_menu.addAction(self.select_file_action)
         self.select_file_action.triggered.connect(self.select_file)
-        
 
         self.switch_table_action = QAction("Switch Table", self)
         file_menu.addAction(self.switch_table_action)
         self.switch_table_action.triggered.connect(self.switch_table)
         self.switch_table_action.setDisabled(True)
-        
+
         self.save_change_action = QAction("Save (Ctrl+S)", self)
         file_menu.addAction(self.save_change_action)
         self.save_change_action.triggered.connect(self.save_change)
@@ -92,8 +92,8 @@ class AutoExcel(BaseWindow):
         self.discard_change_action.setDisabled(True)
         self.discard_change_action.setShortcut("Ctrl+D")
 
-        tool_menu=menubar.addMenu("Tools")
-        
+        tool_menu = menubar.addMenu("Tools")
+
         self.translate_table_action = QAction("Translate Table", self)
         tool_menu.addAction(self.translate_table_action)
         self.translate_table_action.triggered.connect(self.translate_table)
@@ -120,7 +120,7 @@ class AutoExcel(BaseWindow):
             self.table_field.itemChanged.connect(self.mark_as_changed)
             return result
         return wrapper
-    
+
     @disable_signal
     def update_table_field_for_user(self, df: pd.DataFrame) -> None:
         '''
@@ -157,17 +157,17 @@ class AutoExcel(BaseWindow):
                 else:
                     self.table_field.setItem(
                         i, j, QTableWidgetItem(str(df.iloc[i, j])))
-                    
+
     @Slot()
     def select_file(self) -> None:
         # first need to confirm if save the change before select a new file
-        if self.confirm_save()==2: # if user pressed cancel
+        if self.confirm_save() == 2:  # if user pressed cancel
             return
-        
 
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.ExistingFile)
-        file_dialog.setNameFilter("Excel Files (*.xlsx *.xls *.csv);; All Files (*)")
+        file_dialog.setNameFilter(
+            "Excel Files (*.xlsx *.xls *.csv);; All Files (*)")
         # file_dialog.setDirectory(QDir.current())
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -177,25 +177,27 @@ class AutoExcel(BaseWindow):
 
                 # if the file is an excel file, then read it
                 if file_path.endswith(".xlsx") or file_path.endswith(".xls"):
-                # get all tables from the excel file
+                    # get all tables from the excel file
                     tables: dict[str, pd.DataFrame] = pd.read_excel(
                         file_path, sheet_name=None)
                 elif file_path.endswith(".csv"):
                     tables: dict[str, pd.DataFrame] = {
-                        file_path.split("/")[-1]:pd.read_csv(file_path)
-                        }
+                        file_path.split("/")[-1]: pd.read_csv(file_path)
+                    }
                 else:
                     print("Unsupported file type")
-                    QMessageBox.critical(self, "Unsupported File Type", "The file type is not supported. Please select an Excel file or a CSV file.")
+                    QMessageBox.critical(
+                        self, "Unsupported File Type", "The file type is not supported. Please select an Excel file or a CSV file.")
                     self.select_file()
                 table_names = list(tables.keys())
                 # create a dialog to select the table with a combo box
-                
+
                 # if there is only 1 table in the file, then directly use it
                 if len(table_names) == 1:
                     chosen_table_name = table_names[0]
                 else:
-                    chosen_table_name = self.open_choose_table_dialog(table_names)
+                    chosen_table_name = self.open_choose_table_dialog(
+                        table_names)
                 if not chosen_table_name:  # user closed the dialog or pressed cancel, aka open_choose_table_dialog returned None
                     print("No table selected")
                     return
@@ -219,32 +221,30 @@ class AutoExcel(BaseWindow):
                     # # ★ connect the signal back
                     # self.table_field.itemChanged.connect(self.mark_as_changed)
 
-
                     # enable the switch table and save menu
                     if len(table_names) > 1:
                         self.switch_table_action.setEnabled(True)
                     self.save_change_action.setEnabled(True)
                     self.discard_change_action.setEnabled(True)
                     self.translate_table_action.setEnabled(True)
-                    
+
             else:
                 self.file_path_label.setText("file unselected")
                 print("No file selected")
 
-    def open_choose_table_dialog(self, table_names: list,default_table_name:str|None=None) -> str | None:
-        dialog = ChooseTable(table_names,default_table_name)
+    def open_choose_table_dialog(self, table_names: list, default_table_name: str | None = None) -> str | None:
+        dialog = ChooseTable(table_names, default_table_name)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             got_chosen_table = dialog.get_chosen_table()
             print("got_chosen_table:", got_chosen_table)
             return got_chosen_table
-        
+
     def open_choose_column_dialog(self, column_names: list) -> list | None:
         dialog = ChooseColumn(column_names)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             got_chosen_columns = dialog.get_chosen_columns()
             print("got_chosen_columns:", got_chosen_columns)
             return got_chosen_columns
-    
 
     @Slot()
     def save_change(self):
@@ -267,7 +267,8 @@ class AutoExcel(BaseWindow):
                         df.to_excel(writer, sheet_name=table_name, index=False)
         except PermissionError as e:
             print("PermissionError:", e)
-            QMessageBox.critical(self, "Permission Error", "Permission Error: Please close the file before saving the change")
+            QMessageBox.critical(
+                self, "Permission Error", "Permission Error: Please close the file before saving the change")
             return
         print("saved the tables to the file:", self.file_path_label.text())
 
@@ -293,7 +294,7 @@ class AutoExcel(BaseWindow):
         '''
         switch to another table
         '''
-        if self.confirm_save()==2: # if user pressed cancel
+        if self.confirm_save() == 2:  # if user pressed cancel
             return
         # open choose table dialog
         chosen_table_name = self.open_choose_table_dialog(
@@ -305,14 +306,14 @@ class AutoExcel(BaseWindow):
         # update the table name label
         self.table_name_label.setText(f"Table: {chosen_table_name}")
         self.update_table_field_for_user(self.tables[chosen_table_name])
-    
+
     @Slot()
     def translate_table(self):
         '''
         translate the table using google translator
         '''
         # get the current table
-        if self.confirm_save()==2: # if user pressed cancel
+        if self.confirm_save() == 2:  # if user pressed cancel
             return
         df = self.get_current_table()
         # open a dialog to choose the columns to translate
@@ -322,26 +323,31 @@ class AutoExcel(BaseWindow):
             return
         self.progress_dialog = ShowProgressbar()
         self.progress_dialog.show()
-        
 
-        self.progress_dialog.translation_thread = TranslationThread(df, chosen_columns)
-        self.progress_dialog.translation_thread.progress_updated.connect(self.progress_dialog.update_progress)
-        self.progress_dialog.translation_thread.current_translate_text.connect(self.progress_dialog.update_current_translate_label)
-        
+        self.progress_dialog.translation_thread = TranslationThread(
+            df, chosen_columns)
+        self.progress_dialog.translation_thread.progress_updated.connect(
+            self.progress_dialog.update_progress)
+        self.progress_dialog.translation_thread.current_translate_text.connect(
+            self.progress_dialog.update_current_translate_label)
+
         # connect the cancel button to stop the translation
         # NOTE: OVERWRITE the cancel button's original connection function
-        self.progress_dialog.cancel_button.clicked.connect(self.progress_dialog.translation_thread.stop)
+        self.progress_dialog.cancel_button.clicked.connect(
+            self.progress_dialog.translation_thread.stop)
         # connect the canceled signal to close the dialog
-        self.progress_dialog.translation_thread.canceled.connect(self.progress_dialog.close)
-        
+        self.progress_dialog.translation_thread.canceled.connect(
+            self.progress_dialog.close)
+
         # also reset the data when the translation is canceled
-        self.progress_dialog.translation_thread.canceled.connect(lambda: self.update_table_field(self.tables[self.chosen_table_name]))
+        self.progress_dialog.translation_thread.canceled.connect(
+            lambda: self.update_table_field(self.tables[self.chosen_table_name]))
 
-        self.progress_dialog.translation_thread.finished.connect(self.progress_dialog.close)
-        self.progress_dialog.translation_thread.finished.connect(lambda: self.update_table_field(self.progress_dialog.translation_thread.df))
+        self.progress_dialog.translation_thread.finished.connect(
+            self.progress_dialog.close)
+        self.progress_dialog.translation_thread.finished.connect(
+            lambda: self.update_table_field(self.progress_dialog.translation_thread.df))
         self.progress_dialog.translation_thread.start()
-
-
 
         # # update the table field
         # self.update_table_field(df)
@@ -379,7 +385,7 @@ class AutoExcel(BaseWindow):
 
         return super(AutoExcel, self).eventFilter(obj, event)
 
-    def confirm_save(self)->int:
+    def confirm_save(self) -> int:
         '''
         confirm if save the change before close
 
@@ -416,7 +422,7 @@ class AutoExcel(BaseWindow):
                 print("User choose to cancel the next action")
                 # deal canceling outside this function by detecting the return value == 2
                 return 2
-            
+
     def _reset_gui(self):
         '''
         reset the table display (gui)
@@ -447,26 +453,27 @@ class AutoExcel(BaseWindow):
     #     else:
     #         super().keyPressEvent(event)
 
-    def make_faker(self)->int:
-        faker_dialog=FakeDataGenerator()
+    def make_faker(self) -> int:
+        faker_dialog = FakeDataGenerator()
         if faker_dialog.exec() == QDialog.DialogCode.Accepted:
             try:
                 faker_dialog.generate_fake_data()
             except PermissionError:
                 print(traceback.format_exc())
-                QMessageBox.critical(self,"Permission Error","Switch to another folder and try again, or try to close the file")
+                QMessageBox.critical(
+                    self, "Permission Error", "Switch to another folder and try again, or try to close the file")
                 # call the function again to let the user choose another folder
                 self.make_faker()
             except Exception as e:
                 print(traceback.format_exc())
-                QMessageBox.critical(self,"Unknown Error",str(e))
+                QMessageBox.critical(self, "Unknown Error", str(e))
                 return 1
             return 0
-        return -1 # user pressed cancel
+        return -1  # user pressed cancel
 
     def closeEvent(self, event) -> None:
-        r=self.confirm_save()
-        if r==2:
+        r = self.confirm_save()
+        if r == 2:
             event.ignore()
         else:
             event.accept()

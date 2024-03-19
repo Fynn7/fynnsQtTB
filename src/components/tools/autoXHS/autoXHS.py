@@ -17,7 +17,8 @@ from ...templates.fynnsLoginDialog import FynnsLoginDialog
 
 
 class AutoXHS(BaseWindow):
-    TARGET_URL:str="https://www.xiaohongshu.com/"
+    TARGET_URL: str = "https://www.xiaohongshu.com/"
+
     def __init__(self):
         self.WINDOW_TITLE = "Auto XHS"
         super().__init__()
@@ -37,6 +38,7 @@ class AutoXHS(BaseWindow):
 
         # login should be manually done because of the complexity of the login process on xiaohongshu.com
         self.login_action.setDisabled(True)
+
     @Slot()
     def open_login_dialog(self):
         saved_login_data: dict = self.load_data()["login_data"]

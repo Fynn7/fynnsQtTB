@@ -2,8 +2,9 @@ from PySide6.QtWidgets import QLabel, QCheckBox, QListWidget, QListWidgetItem
 from PySide6.QtCore import Qt
 from ...templates.fynnsSettingsDialog import FynnsSettingsDialog
 
+
 class ChooseColumn(FynnsSettingsDialog):
-    def __init__(self, column_names: list,only_choose_one:bool=False,description:str="Choose columns to execute the function:"):
+    def __init__(self, column_names: list, only_choose_one: bool = False, description: str = "Choose columns to execute the function:"):
         super().__init__()
 
         self.column_names = list(column_names)
@@ -28,7 +29,8 @@ class ChooseColumn(FynnsSettingsDialog):
             self.choose_column_listwidget.addItem(column_item)
 
         # check if all items are checked
-        self.choose_column_listwidget.itemChanged.connect(self.check_all_selected)
+        self.choose_column_listwidget.itemChanged.connect(
+            self.check_all_selected)
 
         # add a checkbox for select/deselect all
         self.select_all_checkbox = QCheckBox("Select All")
@@ -40,14 +42,17 @@ class ChooseColumn(FynnsSettingsDialog):
         self.layout.addWidget(self.select_all_checkbox)
 
         # if the user didn't choose any column, then disable the OK button
-        self.choose_column_listwidget.itemChanged.connect(self.check_any_selected)
+        self.choose_column_listwidget.itemChanged.connect(
+            self.check_any_selected)
 
         if self.only_choose_one:
             self.select_all_checkbox.hide()
         # add the OK and Cancel buttons, inherited from FynnsSettingsDialog
-        self.result_buttonBox=self.add_result_buttonBox()
+        self.result_buttonBox = self.add_result_buttonBox()
         # to avoid the OK button to be enabled when no item is selected!
-        self.result_buttonBox.button(self.result_buttonBox.StandardButton.Ok).setEnabled(False)
+        self.result_buttonBox.button(
+            self.result_buttonBox.StandardButton.Ok).setEnabled(False)
+
     def select_all(self, state: Qt.CheckState):
         states = {
             0: Qt.Unchecked,
@@ -58,13 +63,15 @@ class ChooseColumn(FynnsSettingsDialog):
             column_item.setCheckState(states[state])
 
     def check_all_selected(self, item):
-        all_selected = all(self.choose_column_listwidget.item(i).checkState() == Qt.Checked for i in range(self.choose_column_listwidget.count()))
+        all_selected = all(self.choose_column_listwidget.item(i).checkState(
+        ) == Qt.Checked for i in range(self.choose_column_listwidget.count()))
         self.select_all_checkbox.blockSignals(True)
         self.select_all_checkbox.setChecked(all_selected)
         self.select_all_checkbox.blockSignals(False)
-    
+
     def check_any_selected(self, item):
-        any_selected = any(self.choose_column_listwidget.item(i).checkState() == Qt.Checked for i in range(self.choose_column_listwidget.count()))
+        any_selected = any(self.choose_column_listwidget.item(i).checkState(
+        ) == Qt.Checked for i in range(self.choose_column_listwidget.count()))
         # if any item is selected, then hide all other items
         if self.only_choose_one:
             if any_selected:
@@ -79,9 +86,12 @@ class ChooseColumn(FynnsSettingsDialog):
 
         # to avoid the OK button to be enabled when no item is selected!
         if any_selected:
-            self.result_buttonBox.button(self.result_buttonBox.StandardButton.Ok).setEnabled(True)
+            self.result_buttonBox.button(
+                self.result_buttonBox.StandardButton.Ok).setEnabled(True)
         else:
-            self.result_buttonBox.button(self.result_buttonBox.StandardButton.Ok).setEnabled(False)
+            self.result_buttonBox.button(
+                self.result_buttonBox.StandardButton.Ok).setEnabled(False)
+
     def get_chosen_columns(self) -> list:
         chosen_columns = []
         for i in range(self.choose_column_listwidget.count()):

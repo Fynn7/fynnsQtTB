@@ -18,14 +18,15 @@ try:
     from src.components.tools.mlToolBox.mlToolBox import MlToolBox
     from src.components.tools.autoExcel.autoExcel import AutoExcel
     from src.components.tools.autoXHS.autoXHS import AutoXHS
-    
+
     from src.components.games.dice.dice import Dice
     from src.components.games.poker.poker21 import Poker21
-    
+
     from src.components.basic.shop import Shop
 
 except ImportError as ie:
-    ctypes.windll.user32.MessageBoxW(0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
+    ctypes.windll.user32.MessageBoxW(
+        0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
     print(traceback.format_exc())
     sys.exit()
 
@@ -37,7 +38,7 @@ except Exception as e:
 
 class ToolBoxUI(BaseWindow):
     # window obj control
-    components:dict= {
+    components: dict = {
         "Tools": {
             "PomodoroTimer": None,
             "MlToolBox": None,
@@ -166,13 +167,13 @@ class ToolBoxUI(BaseWindow):
             # connect component closed signal with reset_component()
             component.isClosed.connect(
                 lambda: self.reset_component(class_name, component_name))
-            
+
             # connect component balance changed signal with update_balance()
             component.changed_balance.connect(self.update_balance)
 
     @Slot(float)
     def update_balance(self, new_balance: float) -> None:
-        # update main window GUI 
+        # update main window GUI
         self.getCurrentMenubar().actions()[4].setText(str(new_balance)+" €")
         # update data file
         self.update_data_file({"balance": new_balance})
@@ -181,9 +182,11 @@ class ToolBoxUI(BaseWindow):
     def reset_data_with_gui(self) -> None:
         self.reset_data()
         # reset gui
-        current_data=self.load_data()
-        self.getCurrentMenubar().actions()[4].setText(str(current_data["balance"])+" €")
-        
+        current_data = self.load_data()
+        self.getCurrentMenubar().actions()[4].setText(
+            str(current_data["balance"])+" €")
+
+
 def main():
     app = QApplication(sys.argv)
     mainWindow = ToolBoxUI()

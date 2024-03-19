@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QVBoxLayout, QPushButton, QFileDialog, QWidget, QMessageBox, QLabel, QLineEdit, QScrollArea, QSpinBox, QWidgetAction, QDoubleSpinBox, QCheckBox
-from PySide6.QtCore import Slot,Qt
+from PySide6.QtCore import Slot, Qt
 from PySide6.QtGui import QAction
 from .fynns_tool_model_v2_0 import *
 from ...templates.fynnsComponents import _select_file

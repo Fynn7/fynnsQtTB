@@ -51,23 +51,26 @@ ORIG_SETTINGS: dict = {
     },
     "enable_closeEvent": False
 }
-ORIG_DATA: dict =  {
-            "balance":10_000,
-            "login_data": {
-                "username": "",
-                "password": ""
-            },
-            "custom_dicts":{
+ORIG_DATA: dict = {
+    "balance": 10_000,
+    "login_data": {
+        "username": "",
+        "password": ""
+    },
+    "custom_dicts": {
 
-            }
-        }
+    }
+}
 _ENCODING: str = "utf-8"
 
 _SETTINGS_PATH: str = pkg_resources.resource_filename(
-                __name__, 'resources/settings.json')
-_DATA_PATH: str = pkg_resources.resource_filename(__name__, 'resources/data.json')
+    __name__, 'resources/settings.json')
+_DATA_PATH: str = pkg_resources.resource_filename(
+    __name__, 'resources/data.json')
 
 # @type_check_only
+
+
 class LayoutObject:
     '''Unused class just for layout type hinting'''
 
@@ -227,7 +230,7 @@ class Dice(BaseWindow):
         '''
         try:
             # write to file
-            current_data=self.load_data()
+            current_data = self.load_data()
             current_data.update(new_data)
             with open(_DATA_PATH, 'w') as file:
                 json.dump(current_data, file, indent=4)

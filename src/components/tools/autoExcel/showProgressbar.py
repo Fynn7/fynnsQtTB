@@ -1,5 +1,6 @@
 from ...templates.fynnsProgressbar import FynnsProgressbar
 
+
 class ShowProgressbar(FynnsProgressbar):
     def __init__(self):
         super().__init__()

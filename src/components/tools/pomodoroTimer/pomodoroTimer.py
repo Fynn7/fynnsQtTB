@@ -2,29 +2,34 @@ import sys
 import ctypes
 import traceback
 
-try:
-    from PySide6.QtWidgets import QVBoxLayout, QPushButton, QLCDNumber, QMessageBox, QWidget, QDialog
-    from PySide6.QtCore import QTimer, QTime, Slot
-    from PySide6.QtGui import QAction
+from PySide6.QtWidgets import (
+    QVBoxLayout,
+    QPushButton,
+    QLCDNumber,
+    QMessageBox,
+    QWidget,
+    QDialog,
+    QTimeEdit,
+)
+from PySide6.QtCore import (
+    QTimer,
+    QTime,
+    Slot
+)
+from PySide6.QtGui import (
+    QAction,
+)
 
-    from .setTime import SetTimeDialog
-    from baseWindow import BaseWindow
+from .setTime import SetTimeDialog
+from baseWindow import BaseWindow
 
-except ImportError as ie:
-    ctypes.windll.user32.MessageBoxW(0, str(ie), "Import Error",0x10)
-    print(traceback.format_exc())
-    sys.exit()
-
-except Exception as e:
-    ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
-    print(traceback.format_exc())
-    sys.exit()
 
 class PomodoroTimer(BaseWindow):
     costumTime = (0, 25, 0)  # user input
 
     def __init__(self) -> None:
-        self.WINDOW_TITLE="Pomodoro Timer" # overwriting the parent class attribute before parent calling its __init__
+        # overwriting the parent class attribute before parent calling its __init__
+        self.WINDOW_TITLE = "Pomodoro Timer"
         super().__init__()
         self.WINDOW_SIZE = (400, 200)
         self.timer = QTimer(self)
@@ -32,12 +37,12 @@ class PomodoroTimer(BaseWindow):
         self.time_left = QTime(0, 25, 0)
         self.is_running = False
 
-        self.time_up_msgBox = QMessageBox() # instead of local variable, save the object into class attribute to avoid garbage collection
+        # instead of local variable, save the object into class attribute to avoid garbage collection
+        self.time_up_msgBox = QMessageBox()
         self.time_up_msgBox.setWindowTitle("Congratulations!")
         self.setup_ui()
         self.setupMenu()
         self.resize(*self.WINDOW_SIZE)
-
 
     def setup_ui(self) -> None:
 
@@ -75,7 +80,7 @@ class PomodoroTimer(BaseWindow):
         setTime_action.triggered.connect(self.setTime)
         config_menu.addAction(setTime_action)
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def setTime(self) -> None:
         dialog = SetTimeDialog(self)
         # if the dialog is accepted, get the time from the dialog
@@ -85,13 +90,14 @@ class PomodoroTimer(BaseWindow):
             # check if the time is valid (>0)
             print("Got time:", time)
             if time == (0, 0, 0):
-                QMessageBox.warning(self, "Failed to set time", "Time cannot be 0. Please set a valid time.")
+                QMessageBox.warning(self, "Failed to set time",
+                                    "Time cannot be 0. Please set a valid time.")
             else:  # time is valid, set the time
                 self.costumTime = time  # save it into attribute to use in reset_timer()
                 self.time_left = QTime(time[0], time[1], time[2])
                 self.timer_display.display(self.time_left.toString("hh:mm:ss"))
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def update_timer(self) -> None:
         if self.time_left > QTime(0, 0, 0):
             self.time_left = self.time_left.addSecs(-1)
@@ -99,18 +105,20 @@ class PomodoroTimer(BaseWindow):
         else:
             # Time is up, finish the timer
             # load the data and update the balance
-            original_balance:float = self.load_data()["balance"]
-            earned:int=self.costumTime[0]*60 + self.costumTime[1] # for each 1 min get 1€
+            original_balance: float = self.load_data()["balance"]
+            # for each 1 min get 1€
+            earned: int = self.costumTime[0]*60 + self.costumTime[1]
 
-            if earned: # inplicitly, only update balance if the time is more than 1 min
+            if earned:  # inplicitly, only update balance if the time is more than 1 min
                 # emit signal to main.py
                 self.changed_balance.emit(original_balance+earned)
 
-                self.time_up_msgBox.setText("Time is up! You have earned " + str(earned) + "€! Keep it up!")
+                self.time_up_msgBox.setText(
+                    "Time is up! You have earned " + str(earned) + "€! Keep it up!")
                 self.time_up_msgBox.open()
                 # close the information msgBox after 3 seconds automatically
                 QTimer.singleShot(3000, self.time_up_msgBox.close)
-            
+
             self.timer.stop()
             self.is_running = False
             self.start_pause_button.setText("↓↓↓")
@@ -118,11 +126,11 @@ class PomodoroTimer(BaseWindow):
             self.reset_button.setText("Rerun Timer")
             self.timer_display.setStyleSheet("color: red")
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def start_pause_timer(self) -> None:
         if not self.is_running:
             # 如果计时器未运行，启动计时器
-            self.timer.start(1000)  # 以1秒为单位更新
+            self.timer.start(1000)  # 1 second interval for each update
             self.is_running = True
             self.start_pause_button.setText("Pause")
         else:
@@ -131,7 +139,7 @@ class PomodoroTimer(BaseWindow):
             self.is_running = False
             self.start_pause_button.setText("Continue")
 
-    @Slot() # syntax sugar for slot connector function
+    @Slot()  # syntax sugar for slot connector function
     def reset_timer(self) -> None:
         # 重置计时器为初始状态
         self.timer_display.setStyleSheet("color: black")
