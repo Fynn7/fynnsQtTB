@@ -1,10 +1,22 @@
 import sys
 import ctypes
 import traceback
+from baseWindow import BaseWindow
+from src.components.tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
+from src.components.tools.mlToolBox.mlToolBox import MlToolBox
+from src.components.tools.autoExcel.autoExcel import AutoExcel
+from src.components.tools.autoXHS.autoXHS import AutoXHS
+from src.components.games.dice.dice import Dice
+from src.components.games.poker.poker21 import Poker21
+from src.components.basic.shop import Shop
+import time
+import datetime
 
 try:
     from PySide6.QtCore import (
-        Slot
+        Slot,
+        QThread,
+        QTimer,
     )
     from PySide6.QtWidgets import (
         QMainWindow,
@@ -13,17 +25,8 @@ try:
     from PySide6.QtGui import (
         QAction,
     )
-    from baseWindow import BaseWindow
-    from src.components.tools.pomodoroTimer.pomodoroTimer import PomodoroTimer
-    from src.components.tools.mlToolBox.mlToolBox import MlToolBox
-    from src.components.tools.autoExcel.autoExcel import AutoExcel
-    from src.components.tools.autoXHS.autoXHS import AutoXHS
 
-    from src.components.games.dice.dice import Dice
-    from src.components.games.poker.poker21 import Poker21
 
-    from src.components.basic.shop import Shop
-    from src.components.basic.emoji import *
 
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(
@@ -35,6 +38,47 @@ except Exception as e:
     ctypes.windll.user32.MessageBoxW(0, str(e), "Unknown Error", 0x10)
     print(traceback.format_exc())
     sys.exit()
+
+
+
+class Emoji:
+    def __init__(self):
+        self.emoji = {
+            "happy": "😊",
+            "sad": "😢",
+            "sleep": "😴"
+        }
+        self.current_emoji = self.emoji["happy"]
+
+    def set_emoji(self, emoji_name: str):
+        # Set the current emoji based on the given emoji name
+        if emoji_name in self.emoji.keys():
+            self.current_emoji = self.emoji[emoji_name]
+
+    def eat(self, food: str) -> str:
+        return f"Yum! I like {food}!"
+
+    def clean(self) -> str:
+        return "I'm clean now!"
+
+    def talk(self, msg: str) -> str:
+        return msg
+
+
+class EmojiThread(QThread):
+    emoji_status_updated = Signal(str)
+
+    def run(self):
+        while True:
+            # Perform your emoji status update logic here
+            current_time = datetime.datetime.now().time()
+            if current_time.hour >= 22 or current_time.hour < 6:
+                self.components["Basic"]["Emoji"].set_emoji("sleep")
+            else:
+                self.components["Basic"]["Emoji"].set_emoji("happy")
+            self.msleep(1000)
+            emoji_status = self.components["Basic"]["Emoji"].current_emoji
+            self.emoji_status_updated.emit(emoji_status)
 
 
 class ToolBoxUI(BaseWindow):
@@ -52,7 +96,7 @@ class ToolBoxUI(BaseWindow):
         },
         "Basic": {
             "Shop": None,
-            "Emoji": EmojiThread(),
+            "Emoji": Emoji(),
         }
     }
 
@@ -62,11 +106,7 @@ class ToolBoxUI(BaseWindow):
         super().__init__()
         self.setup_ui()
         self.setup_menubar()
-        self.emoji_thread = self.components["Basic"]["Emoji"]
-        self.emoji_thread.emoji_status_updated.connect(
-            self.handle_emoji_status_updated)
-        self.emoji_thread.emoji_message_updated.connect(
-            self.handle_emoji_message_updated)
+        self.emoji_thread = EmojiThread()
         self.emoji_thread.start()
 
     def setup_ui(self) -> None:
@@ -141,7 +181,7 @@ class ToolBoxUI(BaseWindow):
         menubar.addAction(shop_action)
 
         # emoji action
-        emoji_menu = menubar.addMenu("😊")
+        emoji_menu = menubar.addMenu("😊")  # 😆😊😋🙂😐🥱🙁
         menubar.addMenu(emoji_menu)
 
         feed_action = QAction("Feed me", self)
@@ -154,23 +194,9 @@ class ToolBoxUI(BaseWindow):
         emoji_menu.addAction(talk_action)
 
         # message action: display what the emoji says
-        message_action = QAction("Hey there", self)
+        message_action = QAction("Hi there! How's your day?", self)
         message_action.setDisabled(True)
         menubar.addAction(message_action)
-
-    @Slot(str)
-    def handle_emoji_status_updated(self, emoji_status: str) -> None:
-        # Do something with the updated emoji status
-        print("Received emoji status:", emoji_status)
-        # Update the UI or perform any other necessary actions
-        self.getCurrentMenubar().actions()[5].setText(emoji_status)
-
-    @Slot(str)
-    def handle_emoji_message_updated(self, emoji_message: str) -> None:
-        # Do something with the updated emoji message
-        print("Received emoji message:", emoji_message)
-        # Update the UI or perform any other necessary actions
-        self.getCurrentMenubar().actions()[6].setText(emoji_message)
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
         try:
@@ -225,6 +251,10 @@ class ToolBoxUI(BaseWindow):
         current_data = self.load_data()
         self.getCurrentMenubar().actions()[4].setText(
             str(current_data["balance"])+" €")
+
+    def closeEvent(self, event) -> None:
+        self.emoji_thread.quit()
+        return super().closeEvent(event)
 
 
 def main():
