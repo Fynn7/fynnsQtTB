@@ -288,7 +288,7 @@ def fitModel(tts: tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series], model
     except NameError as e:  # `modelName` type incorrect or unknown model
         model = RandomForestRegressor(**modelArgs)
         print(
-            f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.\nOriginal error message: {traceback.format_exc()}")
+            f"Illegal model name or type. Model argument set to default as `RandomForestRegressor`.")
 
     except SyntaxError as e:  # `modelName` type incorrect or unknown model
         model = RandomForestRegressor(**modelArgs)

@@ -54,7 +54,7 @@ class MlToolBox(BaseWindow):
 
         scroll_area = QScrollArea()
         scroll_area.setWidget(self.info_label)
-        scroll_area.setWordWrap(True)
+        # scroll_area.setWordWrap(True)
         # Make the label resize with the scroll area
         scroll_area.setWidgetResizable(True)
 
@@ -108,19 +108,20 @@ class MlToolBox(BaseWindow):
 
         self.parameters_menu = menubar.addMenu("Parameters")
 
-        # 创建 QSpinBox 用于设置参数 "cv"
-        self.cv_spinbox = QSpinBox()
 
+        # description as QAction object for parameters
+        self.parameters_menu.addAction(QAction("cv:int", self))
+        # Add cv action
+        self.cv_spinbox = QSpinBox()
         self.cv_spinbox.setMinimum(0)
         self.cv_spinbox.setValue(2)
         cv_widget_action = QWidgetAction(self)
         cv_widget_action.setDefaultWidget(self.cv_spinbox)
         self.parameters_menu.addAction(cv_widget_action)
 
-        # 创建 QSpinBox 用于设置参数 "random_state"
-
+        # Add random_state action
+        self.parameters_menu.addAction(QAction("random_state:int", self))
         self.random_state_spinbox = QSpinBox()
-
         self.random_state_spinbox.setMinimum(0)
         self.random_state_spinbox.setMaximum(100)
         self.random_state_spinbox.setValue(42)
@@ -128,7 +129,8 @@ class MlToolBox(BaseWindow):
         random_state_widget_action.setDefaultWidget(self.random_state_spinbox)
         self.parameters_menu.addAction(random_state_widget_action)
 
-        # 创建 QDoubleSpinBox 用于设置参数 "test_size"
+        # Add test_size action
+        self.parameters_menu.addAction(QAction("test_size:int", self))
         self.test_size_spinbox = QDoubleSpinBox()
 
         self.test_size_spinbox.setMinimum(0.0)
@@ -138,7 +140,8 @@ class MlToolBox(BaseWindow):
         test_size_widget_action.setDefaultWidget(self.test_size_spinbox)
         self.parameters_menu.addAction(test_size_widget_action)
 
-        # 创建 QDoubleSpinBox 用于设置参数 "train_size"
+        # Add train_size action
+        self.parameters_menu.addAction(QAction("train_size:int", self))
         self.train_size_spinbox = QDoubleSpinBox()
 
         self.train_size_spinbox.setMinimum(0.0)
@@ -148,17 +151,16 @@ class MlToolBox(BaseWindow):
         train_size_widget_action.setDefaultWidget(self.train_size_spinbox)
         self.parameters_menu.addAction(train_size_widget_action)
 
-        # 创建 QCheckBox 用于设置参数 "plotPred"
+        # Add Plot Prediction action
         self.plot_pred_checkbox = QCheckBox("Plot Prediction")
         self.plot_pred_checkbox.setChecked(True)
         plot_pred_widget_action = QWidgetAction(self)
         plot_pred_widget_action.setDefaultWidget(self.plot_pred_checkbox)
         self.parameters_menu.addAction(plot_pred_widget_action)
 
-        # 添加分隔符
+        # separator
         self.parameters_menu.addSeparator()
 
-        # 创建 QCheckBox 用于设置参数 "printInfo"
         self.print_info_checkbox = QCheckBox("Print Info")
         self.print_info_checkbox.setChecked(True)
         print_info_widget_action = QWidgetAction(self)
@@ -168,7 +170,7 @@ class MlToolBox(BaseWindow):
         # result menu
         self.result_menu = menubar.addMenu("Result")
 
-        # 展示关联矩阵
+        # Add Correlation Map action
         self.plot_correlation_map_checkbox = QCheckBox(
             "Output Correlation Map")
         self.plot_correlation_map_checkbox.setChecked(True)
@@ -204,7 +206,7 @@ class MlToolBox(BaseWindow):
     @Slot()  # syntax sugar for slot connector function
     def select_algorithm(self, algorithm: str):
         self.selected_algorithm = algorithm
-        self.run_ml_button.setText(f"Run {algorithm}.")
+        self.run_ml_button.setText(f"Run {algorithm}")
 
     @Slot()  # syntax sugar for slot connector function
     def select_plot_style(self, plot_style: str):

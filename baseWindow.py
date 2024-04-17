@@ -52,7 +52,7 @@ ORIG_SETTINGS: dict = {
     "enable_closeEvent": False
 }
 ORIG_DATA: dict = {
-    "balance": 10_000,
+    "balance": 0,
     "login_data": {
         "username": "",
         "password": ""
@@ -255,7 +255,7 @@ class Dice(BaseWindow):
 
         original data structure:
             {
-            "balance":10_000,
+            "balance":0 ,
             "login_data": {
                 "username": "",
                 "password": ""

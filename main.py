@@ -23,6 +23,7 @@ try:
     from src.components.games.poker.poker21 import Poker21
 
     from src.components.basic.shop import Shop
+    from src.components.basic.emoji import Emoji
 
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(
@@ -51,19 +52,20 @@ class ToolBoxUI(BaseWindow):
         },
         "Basic": {
             "Shop": None,
+            "Emoji": Emoji()
         }
     }
 
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
-        self.WINDOW_TITLE = "Fynns Playground"
+        self.WINDOW_TITLE = "Fynns Metaverse Playground"
         super().__init__()
         self.setup_ui()
         self.setup_menubar()
 
     def setup_ui(self) -> None:
         self.addWidgetToLayout(
-            "QLabel", text="Welcome to Fynn's playground.\nNothing to show (but later can used as a notification area instead of pop-up windows)")
+            "QLabel", text="Welcome to Fynn's metaverse playground.\nNothing to show (but later can used as a notification area instead of pop-up windows)\nDieses Programm ist natürlich gar nicht großartig, aber ich kann alles herumspielen, was ich will.")
 
     def setup_menubar(self) -> None:
         # add basic menus (baseWindow parent method)
@@ -131,6 +133,24 @@ class ToolBoxUI(BaseWindow):
         shop_action.triggered.connect(
             lambda: self.open_component_window("Basic", "Shop"))
         menubar.addAction(shop_action)
+
+        # emoji action
+        emoji_menu = menubar.addMenu("😆😊😋🙂😐🥱🙁")
+        menubar.addMenu(emoji_menu)
+
+        feed_action = QAction("Feed me", self)
+        emoji_menu.addAction(feed_action)
+
+        clean_action = QAction("Clean me", self)
+        emoji_menu.addAction(clean_action)
+
+        talk_action = QAction("Talk to me", self)
+        emoji_menu.addAction(talk_action)
+
+        # message action: display what the emoji says
+        message_action = QAction("Hey there", self)
+        message_action.setDisabled(True)
+        menubar.addAction(message_action)
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
         try:
