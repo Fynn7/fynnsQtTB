@@ -21,17 +21,43 @@ class Emoji:
         if emoji_name in self.emoji.keys():
             self.current_emoji = self.emoji[emoji_name]
     
-    def feed(self, restore_hunger: int = 100):
-        self.status["hunger"] = min(100, self.status["hunger"] + restore_hunger)
-        print("Yum! Hunger restored to", self.status["hunger"])
-
-    def clean(self, restore_cleanliness: int = 100):
-        self.status["cleanliness"] = min(100, self.status["cleanliness"] + restore_cleanliness)
-        print("Cleaned up! Cleanliness restored to", self.status["cleanliness"])
+    def operate(self, operation: str, value: int):
+        '''operation: feed, clean, heal'''
+        if operation == "feed":
+            self.status["hunger"] = max(0,min(100, self.status["hunger"] + value))
+        elif operation == "clean":
+            self.status["cleanliness"] = max(0,min(100, self.status["cleanliness"] + value))
+        elif operation == "heal":
+            self.status["health"] = max(0,min(100, self.status["health"] + value))
     
-    def heal(self, restore_health: int = 100):
-        self.status["health"] = min(100, self.status["health"] + restore_health)
-        print("Feeling better! Health restored to", self.status["health"])
+    def check_status(self)->str:
+        '''
+        Check the status of the pet
+        
+        It should be run in a loop/time interval to check the status of the pet
+        '''
+        # lost of hunger, health, cleanliness
+        msg=""
+        if self.status["cleanliness"] <= 0:
+            self.set_emoji("dirty")
+            msg="I'm dirty! Clean me!"
+        else:
+            self.operate("clean", -1)
+        
+        if self.status["hunger"] <= 0:
+            self.set_emoji("sad")
+            msg="I'm hungry! Feed me!"
+        else:
+            self.operate("feed", -1)
+
+
+        if self.status["health"] <= 0:
+            self.set_emoji("sick")
+            msg="I'm sick! Heal me!"
+        else:
+            if self.status["hunger"] <= 0 or self.status["cleanliness"] <= 0:
+                self.operate("heal", -1)
+        return msg
     
 class EmojiThread(QThread):
     emoji_status_updated, emoji_message_updated = Signal(str), Signal(str)
@@ -43,32 +69,12 @@ class EmojiThread(QThread):
 
     def run(self):
         while True:
-            # lost of hunger, health, cleanliness
-            msg=""
-            if self.emoji_obj.status["cleanliness"] <= 0:
-                self.emoji_obj.set_emoji("dirty")
-                msg="I'm dirty! Clean me!"
-            else:
-                self.emoji_obj.status["cleanliness"] -= 1
-            
-            if self.emoji_obj.status["hunger"] <= 0:
-                self.emoji_obj.set_emoji("sad")
-                msg="I'm hungry! Feed me!"
-            else:
-                self.emoji_obj.status["hunger"] -= 1
-
-
-            if self.emoji_obj.status["health"] <= 0:
-                self.emoji_obj.set_emoji("sick")
-                msg="I'm sick! Heal me!"
-            else:
-                if self.emoji_obj.status["hunger"] <= 0 or self.emoji_obj.status["cleanliness"] <= 0:
-                    self.emoji_obj.status["health"] -= 1
-
+            # check status continuously
+            msg=self.emoji_obj.check_status()
             # awake/sleepy
             current_time = datetime.datetime.now().time()
-            if msg=="": # everything is fine with the pet
-                self.emoji_obj.status["health"] += 1
+            if msg=="": # if everything is fine with the pet
+                self.emoji_obj.operate("heal", 1)
                 if current_time.hour >= 22 or current_time.hour < 6:
                     self.emoji_obj.set_emoji("sleep")
                     msg="zzz..."

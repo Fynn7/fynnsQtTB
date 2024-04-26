@@ -158,53 +158,46 @@ class ToolBoxUI(BaseWindow):
 
         # hunger action: display emoji hunger
         hunger_action = QAction("100", self)
-        hunger_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.feed(100))
+        hunger_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("feed", 100))
         hunger_action.triggered.connect(lambda: self.handle_emoji_message_updated("Feeding..."))
 
         menubar.addAction(hunger_action)
 
         # cleanliness action: display emoji cleanliness
         cleanliness_action = QAction("100", self)
-        cleanliness_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.clean(100))
+        cleanliness_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("clean", 100))
         cleanliness_action.triggered.connect(lambda: self.handle_emoji_message_updated("Cleaning..."))
         
         menubar.addAction(cleanliness_action)
 
         # health action: display emoji health
         health_action = QAction("100", self)
-        health_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.heal(100))
+        health_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("heal", 100))
         health_action.triggered.connect(lambda: self.handle_emoji_message_updated("Healing..."))
         menubar.addAction(health_action)
 
     @Slot(str)
     def handle_emoji_status_updated(self, emoji_status: str) -> None:
-        # Do something with the updated emoji status
-        print("Received emoji status:", emoji_status)
-        # Update the UI or perform any other necessary actions
         item=self.getCurrentMenubar().actions()[5]
         item.setText(emoji_status)
 
     @Slot(str)
     def handle_emoji_message_updated(self, emoji_message: str) -> None:
-        print("Received emoji message:", emoji_message)
         item=self.getCurrentMenubar().actions()[6]
         item.setText(emoji_message)
 
     @Slot(int)
     def handle_emoji_hunger_updated(self, hunger: int) -> None:
-        print("Received emoji hunger:", hunger)
         item=self.getCurrentMenubar().actions()[7]
         item.setText(str(hunger).join(['🍔 ','/100']))
 
     @Slot(int)
     def handle_emoji_cleanliness_updated(self, cleanliness: int) -> None:
-        print("Received emoji cleanliness:", cleanliness)
         item=self.getCurrentMenubar().actions()[8]
         item.setText(str(cleanliness).join(['🧼 ','/100']))
     
     @Slot(int)
     def handle_emoji_health_updated(self, health: int) -> None:
-        print("Received emoji health:", health)
         item=self.getCurrentMenubar().actions()[9]
         item.setText(str(health).join(['💗 ','/100']))
 
