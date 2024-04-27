@@ -64,17 +64,8 @@ class ToolBoxUI(BaseWindow):
         self.setup_menubar()
         self.components["Basic"]["Emoji"] = EmojiThread(self.load_data()["emoji"])
         self.emoji_thread = self.components["Basic"]["Emoji"]
-        self.emoji_thread.emoji_status_updated.connect(
-            self.handle_emoji_status_updated)
-        self.emoji_thread.emoji_message_updated.connect(
-            self.handle_emoji_message_updated)
-        self.emoji_thread.hunger_updated.connect(
-            self.handle_emoji_hunger_updated)
-        self.emoji_thread.cleanliness_updated.connect(
-            self.handle_emoji_cleanliness_updated)
-        self.emoji_thread.health_updated.connect(
-            self.handle_emoji_health_updated)
-        
+        self.emoji_thread.emoji_signals_updated.connect(self.handle_emoji_status_updated)
+        self.emoji_thread.message_updated.connect(self.handle_emoji_message_updated)
         self.emoji_thread.start()
 
     def setup_ui(self) -> None:
@@ -177,46 +168,69 @@ class ToolBoxUI(BaseWindow):
         health_action.triggered.connect(lambda: self.handle_emoji_message_updated("Healing..."))
         menubar.addAction(health_action)
 
-    @Slot(str)
-    def handle_emoji_status_updated(self, emoji_status: str) -> None:
+    @Slot(dict)
+    def handle_emoji_status_updated(self, emoji_data: dict) -> None:
         # write emoji to file
-        emoji_data = self.load_data()["emoji"]
-        emoji_data["emoji"] = emoji_status
         self.update_data_file({"emoji":emoji_data})
-        item=self.getCurrentMenubar().actions()[5]
-        item.setText(emoji_status)
+
+        emoji_item=self.getCurrentMenubar().actions()[5]
+        emoji_item.setText(emoji_data["emoji"])
+
+        hunger_item=self.getCurrentMenubar().actions()[7]
+        hunger_item.setText(''.join([str(emoji_data["status"]["hunger"]), '🍔 ', '/100']))
+
+        cleanliness_item=self.getCurrentMenubar().actions()[8]
+        cleanliness_item.setText(''.join([str(emoji_data["status"]["cleanliness"]), '🚿 ', '/100']))
+
+        health_item=self.getCurrentMenubar().actions()[9]
+        health_item.setText(''.join([str(emoji_data["status"]["health"]), '💗 ', '/100']))
+
 
     @Slot(str)
     def handle_emoji_message_updated(self, emoji_message: str) -> None:
-        item=self.getCurrentMenubar().actions()[6]
-        item.setText(emoji_message)
+        msg_item=self.getCurrentMenubar().actions()[6]
+        msg_item.setText(emoji_message)
 
-    @Slot(int)
-    def handle_emoji_hunger_updated(self, hunger: int) -> None:
-        # write emoji hunger to file
-        emoji_data = self.load_data()["emoji"]
-        emoji_data["status"]["hunger"] = hunger
-        self.update_data_file({"emoji":emoji_data})
-        item=self.getCurrentMenubar().actions()[7]
-        item.setText(''.join([str(hunger), '🍔 ', '/100']))
+    # @Slot(str)
+    # def handle_emoji_status_updated(self, emoji_status: str) -> None:
+    #     # write emoji to file
+    #     emoji_data = self.load_data()["emoji"]
+    #     emoji_data["emoji"] = emoji_status
+    #     self.update_data_file({"emoji":emoji_data})
+    #     item=self.getCurrentMenubar().actions()[5]
+    #     item.setText(emoji_status)
 
-    @Slot(int)
-    def handle_emoji_cleanliness_updated(self, cleanliness: int) -> None:
-        # write emoji cleanliness to file
-        emoji_data = self.load_data()["emoji"]
-        emoji_data["status"]["cleanliness"] = cleanliness
-        self.update_data_file({"emoji":emoji_data})
-        item=self.getCurrentMenubar().actions()[8]
-        item.setText(''.join([str(cleanliness), '🚿 ', '/100']))
+    # @Slot(str)
+    # def handle_emoji_message_updated(self, emoji_message: str) -> None:
+    #     item=self.getCurrentMenubar().actions()[6]
+    #     item.setText(emoji_message)
+
+    # @Slot(int)
+    # def handle_emoji_hunger_updated(self, hunger: int) -> None:
+    #     # write emoji hunger to file
+    #     emoji_data = self.load_data()["emoji"]
+    #     emoji_data["status"]["hunger"] = hunger
+    #     self.update_data_file({"emoji":emoji_data})
+    #     item=self.getCurrentMenubar().actions()[7]
+    #     item.setText(''.join([str(hunger), '🍔 ', '/100']))
+
+    # @Slot(int)
+    # def handle_emoji_cleanliness_updated(self, cleanliness: int) -> None:
+    #     # write emoji cleanliness to file
+    #     emoji_data = self.load_data()["emoji"]
+    #     emoji_data["status"]["cleanliness"] = cleanliness
+    #     self.update_data_file({"emoji":emoji_data})
+    #     item=self.getCurrentMenubar().actions()[8]
+    #     item.setText(''.join([str(cleanliness), '🚿 ', '/100']))
     
-    @Slot(int)
-    def handle_emoji_health_updated(self, health: int) -> None:
-        # write emoji health to file
-        emoji_data = self.load_data()["emoji"]
-        emoji_data["status"]["health"] = health
-        self.update_data_file({"emoji":emoji_data})
-        item=self.getCurrentMenubar().actions()[9]
-        item.setText(''.join([str(health), '💗 ', '/100']))
+    # @Slot(int)
+    # def handle_emoji_health_updated(self, health: int) -> None:
+    #     # write emoji health to file
+    #     emoji_data = self.load_data()["emoji"]
+    #     emoji_data["status"]["health"] = health
+    #     self.update_data_file({"emoji":emoji_data})
+    #     item=self.getCurrentMenubar().actions()[9]
+    #     item.setText(''.join([str(health), '💗 ', '/100']))
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
         try:
@@ -272,6 +286,11 @@ class ToolBoxUI(BaseWindow):
         self.getCurrentMenubar().actions()[4].setText(
             str(current_data["balance"])+" €")
 
+
+    def closeEvent(self, event) -> None:
+        self.emoji_thread.terminate()
+        self.emoji_thread.wait()
+        super().closeEvent(event)
 
 def main():
     app = QApplication(sys.argv)

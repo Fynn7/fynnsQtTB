@@ -4,20 +4,8 @@ from PySide6.QtCore import QThread, Signal
 from baseWindow import BaseWindow
 class Emoji:
     def __init__(self,emoji:str,status:dict[str,int]):
-        self.emoji = {
-            "happy": "😊",
-            "sad": "😢",
-            "sleep": "😴",
-            "dirty": "🤢",
-            "sick": "🤒"
-        }
         self.status:dict=status
-        # self.status:dict[str,int]=BaseWindow.load_data()["emoji"]["status"]
-        self.current_emoji_face = self.emoji[emoji]
-
-    def set_emoji(self, emoji_name: str):
-        if emoji_name in self.emoji.keys():
-            self.current_emoji_face = self.emoji[emoji_name]
+        self.emoji = emoji
     
     def operate(self, operation: str, value: int):
         '''operation: feed, clean, heal'''
@@ -37,20 +25,20 @@ class Emoji:
         # lost of hunger, health, cleanliness
         msg=""
         if self.status["cleanliness"] <= 0:
-            self.set_emoji("dirty")
+            self.emoji="🤢"
             msg="I'm dirty! Clean me!"
         else:
             self.operate("clean", -1)
         
         if self.status["hunger"] <= 0:
-            self.set_emoji("sad")
+            self.emoji="😢"
             msg="I'm hungry! Feed me!"
         else:
             self.operate("feed", -1)
 
 
         if self.status["health"] <= 0:
-            self.set_emoji("sick")
+            self.emoji="🤒"
             msg="I'm sick! Heal me!"
         else:
             if self.status["hunger"] <= 0 or self.status["cleanliness"] <= 0:
@@ -58,8 +46,9 @@ class Emoji:
         return msg
     
 class EmojiThread(QThread):
-    emoji_status_updated, emoji_message_updated = Signal(str), Signal(str)
-    hunger_updated, cleanliness_updated, health_updated = Signal(int), Signal(int), Signal(int)
+    # consider that the signals are grouply updated, so we can use a single signal for each group
+    emoji_signals_updated=Signal(dict)
+    message_updated=Signal(str)
 
     def __init__(self,emoji_data:dict):
         super().__init__()
@@ -74,17 +63,17 @@ class EmojiThread(QThread):
             if msg=="": # if everything is fine with the pet
                 self.emoji_obj.operate("heal", 1)
                 if current_time.hour >= 22 or current_time.hour < 6:
-                    self.emoji_obj.set_emoji("sleep")
+                    self.emoji_obj.emoji="😴"
                     msg="zzz..."
                 else:
-                    self.emoji_obj.set_emoji("happy")
+                    self.emoji_obj.emoji="\ud83d\ude0a"
                     msg="Good day!"
             
             # update signals
-            self.hunger_updated.emit(self.emoji_obj.status["hunger"])
-            self.cleanliness_updated.emit(self.emoji_obj.status["cleanliness"])
-            self.health_updated.emit(self.emoji_obj.status["health"])
-            self.emoji_message_updated.emit(msg)
-            self.emoji_status_updated.emit(self.emoji_obj.current_emoji_face)
+            self.emoji_signals_updated.emit({
+                "emoji":self.emoji_obj.emoji,
+                "status":self.emoji_obj.status
+            })
+            self.message_updated.emit(msg)
             
             self.msleep(1_000) # 1 seconds per update

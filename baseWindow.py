@@ -59,10 +59,11 @@ ORIG_DATA: dict = {
     },
     "custom_dicts": {},
     "emoji":{
+        "emoji":"\ud83d\ude0a",
         "status":{
-            "hunger":100,
-            "cleanliness":100,
-            "health":100,
+            "hunger":10,
+            "cleanliness":10,
+            "health":10,
         }
     }
 }
@@ -315,18 +316,6 @@ class Dice(BaseWindow):
     def reset_data() -> int | None:
         '''
         reset all data to None but leave the keys
-
-        original data structure:
-            {
-            "balance":0 ,
-            "login_data": {
-                "username": "",
-                "password": ""
-            },
-            "custom_dicts":{
-
-            }
-        }
         '''
         reply = QMessageBox.warning(
             None, "Warning", "This will reset all data to default. Are you sure to continue?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
