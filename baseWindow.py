@@ -57,8 +57,13 @@ ORIG_DATA: dict = {
         "username": "",
         "password": ""
     },
-    "custom_dicts": {
-
+    "custom_dicts": {},
+    "emoji":{
+        "status":{
+            "hunger":100,
+            "cleanliness":100,
+            "health":100,
+        }
     }
 }
 _ENCODING: str = "utf-8"
@@ -157,6 +162,16 @@ class Dice(BaseWindow):
             self.load_settings()["font"]["family"], pointSize=self.load_settings()["font"]["size"], italic=self.load_settings()["font"]["italic"]))
         print("BaseWindow initialized.")
 
+    @staticmethod
+    def load_settings() -> dict | None:
+        try:
+            with open(_SETTINGS_PATH, 'r') as file:
+                settings_data = json.load(file)
+        except Exception as e:
+            print(traceback.format_exc())
+            sys.exit(1)
+        return settings_data
+    
     def load_settings(self) -> dict | None:
         try:
             with open(_SETTINGS_PATH, 'r') as file:
@@ -167,6 +182,27 @@ class Dice(BaseWindow):
                 self, "Fatal Error", "Failed to load settings: "+str(e))
             sys.exit(1)
         return settings_data
+
+    @staticmethod
+    def update_settings_file(new_settings: dict) -> int | None:
+        '''
+        write new settings to settings file
+        and update GUI
+        '''
+        try:
+            current_settings = BaseWindow.load_settings()
+            current_settings.update(new_settings)
+            # write to file
+
+            with open(_SETTINGS_PATH, 'w') as file:
+                json.dump(current_settings, file, indent=4)
+
+            # update GUI
+            BaseWindow.update_settings_to_gui(current_settings)
+            return 0
+        except Exception:
+            print(traceback.format_exc())
+            sys.exit(1)
 
     def update_settings_file(self, new_settings: dict) -> int | None:
         '''
@@ -213,6 +249,16 @@ class Dice(BaseWindow):
                 self, "Fatal Error", "Failed to update settings file.")
             sys.exit(1)
 
+    @staticmethod
+    def load_data() -> dict | None:
+        try:
+            with open(_DATA_PATH, 'r') as file:
+                data = json.load(file)
+        except Exception as e:
+            print(traceback.format_exc())
+            sys.exit(1)
+        return data
+    
     def load_data(self) -> dict | None:
         try:
             with open(_DATA_PATH, 'r') as file:
@@ -223,6 +269,22 @@ class Dice(BaseWindow):
                 self, "Fatal Error", "Failed to load data: "+str(e))
             sys.exit(1)
         return data
+
+    @staticmethod
+    def update_data_file(new_data: dict) -> int | None:
+        '''
+        write new data to data file
+        '''
+        try:
+            # write to file
+            current_data = BaseWindow.load_data()
+            current_data.update(new_data)
+            with open(_DATA_PATH, 'w') as file:
+                json.dump(current_data, file, indent=4)
+            return 0
+        except Exception:
+            print(traceback.format_exc())
+            sys.exit(1)
 
     def update_data_file(self, new_data: dict) -> int | None:
         '''
@@ -244,11 +306,43 @@ class Dice(BaseWindow):
     # virtual method for update data to gui
     def update_data_to_gui(self, new_data: dict) -> int | None:
         '''
-        looking for developers to override this method
+        developer should override this method to update GUI with new data
         '''
         raise NotImplementedError(
             "This method should be overridden by developers.")
 
+    @staticmethod
+    def reset_data() -> int | None:
+        '''
+        reset all data to None but leave the keys
+
+        original data structure:
+            {
+            "balance":0 ,
+            "login_data": {
+                "username": "",
+                "password": ""
+            },
+            "custom_dicts":{
+
+            }
+        }
+        '''
+        reply = QMessageBox.warning(
+            None, "Warning", "This will reset all data to default. Are you sure to continue?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
+            print("Resetting data applied.")
+            try:
+                with open(_DATA_PATH, 'w') as file:
+                    json.dump(ORIG_DATA, file, indent=4)
+                return 0
+            except Exception:
+                print(traceback.format_exc())
+                QMessageBox.critical(
+                    None, "Fatal Error", "Failed to reset data file.")
+                sys.exit(1)
+        return -1
+    
     def reset_data(self) -> int | None:
         '''
         reset all data to None but leave the keys

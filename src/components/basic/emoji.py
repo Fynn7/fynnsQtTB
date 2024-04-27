@@ -1,8 +1,9 @@
 import datetime
 from PySide6.QtCore import QThread, Signal
 
+from baseWindow import BaseWindow
 class Emoji:
-    def __init__(self):
+    def __init__(self,emoji:str,status:dict[str,int]):
         self.emoji = {
             "happy": "😊",
             "sad": "😢",
@@ -10,16 +11,13 @@ class Emoji:
             "dirty": "🤢",
             "sick": "🤒"
         }
-        self.status={
-            "hunger":5,
-            "cleanliness":5,
-            "health":5,
-        }
-        self.current_emoji = self.emoji["happy"]
+        self.status:dict=status
+        # self.status:dict[str,int]=BaseWindow.load_data()["emoji"]["status"]
+        self.current_emoji_face = self.emoji[emoji]
 
     def set_emoji(self, emoji_name: str):
         if emoji_name in self.emoji.keys():
-            self.current_emoji = self.emoji[emoji_name]
+            self.current_emoji_face = self.emoji[emoji_name]
     
     def operate(self, operation: str, value: int):
         '''operation: feed, clean, heal'''
@@ -63,9 +61,9 @@ class EmojiThread(QThread):
     emoji_status_updated, emoji_message_updated = Signal(str), Signal(str)
     hunger_updated, cleanliness_updated, health_updated = Signal(int), Signal(int), Signal(int)
 
-    def __init__(self):
+    def __init__(self,emoji_data:dict):
         super().__init__()
-        self.emoji_obj=Emoji()
+        self.emoji_obj=Emoji(**emoji_data)
 
     def run(self):
         while True:
@@ -87,6 +85,6 @@ class EmojiThread(QThread):
             self.cleanliness_updated.emit(self.emoji_obj.status["cleanliness"])
             self.health_updated.emit(self.emoji_obj.status["health"])
             self.emoji_message_updated.emit(msg)
-            self.emoji_status_updated.emit(self.emoji_obj.current_emoji)
+            self.emoji_status_updated.emit(self.emoji_obj.current_emoji_face)
             
             self.msleep(1_000) # 1 seconds per update

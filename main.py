@@ -52,7 +52,7 @@ class ToolBoxUI(BaseWindow):
         },
         "Basic": {
             "Shop": None,
-            "Emoji": EmojiThread(),
+            "Emoji": None,
         }
     }
 
@@ -62,6 +62,7 @@ class ToolBoxUI(BaseWindow):
         super().__init__()
         self.setup_ui()
         self.setup_menubar()
+        self.components["Basic"]["Emoji"] = EmojiThread(self.load_data()["emoji"])
         self.emoji_thread = self.components["Basic"]["Emoji"]
         self.emoji_thread.emoji_status_updated.connect(
             self.handle_emoji_status_updated)
@@ -178,6 +179,10 @@ class ToolBoxUI(BaseWindow):
 
     @Slot(str)
     def handle_emoji_status_updated(self, emoji_status: str) -> None:
+        # write emoji to file
+        emoji_data = self.load_data()["emoji"]
+        emoji_data["emoji"] = emoji_status
+        self.update_data_file({"emoji":emoji_data})
         item=self.getCurrentMenubar().actions()[5]
         item.setText(emoji_status)
 
@@ -188,18 +193,30 @@ class ToolBoxUI(BaseWindow):
 
     @Slot(int)
     def handle_emoji_hunger_updated(self, hunger: int) -> None:
+        # write emoji hunger to file
+        emoji_data = self.load_data()["emoji"]
+        emoji_data["status"]["hunger"] = hunger
+        self.update_data_file({"emoji":emoji_data})
         item=self.getCurrentMenubar().actions()[7]
-        item.setText(str(hunger).join(['🍔 ','/100']))
+        item.setText(''.join([str(hunger), '🍔 ', '/100']))
 
     @Slot(int)
     def handle_emoji_cleanliness_updated(self, cleanliness: int) -> None:
+        # write emoji cleanliness to file
+        emoji_data = self.load_data()["emoji"]
+        emoji_data["status"]["cleanliness"] = cleanliness
+        self.update_data_file({"emoji":emoji_data})
         item=self.getCurrentMenubar().actions()[8]
-        item.setText(str(cleanliness).join(['🧼 ','/100']))
+        item.setText(''.join([str(cleanliness), '🚿 ', '/100']))
     
     @Slot(int)
     def handle_emoji_health_updated(self, health: int) -> None:
+        # write emoji health to file
+        emoji_data = self.load_data()["emoji"]
+        emoji_data["status"]["health"] = health
+        self.update_data_file({"emoji":emoji_data})
         item=self.getCurrentMenubar().actions()[9]
-        item.setText(str(health).join(['💗 ','/100']))
+        item.setText(''.join([str(health), '💗 ', '/100']))
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
         try:

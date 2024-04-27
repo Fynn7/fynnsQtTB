@@ -4,5 +4,13 @@
         "username": "",
         "password": ""
     },
-    "custom_dicts": {}
+    "custom_dicts": {},
+    "emoji": {
+        "emoji": "\ud83d\ude22",
+        "status": {
+            "hunger": 0,
+            "cleanliness": 0,
+            "health": 23
+        }
+    }
 }
