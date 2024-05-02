@@ -18,12 +18,13 @@ try:
     from src.components.tools.mlToolBox.mlToolBox import MlToolBox
     from src.components.tools.autoExcel.autoExcel import AutoExcel
     from src.components.tools.autoXHS.autoXHS import AutoXHS
+    from src.components.tools.dsToolBox.dsToolBox import DSToolBox
 
     from src.components.games.dice.dice import Dice
     from src.components.games.poker.poker21 import Poker21
 
     from src.components.basic.shop import Shop
-    from src.components.basic.emoji import *
+    from src.components.basic.emoji import EmojiThread
 
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(
@@ -45,6 +46,7 @@ class ToolBoxUI(BaseWindow):
             "MlToolBox": None,
             "AutoExcel": None,
             "AutoXHS": None,
+            "DSToolBox": None,
         },
         "Games": {
             "Dice": None,
@@ -114,7 +116,13 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Tools", "AutoXHS"))
         auto_xhs_action.setDisabled(True)
         tool_menu.addAction(auto_xhs_action)
-
+        
+        # data science toolbox action
+        ds_toolbox_action = QAction("📈 Data Science", self)
+        ds_toolbox_action.triggered.connect(
+            lambda: self.open_component_window("Tools", "DSToolBox"))
+        tool_menu.addAction(ds_toolbox_action)
+        
         ############################################################
         # game menu
         game_menu = menubar.addMenu("Games")

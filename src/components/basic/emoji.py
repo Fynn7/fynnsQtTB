@@ -54,7 +54,7 @@ class EmojiThread(QThread):
         super().__init__()
         self.emoji_obj=Emoji(**emoji_data)
 
-    def run(self):
+    def run(self,time_interval=10):
         while True:
             # check status continuously
             msg=self.emoji_obj.check_status()
@@ -76,4 +76,4 @@ class EmojiThread(QThread):
             })
             self.message_updated.emit(msg)
             
-            self.msleep(1_000) # 1 seconds per update
+            self.msleep(1_000*time_interval) # 1 seconds per update
