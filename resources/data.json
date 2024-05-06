@@ -6,11 +6,11 @@
     },
     "custom_dicts": {},
     "emoji": {
-        "emoji": "\ud83d\ude0a",
+        "emoji": "\ud83d\ude34",
         "status": {
-            "cleanliness": 56,
+            "cleanliness": 3,
             "health": 100,
-            "hunger": 58
+            "hunger": 3
         }
     }
 }
