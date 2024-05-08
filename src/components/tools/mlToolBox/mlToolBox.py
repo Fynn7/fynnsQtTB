@@ -18,7 +18,7 @@ class MlToolBox(BaseWindow):
         self.setup_ui()
 
     def setup_ui(self):
-        self.create_menu_bar()
+        self.setup_menubar()
 
         layout = QVBoxLayout()
 
@@ -66,7 +66,7 @@ class MlToolBox(BaseWindow):
 
         self.setWindowTitle(self.WINDOW_TITLE)
 
-    def create_menu_bar(self):
+    def setup_menubar(self):
         self.addBasicMenus(withFile=True, withConfig=False)
         menubar = self.menuBar()
 

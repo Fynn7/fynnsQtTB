@@ -199,47 +199,6 @@ class ToolBoxUI(BaseWindow):
         msg_item=self.getCurrentMenubar().actions()[6]
         msg_item.setText(emoji_message)
 
-    # @Slot(str)
-    # def handle_emoji_status_updated(self, emoji_status: str) -> None:
-    #     # write emoji to file
-    #     emoji_data = self.load_data()["emoji"]
-    #     emoji_data["emoji"] = emoji_status
-    #     self.update_data_file({"emoji":emoji_data})
-    #     item=self.getCurrentMenubar().actions()[5]
-    #     item.setText(emoji_status)
-
-    # @Slot(str)
-    # def handle_emoji_message_updated(self, emoji_message: str) -> None:
-    #     item=self.getCurrentMenubar().actions()[6]
-    #     item.setText(emoji_message)
-
-    # @Slot(int)
-    # def handle_emoji_hunger_updated(self, hunger: int) -> None:
-    #     # write emoji hunger to file
-    #     emoji_data = self.load_data()["emoji"]
-    #     emoji_data["status"]["hunger"] = hunger
-    #     self.update_data_file({"emoji":emoji_data})
-    #     item=self.getCurrentMenubar().actions()[7]
-    #     item.setText(''.join([str(hunger), '🍔 ', '/100']))
-
-    # @Slot(int)
-    # def handle_emoji_cleanliness_updated(self, cleanliness: int) -> None:
-    #     # write emoji cleanliness to file
-    #     emoji_data = self.load_data()["emoji"]
-    #     emoji_data["status"]["cleanliness"] = cleanliness
-    #     self.update_data_file({"emoji":emoji_data})
-    #     item=self.getCurrentMenubar().actions()[8]
-    #     item.setText(''.join([str(cleanliness), '🚿 ', '/100']))
-    
-    # @Slot(int)
-    # def handle_emoji_health_updated(self, health: int) -> None:
-    #     # write emoji health to file
-    #     emoji_data = self.load_data()["emoji"]
-    #     emoji_data["status"]["health"] = health
-    #     self.update_data_file({"emoji":emoji_data})
-    #     item=self.getCurrentMenubar().actions()[9]
-    #     item.setText(''.join([str(health), '💗 ', '/100']))
-
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
         try:
             component: QMainWindow = eval(f"{component_name}()")

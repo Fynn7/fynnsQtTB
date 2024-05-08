@@ -1,15 +1,10 @@
 from PySide6.QtWidgets import (
-    QFileDialog,
-    QApplication,
-    QDialog,
-    QTableWidgetItem,
     QMessageBox,
     QScrollArea,
     QMenu,
     QLabel
 )
 from PySide6.QtCore import (
-    Qt,
     Slot
 )
 from PySide6.QtGui import (
@@ -18,7 +13,8 @@ from PySide6.QtGui import (
 
 
 from baseWindow import BaseWindow
-from . import ds
+from .ds import DataHandler, FileConverter
+from .creditCalculator import CreditCalculator
 
 class DSToolBox(BaseWindow):
     '''
@@ -31,6 +27,7 @@ class DSToolBox(BaseWindow):
         super().__init__()
         self.setupUi()
         self.setupMenubar()
+        self.credit_calculator_window=None
 
     def setupUi(self):
         self.scroll_area=QScrollArea()
@@ -61,10 +58,21 @@ class DSToolBox(BaseWindow):
         file_converter_menu.addAction(toJSON_action)
 
         menubar.addMenu(file_converter_menu)
-    
+
+
+        credit_calculator_action = QAction("Credit Calculator",self)
+        credit_calculator_action.triggered.connect(self.open_credit_calculator_window)
+
+        menubar.addAction(credit_calculator_action)
+
     @Slot()
     def handle_file_converter(self,target_type:str):
         try:
-            self.info_label.setText(ds.FileConverter.converted(target_type))
+            self.info_label.setText(FileConverter.converted(target_type))
         except Exception as e:
-            QMessageBox.critical(self,"Unknown Error",str(e))
+            QMessageBox.critical(self,"Error",str(e))
+
+    @Slot()
+    def open_credit_calculator_window(self):
+        self.credit_calculator_window=CreditCalculator()
+        self.credit_calculator_window.show()
