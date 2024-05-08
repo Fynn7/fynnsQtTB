@@ -6,11 +6,114 @@
     },
     "custom_dicts": {},
     "emoji": {
-        "emoji": "\ud83d\ude0a",
+        "emoji": "\ud83e\udd12",
         "status": {
-            "cleanliness": 91,
-            "health": 100,
-            "hunger": 91
+            "cleanliness": 0,
+            "health": 0,
+            "hunger": 0
         }
+    },
+    "gpa_calculator": {
+        "target_gpa": "2.5",
+        "ignored_credits": "29",
+        "total_credits_needed": "180",
+        "exam_results": [
+            {
+                "exam_id": "1",
+                "exam_name": "Math 1",
+                "exam_score": "1.3",
+                "exam_credit": 8
+            },
+            {
+                "exam_id": "2",
+                "exam_name": "Math 2",
+                "exam_score": "1.0",
+                "exam_credit": 7
+            },
+            {
+                "exam_id": "3",
+                "exam_name": "MT",
+                "exam_score": "3.3",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "4",
+                "exam_name": "Physics",
+                "exam_score": "1.3",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "5",
+                "exam_name": "Mechanics 1",
+                "exam_score": "3.0",
+                "exam_credit": 5
+            },
+            {
+                "exam_id": "6",
+                "exam_name": "SSF",
+                "exam_score": "2.7",
+                "exam_credit": 5
+            },
+            {
+                "exam_id": "7",
+                "exam_name": "FCE",
+                "exam_score": "2.0",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "8",
+                "exam_name": "LDDS",
+                "exam_score": "2.0",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "9",
+                "exam_name": "DM",
+                "exam_score": "2.3",
+                "exam_credit": 5
+            },
+            {
+                "exam_id": "10",
+                "exam_name": "OOP",
+                "exam_score": "2.7",
+                "exam_credit": 3
+            },
+            {
+                "exam_id": "11",
+                "exam_name": "WRSS",
+                "exam_score": "2.7",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "12",
+                "exam_name": "Modellierung",
+                "exam_score": "2.3",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "13",
+                "exam_name": "ST",
+                "exam_score": "2.0",
+                "exam_credit": 8
+            },
+            {
+                "exam_id": "14",
+                "exam_name": "BWL",
+                "exam_score": "1.3",
+                "exam_credit": 4
+            },
+            {
+                "exam_id": "15",
+                "exam_name": "GKI",
+                "exam_score": "3.0",
+                "exam_credit": 6
+            },
+            {
+                "exam_id": "16",
+                "exam_name": "Logik",
+                "exam_score": "1.0",
+                "exam_credit": 6
+            }
+        ]
     }
 }

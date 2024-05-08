@@ -19,13 +19,13 @@ try:
     from src.components.tools.autoExcel.autoExcel import AutoExcel
     from src.components.tools.autoXHS.autoXHS import AutoXHS
     from src.components.tools.dsToolBox.dsToolBox import DSToolBox
+    from src.components.tools.gpaCalculator.gpaCalculator import GPACalculator
 
     from src.components.games.dice.dice import Dice
     from src.components.games.poker.poker21 import Poker21
 
     from src.components.basic.shop import Shop
     from src.components.basic.emoji import EmojiThread
-
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(
         0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
@@ -47,6 +47,7 @@ class ToolBoxUI(BaseWindow):
             "AutoExcel": None,
             "AutoXHS": None,
             "DSToolBox": None,
+            "GPACalculator": None,
         },
         "Games": {
             "Dice": None,
@@ -122,6 +123,13 @@ class ToolBoxUI(BaseWindow):
         ds_toolbox_action.triggered.connect(
             lambda: self.open_component_window("Tools", "DSToolBox"))
         tool_menu.addAction(ds_toolbox_action)
+        
+        # credits calculator action
+        credit_calculator_action = QAction("💯 Credit Calculator",self)
+        credit_calculator_action.triggered.connect(
+            lambda: self.open_component_window("Tools", "GPACalculator")
+        )
+        tool_menu.addAction(credit_calculator_action)
         
         ############################################################
         # game menu

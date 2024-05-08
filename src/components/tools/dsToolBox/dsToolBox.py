@@ -14,7 +14,6 @@ from PySide6.QtGui import (
 
 from baseWindow import BaseWindow
 from .ds import DataHandler, FileConverter
-from .creditCalculator import CreditCalculator
 
 class DSToolBox(BaseWindow):
     '''
@@ -60,19 +59,9 @@ class DSToolBox(BaseWindow):
         menubar.addMenu(file_converter_menu)
 
 
-        credit_calculator_action = QAction("Credit Calculator",self)
-        credit_calculator_action.triggered.connect(self.open_credit_calculator_window)
-
-        menubar.addAction(credit_calculator_action)
-
     @Slot()
     def handle_file_converter(self,target_type:str):
         try:
             self.info_label.setText(FileConverter.converted(target_type))
         except Exception as e:
             QMessageBox.critical(self,"Error",str(e))
-
-    @Slot()
-    def open_credit_calculator_window(self):
-        self.credit_calculator_window=CreditCalculator()
-        self.credit_calculator_window.show()

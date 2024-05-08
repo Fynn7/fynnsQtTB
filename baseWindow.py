@@ -65,6 +65,12 @@ ORIG_DATA: dict = {
             "cleanliness":10,
             "health":10,
         }
+    },
+    "gpa_calculator":{
+        "target_gpa":"2.5",
+        "total_credits_needed":"180",
+        "ignored_credits":"29",
+        "exam_results":[],
     }
 }
 _ENCODING: str = "utf-8"
