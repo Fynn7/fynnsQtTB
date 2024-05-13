@@ -52,7 +52,7 @@ ORIG_SETTINGS: dict = {
     "enable_closeEvent": False
 }
 ORIG_DATA: dict = {
-    "balance": 0,
+    "balance": 10,
     "login_data": {
         "username": "",
         "password": ""
@@ -71,7 +71,8 @@ ORIG_DATA: dict = {
         "total_credits_needed": "180",
         "ignored_credits": "29",
         "exam_results": [],
-    }
+    },
+    "inventory": [],
 }
 _ENCODING: str = "utf-8"
 
@@ -156,6 +157,7 @@ class Dice(BaseWindow):
     WINDOW_TITLE: str = 'Base Window'
     isClosed: Signal = Signal(bool)
     changed_balance: Signal = Signal(float)
+    bought_item: Signal = Signal(dict)
 
     def __init__(self):
         print("BaseWindow initializing...")

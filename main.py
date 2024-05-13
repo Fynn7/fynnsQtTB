@@ -4,7 +4,8 @@ import traceback
 
 try:
     from PySide6.QtCore import (
-        Slot
+        Slot,
+        Signal
     )
     from PySide6.QtWidgets import (
         QMainWindow,
@@ -26,6 +27,8 @@ try:
 
     from src.components.basic.shop import Shop
     from src.components.basic.emoji import EmojiThread
+    from src.components.basic.inventory import Inventory
+
 except ImportError as ie:
     ctypes.windll.user32.MessageBoxW(
         0, str(ie)+"\n\nActivate venv and try again!", "Import Error", 0x10)
@@ -56,6 +59,7 @@ class ToolBoxUI(BaseWindow):
         "Basic": {
             "Shop": None,
             "Emoji": None,
+            "Inventory": None,
         }
     }
 
@@ -65,9 +69,11 @@ class ToolBoxUI(BaseWindow):
         super().__init__()
         self.setup_ui()
         self.setup_menubar()
+        # initialize emoji thread
         self.components["Basic"]["Emoji"] = EmojiThread(
             self.load_data()["emoji"])
         self.emoji_thread = self.components["Basic"]["Emoji"]
+        # emoji signal connection
         self.emoji_thread.emoji_signals_updated.connect(
             self.handle_emoji_status_updated)
         self.emoji_thread.message_updated.connect(
@@ -158,6 +164,16 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Basic", "Shop"))
         menubar.addAction(shop_action)
 
+        # bank action
+        bank_action = QAction("🏦 Bank", self)
+        bank_action.setDisabled(True)
+
+        # inventory action
+        inventory_action = QAction("🎒 Inventory", self)
+        inventory_action.triggered.connect(
+            lambda: self.open_component_window("Basic", "Inventory"))
+        menubar.addAction(inventory_action)
+
         # emoji action
         emoji_menu = menubar.addMenu("😊")
         menubar.addMenu(emoji_menu)
@@ -193,29 +209,32 @@ class ToolBoxUI(BaseWindow):
             lambda: self.handle_emoji_message_updated("Healing..."))
         menubar.addAction(health_action)
 
+        # level action: display emoji level
+        ...
+
     @Slot(dict)
     def handle_emoji_status_updated(self, emoji_data: dict) -> None:
         # write emoji to file
         self.update_data_file({"emoji": emoji_data})
 
-        emoji_item = self.getCurrentMenubar().actions()[5]
+        emoji_item = self.getCurrentMenubar().actions()[6]
         emoji_item.setText(emoji_data["emoji"])
 
-        hunger_item = self.getCurrentMenubar().actions()[7]
+        hunger_item = self.getCurrentMenubar().actions()[8]
         hunger_item.setText(
             ''.join([str(emoji_data["status"]["hunger"]), '🍔 ', '/100']))
 
-        cleanliness_item = self.getCurrentMenubar().actions()[8]
+        cleanliness_item = self.getCurrentMenubar().actions()[9]
         cleanliness_item.setText(
             ''.join([str(emoji_data["status"]["cleanliness"]), '🚿 ', '/100']))
 
-        health_item = self.getCurrentMenubar().actions()[9]
+        health_item = self.getCurrentMenubar().actions()[10]
         health_item.setText(
             ''.join([str(emoji_data["status"]["health"]), '💗 ', '/100']))
 
     @Slot(str)
     def handle_emoji_message_updated(self, emoji_message: str) -> None:
-        msg_item = self.getCurrentMenubar().actions()[6]
+        msg_item = self.getCurrentMenubar().actions()[7]
         msg_item.setText(emoji_message)
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
@@ -257,19 +276,35 @@ class ToolBoxUI(BaseWindow):
             # connect component balance changed signal with update_balance()
             component.changed_balance.connect(self.update_balance)
 
+            # connect component bought item signal with update_balance()
+            component.bought_item.connect(self.add_item_to_inventory)
+
     @Slot(float)
     def update_balance(self, new_balance: float) -> None:
         # update main window GUI
-        self.getCurrentMenubar().actions()[4].setText(str(new_balance)+" €")
+        menubar=self.menuBar()
+        menubar.actions()[4].setText(str(new_balance)+" €")
         # update data file
         self.update_data_file({"balance": new_balance})
         print("Balance updated to", new_balance, "€")
+
+    @Slot(dict)
+    def add_item_to_inventory(self, item: dict) -> None:
+        # if the inventory window is opened, also update the GUI
+        inventory=self.components["Basic"]["Inventory"]
+        if inventory:
+            inventory.add_item(item)
+        items:list = self.load_data()["inventory"]
+        items.append(item)
+        self.update_data_file({"inventory": items})
+        print("Item added to inventory:", item)
 
     def reset_data_with_gui(self) -> None:
         self.reset_data()
         # reset gui
         current_data = self.load_data()
-        self.getCurrentMenubar().actions()[4].setText(
+        menubar=self.menuBar()
+        menubar.actions()[4].setText(
             str(current_data["balance"])+" €")
 
     def closeEvent(self, event) -> None:
