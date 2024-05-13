@@ -58,19 +58,19 @@ ORIG_DATA: dict = {
         "password": ""
     },
     "custom_dicts": {},
-    "emoji":{
-        "emoji":"\ud83d\ude0a",
-        "status":{
-            "hunger":10,
-            "cleanliness":10,
-            "health":10,
+    "emoji": {
+        "emoji": "\ud83d\ude0a",
+        "status": {
+            "hunger": 10,
+            "cleanliness": 10,
+            "health": 10,
         }
     },
-    "gpa_calculator":{
-        "target_gpa":"2.5",
-        "total_credits_needed":"180",
-        "ignored_credits":"29",
-        "exam_results":[],
+    "gpa_calculator": {
+        "target_gpa": "2.5",
+        "total_credits_needed": "180",
+        "ignored_credits": "29",
+        "exam_results": [],
     }
 }
 _ENCODING: str = "utf-8"
@@ -178,7 +178,7 @@ class Dice(BaseWindow):
             print(traceback.format_exc())
             sys.exit(1)
         return settings_data
-    
+
     def load_settings(self) -> dict | None:
         try:
             with open(_SETTINGS_PATH, 'r') as file:
@@ -265,7 +265,7 @@ class Dice(BaseWindow):
             print(traceback.format_exc())
             sys.exit(1)
         return data
-    
+
     def load_data(self) -> dict | None:
         try:
             with open(_DATA_PATH, 'r') as file:
@@ -337,7 +337,7 @@ class Dice(BaseWindow):
                     None, "Fatal Error", "Failed to reset data file.")
                 sys.exit(1)
         return -1
-    
+
     def reset_data(self) -> int | None:
         '''
         reset all data to None but leave the keys

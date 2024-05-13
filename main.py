@@ -65,10 +65,13 @@ class ToolBoxUI(BaseWindow):
         super().__init__()
         self.setup_ui()
         self.setup_menubar()
-        self.components["Basic"]["Emoji"] = EmojiThread(self.load_data()["emoji"])
+        self.components["Basic"]["Emoji"] = EmojiThread(
+            self.load_data()["emoji"])
         self.emoji_thread = self.components["Basic"]["Emoji"]
-        self.emoji_thread.emoji_signals_updated.connect(self.handle_emoji_status_updated)
-        self.emoji_thread.message_updated.connect(self.handle_emoji_message_updated)
+        self.emoji_thread.emoji_signals_updated.connect(
+            self.handle_emoji_status_updated)
+        self.emoji_thread.message_updated.connect(
+            self.handle_emoji_message_updated)
         self.emoji_thread.start()
 
     def setup_ui(self) -> None:
@@ -117,20 +120,20 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Tools", "AutoXHS"))
         auto_xhs_action.setDisabled(True)
         tool_menu.addAction(auto_xhs_action)
-        
+
         # data science toolbox action
         ds_toolbox_action = QAction("📈 Data Science", self)
         ds_toolbox_action.triggered.connect(
             lambda: self.open_component_window("Tools", "DSToolBox"))
         tool_menu.addAction(ds_toolbox_action)
-        
+
         # credits calculator action
-        credit_calculator_action = QAction("💯 Credit Calculator",self)
+        credit_calculator_action = QAction("💯 Credit Calculator", self)
         credit_calculator_action.triggered.connect(
             lambda: self.open_component_window("Tools", "GPACalculator")
         )
         tool_menu.addAction(credit_calculator_action)
-        
+
         ############################################################
         # game menu
         game_menu = menubar.addMenu("Games")
@@ -166,45 +169,53 @@ class ToolBoxUI(BaseWindow):
 
         # hunger action: display emoji hunger
         hunger_action = QAction("100", self)
-        hunger_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("feed", 100))
-        hunger_action.triggered.connect(lambda: self.handle_emoji_message_updated("Feeding..."))
+        hunger_action.triggered.connect(
+            lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("feed", 100))
+        hunger_action.triggered.connect(
+            lambda: self.handle_emoji_message_updated("Feeding..."))
 
         menubar.addAction(hunger_action)
 
         # cleanliness action: display emoji cleanliness
         cleanliness_action = QAction("100", self)
-        cleanliness_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("clean", 100))
-        cleanliness_action.triggered.connect(lambda: self.handle_emoji_message_updated("Cleaning..."))
-        
+        cleanliness_action.triggered.connect(
+            lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("clean", 100))
+        cleanliness_action.triggered.connect(
+            lambda: self.handle_emoji_message_updated("Cleaning..."))
+
         menubar.addAction(cleanliness_action)
 
         # health action: display emoji health
         health_action = QAction("100", self)
-        health_action.triggered.connect(lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("heal", 100))
-        health_action.triggered.connect(lambda: self.handle_emoji_message_updated("Healing..."))
+        health_action.triggered.connect(
+            lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("heal", 100))
+        health_action.triggered.connect(
+            lambda: self.handle_emoji_message_updated("Healing..."))
         menubar.addAction(health_action)
 
     @Slot(dict)
     def handle_emoji_status_updated(self, emoji_data: dict) -> None:
         # write emoji to file
-        self.update_data_file({"emoji":emoji_data})
+        self.update_data_file({"emoji": emoji_data})
 
-        emoji_item=self.getCurrentMenubar().actions()[5]
+        emoji_item = self.getCurrentMenubar().actions()[5]
         emoji_item.setText(emoji_data["emoji"])
 
-        hunger_item=self.getCurrentMenubar().actions()[7]
-        hunger_item.setText(''.join([str(emoji_data["status"]["hunger"]), '🍔 ', '/100']))
+        hunger_item = self.getCurrentMenubar().actions()[7]
+        hunger_item.setText(
+            ''.join([str(emoji_data["status"]["hunger"]), '🍔 ', '/100']))
 
-        cleanliness_item=self.getCurrentMenubar().actions()[8]
-        cleanliness_item.setText(''.join([str(emoji_data["status"]["cleanliness"]), '🚿 ', '/100']))
+        cleanliness_item = self.getCurrentMenubar().actions()[8]
+        cleanliness_item.setText(
+            ''.join([str(emoji_data["status"]["cleanliness"]), '🚿 ', '/100']))
 
-        health_item=self.getCurrentMenubar().actions()[9]
-        health_item.setText(''.join([str(emoji_data["status"]["health"]), '💗 ', '/100']))
-
+        health_item = self.getCurrentMenubar().actions()[9]
+        health_item.setText(
+            ''.join([str(emoji_data["status"]["health"]), '💗 ', '/100']))
 
     @Slot(str)
     def handle_emoji_message_updated(self, emoji_message: str) -> None:
-        msg_item=self.getCurrentMenubar().actions()[6]
+        msg_item = self.getCurrentMenubar().actions()[6]
         msg_item.setText(emoji_message)
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
@@ -261,11 +272,11 @@ class ToolBoxUI(BaseWindow):
         self.getCurrentMenubar().actions()[4].setText(
             str(current_data["balance"])+" €")
 
-
     def closeEvent(self, event) -> None:
         self.emoji_thread.terminate()
         self.emoji_thread.wait()
         super().closeEvent(event)
+
 
 def main():
     app = QApplication(sys.argv)
