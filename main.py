@@ -167,6 +167,7 @@ class ToolBoxUI(BaseWindow):
         # bank action
         bank_action = QAction("🏦 Bank", self)
         bank_action.setDisabled(True)
+        menubar.addAction(bank_action)
 
         # inventory action
         inventory_action = QAction("🎒 Inventory", self)
@@ -174,9 +175,19 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Basic", "Inventory"))
         menubar.addAction(inventory_action)
 
-        # emoji action
+        # emoji menu
         emoji_menu = menubar.addMenu("😊")
         menubar.addMenu(emoji_menu)
+
+        # study action
+        study_action = QAction("📚 Study", self)
+        study_action.setDisabled(True)
+        emoji_menu.addAction(study_action)
+
+        # work action
+        work_action = QAction("💼 Work", self)
+        work_action.setDisabled(True)
+        emoji_menu.addAction(work_action)
 
         # message action: display what the emoji says
         message_action = QAction("Hey there", self)
@@ -190,7 +201,7 @@ class ToolBoxUI(BaseWindow):
         hunger_action.triggered.connect(
             lambda: self.handle_emoji_message_updated("Feeding..."))
 
-        menubar.addAction(hunger_action)
+        emoji_menu.addAction(hunger_action)
 
         # cleanliness action: display emoji cleanliness
         cleanliness_action = QAction("100", self)
@@ -199,7 +210,7 @@ class ToolBoxUI(BaseWindow):
         cleanliness_action.triggered.connect(
             lambda: self.handle_emoji_message_updated("Cleaning..."))
 
-        menubar.addAction(cleanliness_action)
+        emoji_menu.addAction(cleanliness_action)
 
         # health action: display emoji health
         health_action = QAction("100", self)
@@ -207,34 +218,37 @@ class ToolBoxUI(BaseWindow):
             lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("heal", 100))
         health_action.triggered.connect(
             lambda: self.handle_emoji_message_updated("Healing..."))
-        menubar.addAction(health_action)
+        emoji_menu.addAction(health_action)
 
         # level action: display emoji level
-        ...
+        level_action = QAction("level 0", self)
+        level_action.setDisabled(True)
+        emoji_menu.addAction(level_action)
 
     @Slot(dict)
     def handle_emoji_status_updated(self, emoji_data: dict) -> None:
         # write emoji to file
         self.update_data_file({"emoji": emoji_data})
+        menubar = self.menuBar()
+        emoji_menu = menubar.actions()[7].menu()
+        emoji_menu.setTitle(emoji_data["emoji"])
 
-        emoji_item = self.getCurrentMenubar().actions()[6]
-        emoji_item.setText(emoji_data["emoji"])
-
-        hunger_item = self.getCurrentMenubar().actions()[8]
+        hunger_item = emoji_menu.actions()[2]
         hunger_item.setText(
-            ''.join([str(emoji_data["status"]["hunger"]), '🍔 ', '/100']))
+            ''.join([str(emoji_data["status"]["hunger"]), '/100', ' 🍔']))
 
-        cleanliness_item = self.getCurrentMenubar().actions()[9]
+        cleanliness_item = emoji_menu.actions()[3]
         cleanliness_item.setText(
-            ''.join([str(emoji_data["status"]["cleanliness"]), '🚿 ', '/100']))
+            ''.join([str(emoji_data["status"]["cleanliness"]), '/100', ' 🚿']))
 
-        health_item = self.getCurrentMenubar().actions()[10]
+        health_item = emoji_menu.actions()[4]
         health_item.setText(
-            ''.join([str(emoji_data["status"]["health"]), '💗 ', '/100']))
+            ''.join([str(emoji_data["status"]["health"]), '/100', ' 💗']))
 
     @Slot(str)
     def handle_emoji_message_updated(self, emoji_message: str) -> None:
-        msg_item = self.getCurrentMenubar().actions()[7]
+        menubar = self.menuBar()
+        msg_item = menubar.actions()[8]
         msg_item.setText(emoji_message)
 
     def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
@@ -282,7 +296,7 @@ class ToolBoxUI(BaseWindow):
     @Slot(float)
     def update_balance(self, new_balance: float) -> None:
         # update main window GUI
-        menubar=self.menuBar()
+        menubar = self.menuBar()
         menubar.actions()[4].setText(str(new_balance)+" €")
         # update data file
         self.update_data_file({"balance": new_balance})
@@ -291,10 +305,10 @@ class ToolBoxUI(BaseWindow):
     @Slot(dict)
     def add_item_to_inventory(self, item: dict) -> None:
         # if the inventory window is opened, also update the GUI
-        inventory=self.components["Basic"]["Inventory"]
+        inventory = self.components["Basic"]["Inventory"]
         if inventory:
             inventory.add_item(item)
-        items:list = self.load_data()["inventory"]
+        items: list = self.load_data()["inventory"]
         items.append(item)
         self.update_data_file({"inventory": items})
         print("Item added to inventory:", item)
@@ -303,7 +317,7 @@ class ToolBoxUI(BaseWindow):
         self.reset_data()
         # reset gui
         current_data = self.load_data()
-        menubar=self.menuBar()
+        menubar = self.menuBar()
         menubar.actions()[4].setText(
             str(current_data["balance"])+" €")
 

@@ -116,6 +116,6 @@ class Inventory(BaseWindow):
         '''
         Initialize the inventory with a list of items
         '''
-        inventory=self.load_data()["inventory"]
+        inventory = self.load_data()["inventory"]
         for item in inventory:
             self.add_item(item)

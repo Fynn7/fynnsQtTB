@@ -36,7 +36,7 @@ class Shop(BaseWindow):
 
         self.items: list[dict] = []
 
-        self.add_item({"name": "Apple", "price":1})
+        self.add_item({"name": "Apple", "price": 1})
         self.add_item({"name": "Banana", "price": 2})
         self.add_item({"name": "Orange", "price": 3})
         self.add_item({"name": "Pineapple", "price": 5})
@@ -101,7 +101,8 @@ class Shop(BaseWindow):
 
         buy_button = QPushButton("Buy")
         buy_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        buy_button.clicked.connect(lambda: self.buyItem(item, item_amount_spin_box.value()))
+        buy_button.clicked.connect(lambda: self.buyItem(
+            item, item_amount_spin_box.value()))
 
         row_layout = QHBoxLayout()
         row_layout.addWidget(item_id)

@@ -2,7 +2,7 @@
     "language": "en_US",
     "font": {
         "family": "Consolas",
-        "size": 20,
+        "size": 12,
         "italic": false
     },
     "enable_closeEvent": false
