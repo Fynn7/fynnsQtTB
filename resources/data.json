@@ -6,11 +6,11 @@
     },
     "custom_dicts": {},
     "emoji": {
-        "emoji": "\ud83d\ude34",
+        "emoji": "\ud83d\ude0a",
         "status": {
-            "cleanliness": 84,
+            "cleanliness": 92,
             "health": 100,
-            "hunger": 84
+            "hunger": 92
         }
     },
     "gpa_calculator": {

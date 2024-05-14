@@ -88,7 +88,7 @@ class ToolBoxUI(BaseWindow):
         # add basic menus (baseWindow parent method)
         self.addBasicMenus(withFile=False)
 
-        menubar = self.getCurrentMenubar()
+        menubar = self.menuBar()
 
         # file menu
         file_menu = menubar.addMenu("File")
@@ -291,7 +291,8 @@ class ToolBoxUI(BaseWindow):
             component.changed_balance.connect(self.update_balance)
 
             # connect component bought item signal with update_balance()
-            component.bought_item.connect(self.add_item_to_inventory)
+            component.add_item_to_inventory_signal.connect(self.add_item_to_inventory)
+            component.remove_item_from_inventory_signal.connect(self.remove_item_from_inventory)
 
     @Slot(float)
     def update_balance(self, new_balance: float) -> None:
@@ -313,6 +314,14 @@ class ToolBoxUI(BaseWindow):
         self.update_data_file({"inventory": items})
         print("Item added to inventory:", item)
 
+    @Slot(dict)
+    def remove_item_from_inventory(self, item: dict) -> None:
+        # if the inventory window is opened, also update the GUI
+        inventory = self.components["Basic"]["Inventory"]
+        if inventory:
+            inventory.remove_item(item)
+        raise NotImplementedError("Remove item from inventory not implemented yet.")
+    
     def reset_data_with_gui(self) -> None:
         self.reset_data()
         # reset gui

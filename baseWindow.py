@@ -157,8 +157,9 @@ class Dice(BaseWindow):
     WINDOW_TITLE: str = 'Base Window'
     isClosed: Signal = Signal(bool)
     changed_balance: Signal = Signal(float)
-    bought_item: Signal = Signal(dict)
-
+    add_item_to_inventory_signal: Signal = Signal(dict)
+    remove_item_from_inventory_signal: Signal = Signal(dict)
+    
     def __init__(self):
         print("BaseWindow initializing...")
         super().__init__()

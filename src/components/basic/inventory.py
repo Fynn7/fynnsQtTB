@@ -1,18 +1,12 @@
 from PySide6.QtWidgets import (
-    QMessageBox,
     QVBoxLayout,
     QHBoxLayout,
     QWidget,
-    QScrollArea,
     QLabel,
-    QPushButton,
     QListWidget,
-    QLineEdit,
-    QComboBox,
     QListWidgetItem,
     QSizePolicy,
-    QSpinBox
-
+    QPushButton
 )
 
 from PySide6.QtCore import (
@@ -43,10 +37,12 @@ class Inventory(BaseWindow):
         price_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         amount_label = QLabel("Amount")
         amount_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        consume_label = QLabel("Consume")
 
         first_row_layout.addWidget(item_name_label)
         first_row_layout.addWidget(price_label)
         first_row_layout.addWidget(amount_label)
+        first_row_layout.addWidget(consume_label)
 
         self.layout.addLayout(first_row_layout)
 
@@ -81,11 +77,17 @@ class Inventory(BaseWindow):
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         item_amount_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        consume_button = QPushButton("Consume")
+        consume_button.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred)
+        consume_button.clicked.connect(lambda: self.consume_item(item))
+
         row_layout = QHBoxLayout()
         row_layout.addWidget(item_name_label)
         row_layout.addWidget(item_price_label)
         row_layout.addWidget(item_amount_label)
-
+        row_layout.addWidget(consume_button)
+        
         container_widget = QWidget()
         container_widget.setLayout(row_layout)
 
@@ -119,3 +121,10 @@ class Inventory(BaseWindow):
         inventory = self.load_data()["inventory"]
         for item in inventory:
             self.add_item(item)
+
+    def consume_item(self, item: dict):
+        '''
+        Consume an item
+        '''
+        raise NotImplementedError()
+            
