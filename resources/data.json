@@ -1,5 +1,5 @@
 {
-    "balance": 0.0,
+    "balance": 3.0,
     "login_data": {
         "username": "",
         "password": ""
@@ -8,9 +8,9 @@
     "emoji": {
         "emoji": "\ud83d\ude0a",
         "status": {
-            "cleanliness": 92,
+            "cleanliness": 70,
             "health": 100,
-            "hunger": 92
+            "hunger": 70
         }
     },
     "gpa_calculator": {
@@ -22,33 +22,21 @@
     "inventory": [
         {
             "amount": 1,
+            "id": 1,
             "name": "Apple",
             "price": 1
         },
         {
             "amount": 1,
-            "name": "Apple",
-            "price": 1
-        },
-        {
-            "amount": 2,
-            "name": "Banana",
-            "price": 2
-        },
-        {
-            "amount": 1,
+            "id": 1,
             "name": "Apple",
             "price": 1
         },
         {
             "amount": 1,
-            "name": "Banana",
-            "price": 2
-        },
-        {
-            "amount": 1,
-            "name": "Apple",
-            "price": 1
+            "id": 2,
+            "name": "Pear",
+            "price": 3
         }
     ]
 }

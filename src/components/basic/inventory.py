@@ -27,7 +27,7 @@ class Inventory(BaseWindow):
         self.items: list[dict] = []
         self.init_inventory()
 
-    def setupUi(self):
+    def setupUi(self)->None:
         self.layout = QVBoxLayout()
 
         first_row_layout = QHBoxLayout()
@@ -53,13 +53,14 @@ class Inventory(BaseWindow):
         central_widget.setLayout(self.layout)
         self.setCentralWidget(central_widget)
 
-    def setupMenubar(self):
+    def setupMenubar(self)->None:
         pass
 
-    def add_item(self, item: dict):
+    def add_item(self, item: dict)->None:
         '''
         Add an item to the inventory
         '''
+        # Update data structure
         self.items.append(item)
 
         item_name_label = QLabel(item["name"])
@@ -77,7 +78,7 @@ class Inventory(BaseWindow):
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         item_amount_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        consume_button = QPushButton("Consume")
+        consume_button = QPushButton("")
         consume_button.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         consume_button.clicked.connect(lambda: self.consume_item(item))
@@ -99,7 +100,7 @@ class Inventory(BaseWindow):
 
         self.item_list_widget.setItemWidget(list_item, container_widget)
 
-    def edit_item(self, index: int, item: dict):
+    def edit_item(self, index: int, item: dict)->None:
         '''
         Edit an item of the inventory
         '''
@@ -114,7 +115,7 @@ class Inventory(BaseWindow):
             self.item_list_widget.item(index)).layout().itemAt(2).widget()
         item_amount.setText(str(item["amount"]))
 
-    def init_inventory(self):
+    def init_inventory(self)->None:
         '''
         Initialize the inventory with a list of items
         '''

@@ -34,12 +34,12 @@ class Shop(BaseWindow):
         self.setupUi()
         self.setupMenubar()
 
+        # shop items
         self.items: list[dict] = []
 
-        self.add_item({"name": "Apple", "price": 1})
-        self.add_item({"name": "Banana", "price": 2})
-        self.add_item({"name": "Orange", "price": 3})
-        self.add_item({"name": "Pineapple", "price": 5})
+        self.add_item("Apple",1)
+        self.add_item("Pear",3)
+        self.add_item("Banana",5)
 
     def setupUi(self):
         self.layout = QVBoxLayout()
@@ -72,22 +72,21 @@ class Shop(BaseWindow):
         balanceMenu = menubar.addMenu(str(self.balance)+" €")
         balanceMenu.setEnabled(False)
 
-    def add_item(self, item: dict):
+    def add_item(self, name:str,price:float):
         '''
         Add an item to the shop
         '''
-        self.items.append(item)
+        item_id=self.item_list_widget.count()+1
+        item_id_label = QLabel(str(item_id))
+        item_id_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        item_id_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        item_id = QLabel(str(self.item_list_widget.count()+1))
-        item_id.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        item_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        item_name_label = QLabel(item["name"])
+        item_name_label = QLabel(name)
         item_name_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         item_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        item_price_label = QLabel(str(item["price"]))
+        item_price_label = QLabel(str(price))
         item_price_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         item_price_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -101,11 +100,17 @@ class Shop(BaseWindow):
 
         buy_button = QPushButton("Buy")
         buy_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        # set item dict data structure
+        item={
+            "id":item_id,
+            "name":name,
+            "price":price
+        }
         buy_button.clicked.connect(lambda: self.buyItem(
             item, item_amount_spin_box.value()))
 
         row_layout = QHBoxLayout()
-        row_layout.addWidget(item_id)
+        row_layout.addWidget(item_id_label)
         row_layout.addWidget(item_name_label)
         row_layout.addWidget(item_price_label)
         row_layout.addWidget(item_amount_spin_box)
@@ -122,14 +127,18 @@ class Shop(BaseWindow):
 
         self.item_list_widget.setItemWidget(list_item, container_widget)
 
+
+        # update data structure
+        self.items.append(item)
+
     def edit_item(self, index: int, item: dict):
         '''
         Edit an item of the shop
         '''
         self.items[index] = item
-        item_id = self.item_list_widget.itemWidget(
+        item_id_widget = self.item_list_widget.itemWidget(
             self.item_list_widget.item(index)).layout().itemAt(0).widget()
-        item_id.setText(str(index+1))
+        item_id_widget.setText(str(index+1))
         item_name = self.item_list_widget.itemWidget(
             self.item_list_widget.item(index)).layout().itemAt(1).widget()
         item_name.setText(item["name"])
@@ -141,7 +150,7 @@ class Shop(BaseWindow):
         item_amount.setValue(item["amount"])
 
     @Slot(float)
-    def buyItem(self, item, amount):
+    def buyItem(self, item:dict, amount:int):
         total_price = item["price"]*amount
         if self.balance < total_price:
             QMessageBox.warning(self, "Not enough balance", "You have only "+str(
@@ -153,7 +162,7 @@ class Shop(BaseWindow):
 
         # add the "amount" attribute to the item dict
         item["amount"] = amount
-        self.bought_item.emit(item)
-        # update GUI in shop.py
+        self.add_item_to_inventory_signal.emit(item)
+        # update GUI
         menubar = self.menuBar()
         menubar.actions()[0].setText(str(self.balance)+" €")
