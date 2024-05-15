@@ -27,7 +27,7 @@ class Inventory(BaseWindow):
         self.items: list[dict] = []
         self.init_inventory()
 
-    def setupUi(self)->None:
+    def setupUi(self) -> None:
         self.layout = QVBoxLayout()
 
         first_row_layout = QHBoxLayout()
@@ -37,7 +37,7 @@ class Inventory(BaseWindow):
         price_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         amount_label = QLabel("Amount")
         amount_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        consume_label = QLabel("Consume")
+        consume_label = QLabel("")
 
         first_row_layout.addWidget(item_name_label)
         first_row_layout.addWidget(price_label)
@@ -53,15 +53,30 @@ class Inventory(BaseWindow):
         central_widget.setLayout(self.layout)
         self.setCentralWidget(central_widget)
 
-    def setupMenubar(self)->None:
+    def setupMenubar(self) -> None:
         pass
 
-    def add_item(self, item: dict)->None:
+    def add_item(self, item: dict) -> None:
         '''
         Add an item to the inventory
+
+        item
+        ```
+        {"id": int, "name": str, "price": float, "amount": int}
+        ```
         '''
-        # Update data structure
-        self.items.append(item)
+        # check if the item is already in the inventory
+        for i in range(len(self.items)):
+            if self.items[i]["id"] == item["id"]:  # find same item
+                self.items[i]["amount"] = self.items[i]["amount"] + \
+                    item["amount"]
+                # update the item in the list widget
+                item_widget = self.item_list_widget.item(i)
+                item_widget_widget = self.item_list_widget.itemWidget(
+                    item_widget)
+                item_amount_label = item_widget_widget.children()[2]
+                item_amount_label.setText(str(self.items[i]["amount"]))
+                return
 
         item_name_label = QLabel(item["name"])
         item_name_label.setSizePolicy(
@@ -78,7 +93,7 @@ class Inventory(BaseWindow):
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         item_amount_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        consume_button = QPushButton("")
+        consume_button = QPushButton("Consume")
         consume_button.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         consume_button.clicked.connect(lambda: self.consume_item(item))
@@ -88,7 +103,7 @@ class Inventory(BaseWindow):
         row_layout.addWidget(item_price_label)
         row_layout.addWidget(item_amount_label)
         row_layout.addWidget(consume_button)
-        
+
         container_widget = QWidget()
         container_widget.setLayout(row_layout)
 
@@ -100,22 +115,10 @@ class Inventory(BaseWindow):
 
         self.item_list_widget.setItemWidget(list_item, container_widget)
 
-    def edit_item(self, index: int, item: dict)->None:
-        '''
-        Edit an item of the inventory
-        '''
-        self.items[index] = item
-        item_name = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(0).widget()
-        item_name.setText(item["name"])
-        item_price = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(1).widget()
-        item_price.setText(str(item["price"]))
-        item_amount = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(2).widget()
-        item_amount.setText(str(item["amount"]))
+        # Update data structure
+        self.items.append(item)
 
-    def init_inventory(self)->None:
+    def init_inventory(self) -> None:
         '''
         Initialize the inventory with a list of items
         '''
@@ -128,4 +131,3 @@ class Inventory(BaseWindow):
         Consume an item
         '''
         raise NotImplementedError()
-            

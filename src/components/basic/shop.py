@@ -37,9 +37,9 @@ class Shop(BaseWindow):
         # shop items
         self.items: list[dict] = []
 
-        self.add_item("Apple",1)
-        self.add_item("Pear",3)
-        self.add_item("Banana",5)
+        self.add_item("Apple", 1)
+        self.add_item("Pear", 3)
+        self.add_item("Banana", 5)
 
     def setupUi(self):
         self.layout = QVBoxLayout()
@@ -72,13 +72,14 @@ class Shop(BaseWindow):
         balanceMenu = menubar.addMenu(str(self.balance)+" €")
         balanceMenu.setEnabled(False)
 
-    def add_item(self, name:str,price:float):
+    def add_item(self, name: str, price: float):
         '''
         Add an item to the shop
         '''
-        item_id=self.item_list_widget.count()+1
+        item_id = self.item_list_widget.count()+1
         item_id_label = QLabel(str(item_id))
-        item_id_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        item_id_label.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred)
         item_id_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         item_name_label = QLabel(name)
@@ -101,10 +102,10 @@ class Shop(BaseWindow):
         buy_button = QPushButton("Buy")
         buy_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         # set item dict data structure
-        item={
-            "id":item_id,
-            "name":name,
-            "price":price
+        item = {
+            "id": item_id,
+            "name": name,
+            "price": price
         }
         buy_button.clicked.connect(lambda: self.buyItem(
             item, item_amount_spin_box.value()))
@@ -127,30 +128,11 @@ class Shop(BaseWindow):
 
         self.item_list_widget.setItemWidget(list_item, container_widget)
 
-
         # update data structure
         self.items.append(item)
 
-    def edit_item(self, index: int, item: dict):
-        '''
-        Edit an item of the shop
-        '''
-        self.items[index] = item
-        item_id_widget = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(0).widget()
-        item_id_widget.setText(str(index+1))
-        item_name = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(1).widget()
-        item_name.setText(item["name"])
-        item_price = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(2).widget()
-        item_price.setText(str(item["price"]))
-        item_amount = self.item_list_widget.itemWidget(
-            self.item_list_widget.item(index)).layout().itemAt(3).widget()
-        item_amount.setValue(item["amount"])
-
     @Slot(float)
-    def buyItem(self, item:dict, amount:int):
+    def buyItem(self, item: dict, amount: int):
         total_price = item["price"]*amount
         if self.balance < total_price:
             QMessageBox.warning(self, "Not enough balance", "You have only "+str(
