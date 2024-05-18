@@ -58,11 +58,10 @@ class ToolBoxUI(BaseWindow):
         },
         "Basic": {
             "Shop": None,
-            "Emoji": None,
             "Inventory": None,
         }
     }
-
+    emoji_thread: EmojiThread=None
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
         self.WINDOW_TITLE = "Fynns Metaverse Playground"
@@ -70,9 +69,8 @@ class ToolBoxUI(BaseWindow):
         self.setup_ui()
         self.setup_menubar()
         # initialize emoji thread
-        self.components["Basic"]["Emoji"] = EmojiThread(
+        self.emoji_thread= EmojiThread(
             self.load_data()["emoji"])
-        self.emoji_thread = self.components["Basic"]["Emoji"]
         # emoji signal connection
         self.emoji_thread.emoji_signals_updated.connect(
             self.handle_emoji_status_updated)
@@ -197,7 +195,7 @@ class ToolBoxUI(BaseWindow):
         # hunger action: display emoji hunger
         hunger_action = QAction("100", self)
         hunger_action.triggered.connect(
-            lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("feed", 100))
+            lambda: self.emoji_thread.emoji_obj.operate("feed", 100))
         hunger_action.triggered.connect(
             lambda: self.handle_emoji_message_updated("Feeding..."))
 
@@ -206,7 +204,7 @@ class ToolBoxUI(BaseWindow):
         # cleanliness action: display emoji cleanliness
         cleanliness_action = QAction("100", self)
         cleanliness_action.triggered.connect(
-            lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("clean", 100))
+            lambda: self.emoji_thread.emoji_obj.operate("clean", 100))
         cleanliness_action.triggered.connect(
             lambda: self.handle_emoji_message_updated("Cleaning..."))
 
@@ -215,7 +213,7 @@ class ToolBoxUI(BaseWindow):
         # health action: display emoji health
         health_action = QAction("100", self)
         health_action.triggered.connect(
-            lambda: self.components["Basic"]["Emoji"].emoji_obj.operate("heal", 100))
+            lambda: self.emoji_thread.emoji_obj.operate("heal", 100))
         health_action.triggered.connect(
             lambda: self.handle_emoji_message_updated("Healing..."))
         emoji_menu.addAction(health_action)
@@ -339,8 +337,7 @@ class ToolBoxUI(BaseWindow):
         NOTE: values from emoji_thread.emoji_obj cannot be directly disturbed by main thread!!!
         Must control emoji thread itself
         '''
-        emoji_thread: EmojiThread = self.components["Basic"]["Emoji"]
-        emoji_thread.update_status(**item["attributes"])
+        self.emoji_thread.update_status(**item["attributes"])
 
         # remove item from inventory
         inventory: Inventory = self.components["Basic"]["Inventory"]
@@ -358,6 +355,11 @@ class ToolBoxUI(BaseWindow):
     def closeEvent(self, event) -> None:
         self.emoji_thread.terminate()
         self.emoji_thread.wait()
+        # if the mainwindow is closed, close all other windows
+        for class_name in self.components.keys():
+            for component_name in self.components[class_name].keys():
+                if self.components[class_name][component_name]:
+                    self.components[class_name][component_name].close()
         super().closeEvent(event)
 
 
