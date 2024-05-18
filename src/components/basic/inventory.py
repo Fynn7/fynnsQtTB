@@ -65,20 +65,6 @@ class Inventory(BaseWindow):
         {"id": int, "name": str, "price": float, "amount": int}
         ```
         '''
-        # check if the item is already in the inventory
-        for i in range(len(self.items)):
-            if self.items[i]["id"] == item["id"]:  # found same item
-                self.items[i]["amount"] = self.items[i]["amount"] + \
-                    item["amount"]
-                # update the item in the list widget
-                item_widget = self.item_list_widget.item(i)
-                item_widget_widget = self.item_list_widget.itemWidget(
-                    item_widget)
-                item_amount_label = item_widget_widget.children()[2]
-                item_amount_label.setText(str(self.items[i]["amount"]))
-                return
-
-        # if not duplicated, normaly add the widgets
         item_name_label = QLabel(item["name"])
         item_name_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -119,20 +105,36 @@ class Inventory(BaseWindow):
         # Update data structure
         self.items.append(item)
 
-    def remove_item(self,item:dict):
+    def remove_item(self, item: dict):
         raise NotImplementedError()
         # find the element id
         ...
 
         # then remove the whole ListWidgetItem from the ListWidget
         ...
-    
+
+    def update_item_amount(self, item_id: int, amount: int)->None:
+        '''
+        Change the amount of an item in the inventory
+        '''
+        # find the element by id
+        for i in range(len(self.items)): # must get i for updating the item in the list widget
+            if self.items[i]["id"] == item_id:
+                # update the amount
+                self.items[i]["amount"] = amount
+                # update the item in the list widget
+                item_widget = self.item_list_widget.item(i)
+                item_widget_widget = self.item_list_widget.itemWidget(
+                    item_widget)
+                item_amount_label = item_widget_widget.children()[3]
+                item_amount_label.setText(str(self.items[i]["amount"]))
+                return
+
     def init_inventory(self) -> None:
         inventory = self.load_data()["inventory"]
         for item in inventory:
             self.add_item(item)
 
     def consume_item(self, item: dict):
-        print("Consumed item:",item["name"])
         # send a signal to main and change emoji_thread.emoji_obj 's attribute
         self.consume_item_signal.emit(item)

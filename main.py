@@ -310,15 +310,26 @@ class ToolBoxUI(BaseWindow):
 
     @Slot(dict)
     def add_item_to_inventory(self, item: dict) -> None:
-        # if the inventory window is opened, also update the GUI
-        inventory = self.components["Basic"]["Inventory"]
-        if inventory:
-            inventory.add_item(item)
         items: list = self.load_data()["inventory"]
-        items.append(item)
+        dup_index:int=-1
+
+        inventory: Inventory = self.components["Basic"]["Inventory"]
+
+        for i in range(len(items)):
+            if items[i]["id"] == item["id"]:
+                dup_index = i
+                break
+        
+        if dup_index != -1:
+            items[dup_index]["amount"] += item["amount"]
+            # update the item in the list widget
+            inventory.update_item_amount(item["id"], items[dup_index]["amount"])
+        else:
+            items.append(item)
+            inventory.add_item(item)
+
         self.update_data_file({"inventory": items})
         print("Item added to inventory:", item)
-
 
     @Slot(dict)
     def consume_item_from_inventory(self, item: dict) -> None:

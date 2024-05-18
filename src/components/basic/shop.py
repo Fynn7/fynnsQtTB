@@ -29,7 +29,6 @@ class Shop(BaseWindow):
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
         self.WINDOW_TITLE = "Shop"
-        self.balance: float = self.load_data()["balance"]
         super().__init__()
         self.setupUi()
         self.setupMenubar()
@@ -69,7 +68,8 @@ class Shop(BaseWindow):
 
     def setupMenubar(self):
         menubar = self.menuBar()
-        balanceMenu = menubar.addMenu(str(self.balance)+" €")
+        balance=self.load_data()["balance"]
+        balanceMenu = menubar.addMenu(str(balance)+" €")
         balanceMenu.setEnabled(False)
 
     def add_item(self, name: str, price: float,hunger:int=0,cleanliness:int=0,health:int=0):
@@ -144,17 +144,18 @@ class Shop(BaseWindow):
     @Slot(float)
     def buyItem(self, item: dict, amount: int):
         total_price = item["price"]*amount
-        if self.balance < total_price:
+        balance=self.load_data()["balance"]
+        if balance < total_price:
             QMessageBox.warning(self, "Not enough balance", "You have only "+str(
-                self.balance)+" €. You need "+str(total_price-self.balance)+" € more to buy this item.")
+                balance)+" €. You need "+str(total_price-balance)+" € more to buy this item.")
             return
-        self.balance -= total_price
+        balance -= total_price
         # emit signal to notify the balance change in main.py, and call the update_balance method in main.py
-        self.changed_balance.emit(self.balance)
+        self.changed_balance.emit(balance)
 
         # add the "amount" attribute to the item dict
         item["amount"] = amount
         self.add_item_to_inventory_signal.emit(item)
         # update GUI
         menubar = self.menuBar()
-        menubar.actions()[0].setText(str(self.balance)+" €")
+        menubar.actions()[0].setText(str(balance)+" €")
