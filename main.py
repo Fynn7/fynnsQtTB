@@ -26,7 +26,7 @@ try:
     from src.components.games.poker.poker21 import Poker21
 
     from src.components.basic.shop import Shop
-    from src.components.basic.emoji import EmojiThread
+    from src.components.basic.emoji import EmojiThread, Emoji
     from src.components.basic.inventory import Inventory
 
 except ImportError as ie:
@@ -225,6 +225,26 @@ class ToolBoxUI(BaseWindow):
         level_action.setDisabled(True)
         emoji_menu.addAction(level_action)
 
+    def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
+        try:
+            component: QMainWindow = eval(f"{component_name}()")
+            # save component object, otherwise it will be deleted directly after opening this component window
+            self.components[class_name][component_name] = component
+            return component
+        except NameError as e:
+            self.showMessageBox(msgType="warning",
+                                msg=f"Component {component_name} under class {class_name} not found.\nOriginal error message:\n{e}")
+            raise NameError(e)
+        except Exception as e:
+            self.showMessageBox(msgType="warning",
+                                msg=f"Unknown error when creating component {component_name} under class {class_name}.\nOriginal error message:\n{e}")
+            raise Exception(e)
+
+    @Slot()
+    def reset_component(self, class_name: str, component_name: str) -> None:
+        self.components[class_name][component_name] = None
+        print("Current components' status =", self.components)
+
     @Slot(dict)
     def handle_emoji_status_updated(self, emoji_data: dict) -> None:
         # write emoji to file
@@ -251,26 +271,6 @@ class ToolBoxUI(BaseWindow):
         msg_item = menubar.actions()[8]
         msg_item.setText(emoji_message)
 
-    def create_and_save_component(self, class_name: str, component_name: str) -> QMainWindow:
-        try:
-            component: QMainWindow = eval(f"{component_name}()")
-            # save component object, otherwise it will be deleted directly after opening this component window
-            self.components[class_name][component_name] = component
-            return component
-        except NameError as e:
-            self.showMessageBox(msgType="warning",
-                                msg=f"Component {component_name} under class {class_name} not found.\nOriginal error message:\n{e}")
-            raise NameError(e)
-        except Exception as e:
-            self.showMessageBox(msgType="warning",
-                                msg=f"Unknown error when creating component {component_name} under class {class_name}.\nOriginal error message:\n{e}")
-            raise Exception(e)
-
-    @Slot()
-    def reset_component(self, class_name: str, component_name: str) -> None:
-        self.components[class_name][component_name] = None
-        print("Current components' status =", self.components)
-
     @Slot()
     def open_component_window(self, class_name: str, component_name: str) -> None:
         # if 1 component is already opened, warn
@@ -291,8 +291,13 @@ class ToolBoxUI(BaseWindow):
             component.changed_balance.connect(self.update_balance)
 
             # connect component bought item signal with update_balance()
-            component.add_item_to_inventory_signal.connect(self.add_item_to_inventory)
-            component.remove_item_from_inventory_signal.connect(self.remove_item_from_inventory)
+            if component.WINDOW_TITLE == "Shop":
+                component.add_item_to_inventory_signal.connect(
+                    self.add_item_to_inventory)
+            elif component.WINDOW_TITLE == "My Inventory":
+                component.consume_item_signal.connect(
+                    self.consume_item_from_inventory)
+                # remove item after consuming
 
     @Slot(float)
     def update_balance(self, new_balance: float) -> None:
@@ -314,14 +319,21 @@ class ToolBoxUI(BaseWindow):
         self.update_data_file({"inventory": items})
         print("Item added to inventory:", item)
 
+
     @Slot(dict)
-    def remove_item_from_inventory(self, item: dict) -> None:
-        # if the inventory window is opened, also update the GUI
-        inventory = self.components["Basic"]["Inventory"]
-        if inventory:
+    def consume_item_from_inventory(self, item: dict) -> None:
+        '''
+        NOTE: values from emoji_thread.emoji_obj cannot be directly disturbed by main thread!!!
+        Must control emoji thread itself
+        '''
+        emoji_thread: EmojiThread = self.components["Basic"]["Emoji"]
+        emoji_thread.update_status(**item["attributes"])
+
+        # remove item from inventory
+        inventory: Inventory = self.components["Basic"]["Inventory"]
+        if inventory:  # if the inventory window is open
             inventory.remove_item(item)
-        raise NotImplementedError("Remove item from inventory not implemented yet.")
-    
+
     def reset_data_with_gui(self) -> None:
         self.reset_data()
         # reset gui

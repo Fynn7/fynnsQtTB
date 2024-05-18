@@ -67,7 +67,7 @@ class Inventory(BaseWindow):
         '''
         # check if the item is already in the inventory
         for i in range(len(self.items)):
-            if self.items[i]["id"] == item["id"]:  # find same item
+            if self.items[i]["id"] == item["id"]:  # found same item
                 self.items[i]["amount"] = self.items[i]["amount"] + \
                     item["amount"]
                 # update the item in the list widget
@@ -78,6 +78,7 @@ class Inventory(BaseWindow):
                 item_amount_label.setText(str(self.items[i]["amount"]))
                 return
 
+        # if not duplicated, normaly add the widgets
         item_name_label = QLabel(item["name"])
         item_name_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -118,16 +119,20 @@ class Inventory(BaseWindow):
         # Update data structure
         self.items.append(item)
 
+    def remove_item(self,item:dict):
+        raise NotImplementedError()
+        # find the element id
+        ...
+
+        # then remove the whole ListWidgetItem from the ListWidget
+        ...
+    
     def init_inventory(self) -> None:
-        '''
-        Initialize the inventory with a list of items
-        '''
         inventory = self.load_data()["inventory"]
         for item in inventory:
             self.add_item(item)
 
     def consume_item(self, item: dict):
-        '''
-        Consume an item
-        '''
-        raise NotImplementedError()
+        print("Consumed item:",item["name"])
+        # send a signal to main and change emoji_thread.emoji_obj 's attribute
+        self.consume_item_signal.emit(item)

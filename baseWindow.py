@@ -88,17 +88,9 @@ class LayoutObject:
     '''Unused class just for layout type hinting'''
 
     def count(self):
-        '''
-        Return the number of items in the layout.
-        NOTE: this is only a hint for type checking
-        '''
         pass
 
     def takeAt(self, index: int) -> QLayoutItem:
-        '''
-        Return the item at position index from the layout.
-        NOTE: this is only a hint for type checking
-        '''
         pass
 
 # @type_check_only
@@ -108,10 +100,6 @@ class function:
     '''Unused class just for function type hinting'''
 
     def __call__(self):
-        '''
-        Return the result of calling this function.
-        NOTE: this is only a hint for type checking
-        '''
         pass
 
 
@@ -158,13 +146,13 @@ class Dice(BaseWindow):
     isClosed: Signal = Signal(bool)
     changed_balance: Signal = Signal(float)
     add_item_to_inventory_signal: Signal = Signal(dict)
-    remove_item_from_inventory_signal: Signal = Signal(dict)
-    
+    consume_item_signal: Signal = Signal(dict)
+
     def __init__(self):
         print("BaseWindow initializing...")
         super().__init__()
         # Read settings
-        self.WINDOW_SIZE: tuple[int, int] = 800, 600
+        self.WINDOW_SIZE = 800, 600
 
         self.__layout: LayoutObject = None
         self.__setupBaseUI()

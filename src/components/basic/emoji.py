@@ -10,7 +10,10 @@ class Emoji:
         self.emoji: str = emoji
 
     def operate(self, operation: str, value: int):
-        '''operation: feed, clean, heal'''
+        '''
+        operation: str = feed | clean | heal
+        value: int
+        '''
         if operation == "feed":
             self.status["hunger"] = max(
                 0, min(100, self.status["hunger"] + value))
@@ -20,7 +23,9 @@ class Emoji:
         elif operation == "heal":
             self.status["health"] = max(
                 0, min(100, self.status["health"] + value))
-
+        else:
+            raise Exception("Unknown opereation:",operation)
+        
     def check_status(self) -> str:
         '''
         Check the status of the pet
@@ -74,11 +79,20 @@ class EmojiThread(QThread):
                     self.emoji_obj.emoji = "\ud83d\ude0a"
                     msg = "Good day!"
 
-            # update signals
+            # update signals per interval
             self.emoji_signals_updated.emit({
                 "emoji": self.emoji_obj.emoji,
                 "status": self.emoji_obj.status
             })
             self.message_updated.emit(msg)
-
             self.msleep(1_000*time_interval)  # 1 seconds per update
+
+    def update_status(self, hunger: int, cleanliness: int, health: int):
+        self.emoji_obj.operate("feed",hunger)
+        self.emoji_obj.operate("clean",cleanliness)
+        self.emoji_obj.operate("heal",health)
+        
+        self.emoji_signals_updated.emit({
+            "emoji": self.emoji_obj.emoji,
+            "status": self.emoji_obj.status
+        })

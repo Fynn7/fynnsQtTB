@@ -1,16 +1,16 @@
 {
-    "balance": 82.0,
+    "balance": 6.0,
     "login_data": {
         "username": "",
         "password": ""
     },
     "custom_dicts": {},
     "emoji": {
-        "emoji": "\ud83e\udd12",
+        "emoji": "\ud83e\udd22",
         "status": {
             "cleanliness": 0,
-            "health": 0,
-            "hunger": 0
+            "health": 82,
+            "hunger": 47
         }
     },
     "gpa_calculator": {
@@ -22,81 +22,47 @@
     "inventory": [
         {
             "amount": 1,
+            "attributes": {
+                "cleanliness": 0,
+                "health": 2,
+                "hunger": 3
+            },
             "id": 1,
             "name": "Apple",
             "price": 1
         },
         {
             "amount": 1,
-            "id": 2,
-            "name": "Pear",
-            "price": 3
-        },
-        {
-            "amount": 1,
-            "id": 3,
-            "name": "Banana",
-            "price": 5
-        },
-        {
-            "amount": 1,
+            "attributes": {
+                "cleanliness": 0,
+                "health": 2,
+                "hunger": 3
+            },
             "id": 1,
             "name": "Apple",
             "price": 1
         },
         {
             "amount": 1,
-            "id": 2,
-            "name": "Pear",
-            "price": 3
-        },
-        {
-            "amount": 1,
-            "id": 2,
-            "name": "Pear",
-            "price": 3
-        },
-        {
-            "amount": 1,
-            "id": 2,
-            "name": "Pear",
-            "price": 3
-        },
-        {
-            "amount": 1,
-            "id": 2,
-            "name": "Pear",
-            "price": 3
-        },
-        {
-            "amount": 1,
+            "attributes": {
+                "cleanliness": 0,
+                "health": 2,
+                "hunger": 3
+            },
             "id": 1,
             "name": "Apple",
             "price": 1
         },
         {
             "amount": 1,
+            "attributes": {
+                "cleanliness": 0,
+                "health": 2,
+                "hunger": 3
+            },
             "id": 1,
             "name": "Apple",
             "price": 1
-        },
-        {
-            "amount": 1,
-            "id": 3,
-            "name": "Banana",
-            "price": 5
-        },
-        {
-            "amount": 1,
-            "id": 3,
-            "name": "Banana",
-            "price": 5
-        },
-        {
-            "amount": 1,
-            "id": 3,
-            "name": "Banana",
-            "price": 5
         }
     ]
 }

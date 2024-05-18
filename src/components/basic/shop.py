@@ -37,9 +37,9 @@ class Shop(BaseWindow):
         # shop items
         self.items: list[dict] = []
 
-        self.add_item("Apple", 1)
-        self.add_item("Pear", 3)
-        self.add_item("Banana", 5)
+        self.add_item("Apple", 1,3,0,2)
+        self.add_item("Chocolate", 8,20,0,-10)
+        self.add_item("Hot Dog", 10,25,0,-15)
 
     def setupUi(self):
         self.layout = QVBoxLayout()
@@ -72,9 +72,14 @@ class Shop(BaseWindow):
         balanceMenu = menubar.addMenu(str(self.balance)+" €")
         balanceMenu.setEnabled(False)
 
-    def add_item(self, name: str, price: float):
+    def add_item(self, name: str, price: float,hunger:int=0,cleanliness:int=0,health:int=0):
         '''
         Add an item to the shop
+
+        ```
+        add_item("Apple",1.5,3,0,1)
+        adsd_item("Chocolate",8,20,0,-5) # chocolate is unhealthy (health -5)
+        ```
         '''
         item_id = self.item_list_widget.count()+1
         item_id_label = QLabel(str(item_id))
@@ -105,7 +110,12 @@ class Shop(BaseWindow):
         item = {
             "id": item_id,
             "name": name,
-            "price": price
+            "price": price,
+            "attributes":{
+                "hunger":hunger,
+                "cleanliness":cleanliness,
+                "health":health
+            }
         }
         buy_button.clicked.connect(lambda: self.buyItem(
             item, item_amount_spin_box.value()))
