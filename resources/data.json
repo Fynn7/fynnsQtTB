@@ -1,16 +1,16 @@
 {
-    "balance": 10,
+    "balance": 0.0,
     "login_data": {
         "username": "",
         "password": ""
     },
     "custom_dicts": {},
     "emoji": {
-        "emoji": "\ud83e\udd22",
+        "emoji": "\ud83d\ude22",
         "status": {
             "cleanliness": 0,
-            "health": 12,
-            "hunger": 2
+            "health": 8,
+            "hunger": 0
         }
     },
     "gpa_calculator": {
@@ -19,5 +19,17 @@
         "ignored_credits": "29",
         "exam_results": []
     },
-    "inventory": []
+    "inventory": [
+        {
+            "amount": 10,
+            "attributes": {
+                "cleanliness": 0,
+                "health": 2,
+                "hunger": 3
+            },
+            "id": 1,
+            "name": "Apple",
+            "price": 1
+        }
+    ]
 }

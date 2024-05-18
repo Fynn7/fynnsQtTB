@@ -323,10 +323,12 @@ class ToolBoxUI(BaseWindow):
         if dup_index != -1:
             items[dup_index]["amount"] += item["amount"]
             # update the item in the list widget
-            inventory.update_item_amount(item["id"], items[dup_index]["amount"])
+            if inventory:
+                inventory.update_item_amount(item["id"], items[dup_index]["amount"])
         else:
             items.append(item)
-            inventory.add_item(item)
+            if inventory:
+                inventory.add_item(item)
 
         self.update_data_file({"inventory": items})
         print("Item added to inventory:", item)
