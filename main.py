@@ -24,6 +24,8 @@ try:
 
     from src.components.games.dice.dice import Dice
     from src.components.games.poker.poker21 import Poker21
+    from src.components.games.hangman.hangman import Hangman
+    from src.components.games._20q._20q import _20Q
 
     from src.components.basic.shop import Shop
     from src.components.basic.emoji import EmojiThread, Emoji
@@ -55,6 +57,8 @@ class ToolBoxUI(BaseWindow):
         "Games": {
             "Dice": None,
             "Poker21": None,
+            "Hangman": None,
+            "20Q": None,
         },
         "Basic": {
             "Shop": None,
@@ -154,6 +158,15 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Games", "Poker21"))
         game_menu.addAction(poker_action)
 
+        # hangman action
+        hangman_action = QAction("🪓 Hangman", self)
+        hangman_action.setDisabled(True)
+        game_menu.addAction(hangman_action)
+
+        # 20Q action
+        _20q_action = QAction("🤔 20 Questions", self)
+        _20q_action.setDisabled(True)
+        game_menu.addAction(_20q_action)
         ############################################################
         # shop action: directly add to base menubar
         init_balance: float = self.load_data()["balance"]
