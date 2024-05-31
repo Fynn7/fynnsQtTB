@@ -160,7 +160,8 @@ class ToolBoxUI(BaseWindow):
 
         # hangman action
         hangman_action = QAction("🪓 Hangman", self)
-        hangman_action.setDisabled(True)
+        hangman_action.triggered.connect(
+            lambda: self.open_component_window("Games", "Hangman"))
         game_menu.addAction(hangman_action)
 
         # 20Q action

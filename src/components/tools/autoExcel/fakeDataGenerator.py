@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
 from ...templates.fynnsSettingsDialog import FynnsSettingsDialog
 from ...templates.fynnsComponents import _save_file
 from ...templates.fynnsProgressbar import FynnsProgressbar
+import time
 
 
 class FakeDataGenerator(FynnsSettingsDialog):
@@ -41,7 +42,7 @@ class FakeDataGenerator(FynnsSettingsDialog):
         self.add_result_buttonBox()
 
     def generate_fake_data(self) -> None:
-        save_path = _save_file("CSV Files (*.csv)")
+        save_path = _save_file("CSV Files (*.csv);;Text Files (*.txt);;Word Files (*.docx);;All Files (*)")
         if not save_path:  # if the user cancels the file dialog
             return
 
@@ -53,10 +54,30 @@ class FakeDataGenerator(FynnsSettingsDialog):
 
         with open(save_path, 'w', newline='') as file:
             # generate fake data INSIDE WITH STATEMENT: in case the path raises an permission error
+            start_time = time.time()
+            progress = 0
             for _ in range(sample_amount):
                 sample = [self.faker.word() for _ in range(column_amount)]
                 data.append(sample)
-            writer = csv.writer(file)
-            writer.writerows(data)
+                progress += 1
+                if progress % 10 == 0:
+                    elapsed_time = time.time() - start_time
+                    try:
+                        generate_velocity = progress / elapsed_time
+                        remaining_time = (sample_amount - progress) / generate_velocity
+                        print(f"Generating data: {round((progress / sample_amount) * 100, 2)} %  ", time.strftime('%H:%M:%S', time.gmtime(remaining_time)))
+                    except ZeroDivisionError:
+                        pass
+            if save_path.endswith('.csv'):
+                print("Writing to csv file...")
+                writer = csv.writer(file)
+                writer.writerows(data)
+                print("Data successfully written to", save_path)
+            else:
+                # unpack the data as a normal text file
+                print("Writing to text file...")
+                for row in data:
+                    file.write(", ".join(row) + "\n")
+                print("Data successfully written to", save_path)
 
-        print("Fake data generated and saved to", save_path)
+        print("Fake data fully generated and saved to", save_path)
