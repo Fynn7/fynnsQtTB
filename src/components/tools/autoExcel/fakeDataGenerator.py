@@ -31,7 +31,7 @@ class FakeDataGenerator(FynnsSettingsDialog):
         self.layout.addWidget(QLabel("Amount of columns to generate:"))
         self.column_amount_combobox = QComboBox()
         self.column_amount_combobox.addItems(
-            ["1", "5", "10", "20", "50", "100", "1000", "10_000", "100_000"])
+            ["1", "5", "10", "20", "50", "100", "1000", "10_000"])
         self.column_amount_combobox.setCurrentIndex(2)
         self.layout.addWidget(self.column_amount_combobox)
 
