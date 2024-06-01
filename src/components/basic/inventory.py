@@ -38,11 +38,13 @@ class Inventory(BaseWindow):
         amount_label = QLabel("Amount")
         amount_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         consume_label = QLabel("")
+        sell_label = QLabel("")
 
         first_row_layout.addWidget(item_name_label)
         first_row_layout.addWidget(price_label)
         first_row_layout.addWidget(amount_label)
         first_row_layout.addWidget(consume_label)
+        first_row_layout.addWidget(sell_label)
 
         self.layout.addLayout(first_row_layout)
 
@@ -85,12 +87,18 @@ class Inventory(BaseWindow):
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         consume_button.clicked.connect(lambda: self.consume_item(item))
 
+        sell_button = QPushButton("Sell")
+        sell_button.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sell_button.clicked.connect(lambda: self.sell_item(item))
+
         row_layout = QHBoxLayout()
         row_layout.addWidget(item_name_label)
         row_layout.addWidget(item_price_label)
         row_layout.addWidget(item_amount_label)
         row_layout.addWidget(consume_button)
-
+        row_layout.addWidget(sell_button)
+        
         container_widget = QWidget()
         container_widget.setLayout(row_layout)
 
@@ -138,3 +146,6 @@ class Inventory(BaseWindow):
     def consume_item(self, item: dict):
         # send a signal to main and change emoji_thread.emoji_obj 's attribute
         self.consume_item_signal.emit(item)
+
+    def sell_item(self, item: dict):
+        raise NotImplementedError()

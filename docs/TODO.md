@@ -20,7 +20,7 @@ product backlog:
 
 sprint backlog:
 
-Not started:
+Not yet started:
         write into errLog.txt if any UI layer errors occured
 
         connect sqlite Database (save all json file data)
@@ -40,9 +40,7 @@ Not started:
             [System] Warning: low food bar, need to buy some food!
         ```
 
-        inventory window + json data
 
-        close ALL OTHER SUB- WINDOWS when main window is closed!
 
         get more test dataset for mlToolBox
 
@@ -58,6 +56,8 @@ Doing:
 
 
 Done:
+        inventory window + json data
+        close ALL OTHER SUB- WINDOWS when main window is closed!
 
         install Qt Creator
 

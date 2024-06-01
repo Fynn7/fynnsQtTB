@@ -60,12 +60,12 @@ class FakeDataGenerator(FynnsSettingsDialog):
                 sample = [self.faker.word() for _ in range(column_amount)]
                 data.append(sample)
                 progress += 1
-                if progress % 10 == 0:
+                if progress % 100 == 0:
                     elapsed_time = time.time() - start_time
                     try:
                         generate_velocity = progress / elapsed_time
                         remaining_time = (sample_amount - progress) / generate_velocity
-                        print(f"Generating data: {round((progress / sample_amount) * 100, 2)} %  ", time.strftime('%H:%M:%S', time.gmtime(remaining_time)))
+                        print(f"Generating Process:\t{round((progress / sample_amount) * 100, 2)} %\t\t", "ETA:\t", time.strftime('%H:%M:%S', time.gmtime(remaining_time)))
                     except ZeroDivisionError:
                         pass
             if save_path.endswith('.csv'):
