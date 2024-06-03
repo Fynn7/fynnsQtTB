@@ -21,7 +21,8 @@ try:
     from src.components.tools.autoXHS.autoXHS import AutoXHS
     from src.components.tools.dsToolBox.dsToolBox import DSToolBox
     from src.components.tools.gpaCalculator.gpaCalculator import GPACalculator
-
+    from src.components.tools.musterGenerator.musterGenerator import MusterGenerator
+    
     from src.components.games.dice.dice import Dice
     from src.components.games.poker.poker21 import Poker21
     from src.components.games.hangman.hangman import Hangman
@@ -53,6 +54,7 @@ class ToolBoxUI(BaseWindow):
             "AutoXHS": None,
             "DSToolBox": None,
             "GPACalculator": None,
+            "MusterGenerator": None,
         },
         "Games": {
             "Dice": None,
@@ -141,6 +143,13 @@ class ToolBoxUI(BaseWindow):
             lambda: self.open_component_window("Tools", "GPACalculator")
         )
         tool_menu.addAction(credit_calculator_action)
+
+        # muster generator action
+        muster_generator_action = QAction("📄 Muster Generator", self)
+        muster_generator_action.setDisabled(True)
+        muster_generator_action.triggered.connect(
+            lambda: self.open_component_window("Tools", "MusterGenerator"))
+        tool_menu.addAction(muster_generator_action)
 
         ############################################################
         # game menu
