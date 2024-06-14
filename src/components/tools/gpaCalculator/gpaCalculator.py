@@ -23,10 +23,6 @@ import traceback
 from baseWindow import BaseWindow
 
 class GPACalculator(BaseWindow):
-    '''
-    Excel Handling Tool
-    '''
-
     def __init__(self):
         # overwriting the parent class attribute before parent calling its __init__
         self.WINDOW_TITLE = "GPA Calculator"
